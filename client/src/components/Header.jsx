@@ -2,6 +2,10 @@ import React from 'react';
 import { Bell, Search, User } from 'lucide-react';
 
 const Header = () => {
+  // Read user from localStorage with sensible guest defaults
+  const user = JSON.parse(localStorage.getItem('user')) || { name: 'Admin', role: 'Sports Director' };
+  const initial = user.name ? user.name.charAt(0).toUpperCase() : 'A';
+
   return (
     <header className="h-20 bg-bg-card shadow-sm border-b border-gray-100 flex items-center justify-between px-8 z-10">
       <div className="flex items-center w-96 relative">
@@ -21,11 +25,11 @@ const Header = () => {
         
         <div className="flex items-center gap-3 border-l pl-6 border-gray-200 cursor-pointer">
           <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-bold">
-            A
+            {initial}
           </div>
           <div>
-            <p className="text-sm font-semibold text-text-dark">Admin User</p>
-            <p className="text-xs text-text-light">Sports Director</p>
+            <p className="text-sm font-semibold text-text-dark">{user.name}</p>
+            <p className="text-xs text-text-light capitalize">{user.role}</p>
           </div>
         </div>
       </div>

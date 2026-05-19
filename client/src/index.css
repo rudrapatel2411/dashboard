@@ -4,6 +4,8 @@
   --color-primary: #0F172A;
   --color-secondary: #2563EB;
   --color-accent: #F97316;
+  --color-saffron: #EA580C;
+  --color-gov-green: #16A34A;
   
   --color-bg-main: #F8FAFC;
   --color-bg-card: #FFFFFF;
@@ -77,4 +79,117 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+}
+
+/* Premium Accessible Sports Input Fields */
+.sports-input {
+  background: rgba(241, 245, 249, 0.8);
+  border: 1.5px solid #E2E8F0;
+  color: #0F172A;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sports-input:focus {
+  background: #FFFFFF;
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+.sports-input::placeholder {
+  color: #94A3B8;
+}
+
+/* Premium Dark Sports Input Fields */
+.sports-input-dark {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1.5px solid rgba(71, 85, 105, 0.4);
+  color: #F8FAFC;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sports-input-dark:focus {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+  outline: none;
+}
+
+.sports-input-dark::placeholder {
+  color: #64748B;
+}
+
+/* Sprint Loader Animation for Buttons */
+@keyframes sprint-action {
+  0% {
+    left: -5%;
+    transform: scaleX(1) skewX(-8deg);
+  }
+  100% {
+    left: 105%;
+    transform: scaleX(1) skewX(-8deg);
+  }
+}
+
+@keyframes track-progress {
+  0% {
+    width: 0%;
+    left: 0%;
+  }
+  50% {
+    width: 40%;
+    left: 10%;
+  }
+  100% {
+    width: 0%;
+    left: 100%;
+  }
+}
+
+.sprinter-container {
+  position: absolute;
+  top: -36px;
+  left: 0;
+  width: 100%;
+  height: 36px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.sprinter-track {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(226, 232, 240, 0.6);
+  border-radius: 9999px;
+}
+
+.sprinter-track-progress {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-secondary), var(--color-accent));
+  border-radius: 9999px;
+  animation: track-progress 1.6s infinite ease-in-out;
+}
+
+.sprinter-icon {
+  position: absolute;
+  bottom: 2px;
+  color: var(--color-accent);
+  animation: sprint-action 1.6s infinite linear;
+  filter: drop-shadow(0 2px 4px rgba(249, 115, 22, 0.2));
+}
+
+/* Entrance Animation */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

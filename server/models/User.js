@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  phone: {
+    type: String,
+    required: false
+  },
   password: {
     type: String,
     required: true
@@ -18,6 +22,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['admin', 'coach'],
     default: 'admin'
+  },
+  resetPasswordOTP: {
+    type: String,
+    default: null
+  },
+  resetPasswordOTPExpires: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

@@ -11,6 +11,12 @@ const Sidebar = () => {
     { name: 'Reports', path: '/reports', icon: <FileBarChart size={20} /> },
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
   return (
     <div className="w-64 bg-primary text-white flex flex-col shadow-xl">
       <div className="h-20 flex items-center px-6 border-b border-white/10">
@@ -43,7 +49,10 @@ const Sidebar = () => {
       </div>
 
       <div className="p-4 border-t border-white/10">
-        <button className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-white/70 hover:bg-danger/20 hover:text-danger transition-colors duration-300">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-white/70 hover:bg-danger/20 hover:text-danger transition-colors duration-300 cursor-pointer"
+        >
           <LogOut size={20} />
           <span className="font-medium">Logout</span>
         </button>

@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @access  Public
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, phone, password } = req.body;
 
     const userExists = await User.findOne({ email });
 
@@ -27,6 +27,7 @@ exports.register = async (req, res) => {
     const user = await User.create({
       name,
       email,
+      phone,
       password: hashedPassword
     });
 
@@ -35,6 +36,7 @@ exports.register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         role: user.role,
         token: generateToken(user._id)
       });
@@ -51,7 +53,11 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    // Support logging in with email or phone
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.findOne({ phone: email });
+    }
 
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
@@ -64,6 +70,77 @@ exports.login = async (req, res) => {
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
     }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Forgot password - generate and store OTP
+// @route   POST /api/auth/forgot-password
+// @access  Public
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { identifier } = req.body;
+
+    if (!identifier) {
+      return res.status(400).json({ message: 'Email or phone number is required' });
+    }
+
+    let user = await User.findOne({ email: identifier });
+    if (!user) {
+      user = await User.findOne({ phone: identifier });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: 'User with this email or phone does not exist' });
+    }
+
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.resetPasswordOTP = otp;
+    user.resetPasswordOTPExpires = Date.now() + 15 * 60 * 1000; // 15 mins expiry
+    await user.save();
+
+    res.json({
+      message: 'OTP verification code generated successfully.',
+      otp,
+      email: user.email
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Reset password using OTP
+// @route   POST /api/auth/reset-password
+// @access  Public
+exports.resetPassword = async (req, res) => {
+  try {
+    const { otp, newPassword } = req.body;
+
+    if (!otp || !newPassword) {
+      return res.status(400).json({ message: 'OTP and new password are required' });
+    }
+
+    const user = await User.findOne({
+      resetPasswordOTP: otp,
+      resetPasswordOTPExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired OTP. Please request a new one.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    user.resetPasswordOTP = null;
+    user.resetPasswordOTPExpires = null;
+    await user.save();
+
+    res.json({ message: 'Password has been reset successfully.' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

@@ -10,17 +10,18 @@ import Performance from './pages/Performance';
 import Reports from './pages/Reports';
 
 function App() {
-  // Simple auth check mock (replace with real auth state in a real app context)
-  const isAuthenticated = true;
+  // Check if JWT token exists in localStorage for real authentication
+  const isAuthenticated = !!localStorage.getItem('token');
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* Auth Routes - Redirect to dashboard if already authenticated */}
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} />
+        <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register />} />
+        <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/dashboard" /> : <ForgotPassword />} />
         
-        {/* Protected Routes */}
+        {/* Protected Routes - Redirect to login if not authenticated */}
         <Route path="/" element={isAuthenticated ? <DashboardLayout /> : <Navigate to="/login" />}>
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
