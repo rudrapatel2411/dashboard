@@ -8,7 +8,6 @@ import Institutions from './pages/Institutions';
 import Students from './pages/Students';
 import Performance from './pages/Performance';
 import Reports from './pages/Reports';
-import Institutes from './pages/Institutes';
 import Tests from './pages/Tests';
 import Approval from './pages/Approval';
 
@@ -30,7 +29,6 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="institutions" element={<Institutions />} />
           <Route path="students" element={<Students />} />
-          <Route path="institutes" element={<Institutes />} />
           <Route path="tests" element={<Tests />} />
           <Route path="approval" element={<Approval />} />
           <Route path="performance" element={<Performance />} />

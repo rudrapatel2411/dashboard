@@ -72,8 +72,8 @@ const Dashboard = () => {
   ];
 
   const statCards = [
-    { title: 'Total Institutes', value: totalInstitutes, icon: <Building2 size={24} />, color: 'from-blue-500 to-blue-700', link: '/institutes' },
-    { title: 'Total Students', value: totalStudents, icon: <Users size={24} />, color: 'from-orange-400 to-orange-600', link: '/institutes' },
+    { title: 'Total Institutes', value: totalInstitutes, icon: <Building2 size={24} />, color: 'from-blue-500 to-blue-700', link: '/institutions' },
+    { title: 'Total Students', value: totalStudents, icon: <Users size={24} />, color: 'from-orange-400 to-orange-600', link: '/students' },
     { title: 'Pending Approvals', value: pendingCount, icon: <Clock size={24} />, color: 'from-yellow-400 to-yellow-600', link: '/approval' },
     { title: 'Avg Performance', value: '78.5%', icon: <Activity size={24} />, color: 'from-green-400 to-green-600', link: '/performance' },
   ];
