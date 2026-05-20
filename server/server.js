@@ -19,6 +19,7 @@ app.use('/api/students', require('./routes/students'));
 app.use('/api/sports', require('./routes/sports'));
 app.use('/api/performance', require('./routes/performance'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/institutes', require('./routes/institutes'));
 
 // Connect to Database
 connectDB();
