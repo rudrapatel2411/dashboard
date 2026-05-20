@@ -1,11 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, 
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
 } from 'recharts';
-import { Users, Trophy, Activity, TrendingUp } from 'lucide-react';
+import { Users, Building2, Clock, Activity, TrendingUp } from 'lucide-react';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const [totalInstitutes, setTotalInstitutes] = useState('—');
+  const [totalStudents, setTotalStudents] = useState('—');
+  const [pendingCount, setPendingCount] = useState('—');
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    // Fetch total institutes count
+    fetch(`${API_URL}/institutes?limit=1`, { headers })
+      .then(res => res.json())
+      .then(data => {
+        setTotalInstitutes(data.totalCount?.toLocaleString() || '0');
+      })
+      .catch(() => setTotalInstitutes('0'));
+
+    // Fetch total students count
+    fetch(`${API_URL}/students`, { headers })
+      .then(res => res.json())
+      .then(data => {
+        const count = Array.isArray(data) ? data.length : (data.totalCount || data.total || 0);
+        setTotalStudents(count.toLocaleString());
+      })
+      .catch(() => setTotalStudents('0'));
+
+    // Fetch pending approvals count
+    fetch(`${API_URL}/institutes/pending-count`, { headers })
+      .then(res => res.json())
+      .then(data => {
+        setPendingCount(data.count?.toString() || '0');
+      })
+      .catch(() => setPendingCount('0'));
+  }, []);
+
   // Mock Data
   const performanceTrends = [
     { name: 'Jan', term1: 65, term2: 0 },
@@ -34,10 +72,10 @@ const Dashboard = () => {
   ];
 
   const statCards = [
-    { title: 'Total Students', value: '1,245', icon: <Users size={24} />, color: 'from-blue-500 to-blue-700' },
-    { title: 'Total Sports', value: '14', icon: <Trophy size={24} />, color: 'from-orange-400 to-orange-600' },
-    { title: 'Avg Performance', value: '78.5%', icon: <Activity size={24} />, color: 'from-green-400 to-green-600' },
-    { title: 'Growth %', value: '+12.4%', icon: <TrendingUp size={24} />, color: 'from-purple-500 to-purple-700' },
+    { title: 'Total Institutes', value: totalInstitutes, icon: <Building2 size={24} />, color: 'from-blue-500 to-blue-700', link: '/institutes' },
+    { title: 'Total Students', value: totalStudents, icon: <Users size={24} />, color: 'from-orange-400 to-orange-600', link: '/institutes' },
+    { title: 'Pending Approvals', value: pendingCount, icon: <Clock size={24} />, color: 'from-yellow-400 to-yellow-600', link: '/approval' },
+    { title: 'Avg Performance', value: '78.5%', icon: <Activity size={24} />, color: 'from-green-400 to-green-600', link: '/performance' },
   ];
 
   return (
@@ -55,7 +93,11 @@ const Dashboard = () => {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, index) => (
-          <div key={index} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div
+            key={index}
+            onClick={() => navigate(stat.link)}
+            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer"
+          >
             <div>
               <p className="text-text-light text-sm font-medium">{stat.title}</p>
               <h3 className="text-2xl font-bold text-text-dark mt-1">{stat.value}</h3>

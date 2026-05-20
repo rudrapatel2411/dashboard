@@ -50,11 +50,12 @@ const studentSchema = new mongoose.Schema({
   photoUrl: {
     type: String
   },
-  institutionId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: false
-  },
+  instituteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Institute' },
+  fatherName: { type: String },
+  admissionNo: { type: String },
+  dob: { type: Date },
+  city: { type: String },
+  state: { type: String },
   tests: [{
     date: {
       type: Date,

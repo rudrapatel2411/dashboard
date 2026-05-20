@@ -5,9 +5,12 @@ import ForgotPassword from './pages/ForgotPassword';
 import DashboardLayout from './components/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Institutions from './pages/Institutions';
-import Tests from './pages/Tests';
+import Students from './pages/Students';
 import Performance from './pages/Performance';
 import Reports from './pages/Reports';
+import Institutes from './pages/Institutes';
+import Tests from './pages/Tests';
+import Approval from './pages/Approval';
 
 function App() {
   // Check if JWT token exists in localStorage for real authentication
@@ -26,7 +29,10 @@ function App() {
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="institutions" element={<Institutions />} />
+          <Route path="students" element={<Students />} />
+          <Route path="institutes" element={<Institutes />} />
           <Route path="tests" element={<Tests />} />
+          <Route path="approval" element={<Approval />} />
           <Route path="performance" element={<Performance />} />
           <Route path="reports" element={<Reports />} />
         </Route>
@@ -36,3 +42,4 @@ function App() {
 }
 
 export default App;
+

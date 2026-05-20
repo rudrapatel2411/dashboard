@@ -1,17 +1,16 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, Building2, Activity, ClipboardList, 
-  FileBarChart, LogOut, X, ShieldAlert 
-} from 'lucide-react';
+import { LayoutDashboard, Building2, ClipboardList, Activity, FileBarChart, UserCheck, LogOut, X } from 'lucide-react';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Institutions', path: '/institutions', icon: <Building2 size={20} /> },
-    { name: 'Physical Tests', path: '/tests', icon: <ClipboardList size={20} /> },
+    { name: 'Institutes', path: '/institutes', icon: <Building2 size={20} /> },
+    { name: 'Tests', path: '/tests', icon: <ClipboardList size={20} /> },
     { name: 'Performance', path: '/performance', icon: <Activity size={20} /> },
     { name: 'Reports', path: '/reports', icon: <FileBarChart size={20} /> },
+    { name: 'Approval', path: '/approval', icon: <UserCheck size={20} /> },
   ];
 
   const handleLogout = () => {
