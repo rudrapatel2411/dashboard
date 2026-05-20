@@ -25,7 +25,7 @@ const Sidebar = () => {
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-secondary to-accent flex items-center justify-center font-bold text-lg shadow-lg">
             S
           </div>
-          <span className="font-bold text-lg tracking-wide uppercase">Sport<span className="text-accent">Sync</span></span>
+          <span className="font-bold text-lg tracking-wide uppercase">Sport<span className="text-accent">Sphere</span></span>
         </div>
       </div>
       

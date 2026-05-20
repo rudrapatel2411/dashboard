@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
-import Register from './pages/Register';
+
 import ForgotPassword from './pages/ForgotPassword';
 import DashboardLayout from './components/DashboardLayout';
 import Dashboard from './pages/Dashboard';
@@ -20,7 +20,7 @@ function App() {
       <Routes>
         {/* Auth Routes - Redirect to dashboard if already authenticated */}
         <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} />
-        <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register />} />
+
         <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/dashboard" /> : <ForgotPassword />} />
         
         {/* Protected Routes - Redirect to login if not authenticated */}

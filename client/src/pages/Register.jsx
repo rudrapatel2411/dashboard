@@ -176,71 +176,50 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 font-sans overflow-hidden">
-      
-      {/* Left Column: Premium Immersive Sports Hero Section */}
-      <div 
-        className="hidden md:flex md:w-1/2 lg:w-3/5 bg-cover bg-center relative items-center justify-center p-12 overflow-hidden"
-        style={{ 
-          backgroundImage: "linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.5) 100%), url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=2069&auto=format&fit=crop')" 
-        }}
-      >
-        {/* Dynamic abstract glowing highlights in background */}
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-secondary/20 blur-[150px] opacity-40 animate-pulse-soft"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-accent/15 blur-[130px] opacity-30 animate-pulse-soft" style={{ animationDelay: '2s' }}></div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 font-sans overflow-hidden relative">
 
-        {/* Motivational Content */}
-        <div className="relative z-10 max-w-lg text-white space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold tracking-widest uppercase">
-            <Activity size={14} className="text-accent animate-pulse" />
-            Athlete Registration
-          </div>
-          <h2 className="text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-            TRAIN LIKE A <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-accent">CHAMPION.</span>
-          </h2>
-          <p className="text-slate-300 text-lg font-medium leading-relaxed">
-            Create your account today and gain access to elite sports metrics, scheduling tools, and team analytics.
-          </p>
-        </div>
-      </div>
+      {/* Decorative gradient orbs for premium feel */}
+      <div className="absolute top-[-15%] left-[-10%] w-[500px] h-[500px] rounded-full bg-secondary/10 blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[-15%] right-[-10%] w-[500px] h-[500px] rounded-full bg-accent/10 blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-blue-100/40 blur-[150px] pointer-events-none"></div>
 
-      {/* Right Column: Sleek Form Container with Premium Dark Background */}
-      <div className="w-full md:w-1/2 lg:w-2/5 bg-slate-950 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex flex-col justify-between p-8 sm:p-12 md:p-16 min-h-screen overflow-y-auto border-l border-slate-900 relative">
-        {/* Subtle ambient glows for premium depth inside the form panel */}
-        <div className="absolute top-[20%] right-[-10%] w-[250px] h-[250px] rounded-full bg-secondary/10 blur-[100px] pointer-events-none z-0"></div>
-        <div className="absolute bottom-[20%] left-[-10%] w-[250px] h-[250px] rounded-full bg-accent/5 blur-[100px] pointer-events-none z-0" style={{ animationDelay: '1.5s' }}></div>
-        
-        {/* Top Header Placeholder (Logo/Title on Mobile) */}
-        <div className="flex items-center justify-between md:justify-end mb-6 relative z-10">
-          <div className="flex items-center gap-2 md:hidden">
-            <div className="w-10 h-10 bg-gradient-to-br from-secondary to-accent rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <UserPlus size={20} className="text-white" />
+      {/* Centered Card Container */}
+      <div className="relative z-10 w-full max-w-md mx-4 sm:mx-auto animate-fade-in-up">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+
+          {/* SportSync Logo & Branding */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-3">
+              <span className="text-white font-black text-xl">S</span>
             </div>
-            <span className="text-xl font-black text-white tracking-tight">SportSphere</span>
-          </div>
-          <span className="text-xs text-slate-500 font-bold">SPORTSPHERE v2.0</span>
-        </div>
-
-        {/* Main Form Body */}
-        <div className="w-full max-w-sm mx-auto my-auto space-y-6 animate-fade-in-up relative z-10">
-          <div>
-            <h3 className="text-3xl font-black text-white tracking-tight">Get Started</h3>
-            <p className="text-slate-400 text-sm mt-2 font-medium">Create your dedicated athlete profile</p>
+            <span className="text-xl font-black text-primary tracking-tight">SportSync</span>
+            <span className="text-[10px] text-text-light font-bold tracking-widest uppercase mt-1">SPORTSYNC v2.0</span>
           </div>
 
+          {/* Header */}
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-xs font-bold tracking-widest uppercase text-secondary mb-3">
+              <Activity size={14} className="text-accent animate-pulse" />
+              Athlete Registration
+            </div>
+            <h3 className="text-3xl font-black text-primary tracking-tight">Get Started</h3>
+            <p className="text-text-light text-sm mt-2 font-medium">Create your dedicated athlete profile</p>
+          </div>
+
+          {/* Registration Form */}
           <form className="space-y-4" onSubmit={handleRegister}>
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-text-dark uppercase tracking-wider mb-1.5">
                 Username
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-3 text-slate-500">
+                <span className="absolute left-4 top-3 text-text-light">
                   <User size={18} />
                 </span>
                 <input 
                   type="text" 
                   name="username"
-                  className="w-full pl-12 pr-4 py-2.5 rounded-xl sports-input-dark text-sm"
+                  className="w-full pl-12 pr-4 py-2.5 rounded-xl sports-input text-sm"
                   placeholder="JohnDoe123"
                   disabled={isLoading}
                 />
@@ -248,35 +227,35 @@ const Register = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-text-dark uppercase tracking-wider mb-1.5">
                 Email Address
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-3 text-slate-500">
+                <span className="absolute left-4 top-3 text-text-light">
                   <Mail size={18} />
                 </span>
                 <input 
                   type="email" 
                   name="email"
-                  className="w-full pl-12 pr-4 py-2.5 rounded-xl sports-input-dark text-sm"
-                  placeholder="athlete@sportsphere.com"
+                  className="w-full pl-12 pr-4 py-2.5 rounded-xl sports-input text-sm"
+                  placeholder="athlete@sportsync.com"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-text-dark uppercase tracking-wider mb-1.5">
                 Phone Number
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-3 text-slate-500">
+                <span className="absolute left-4 top-3 text-text-light">
                   <Phone size={18} />
                 </span>
                 <input 
                   type="tel" 
                   name="phone"
-                  className="w-full pl-12 pr-4 py-2.5 rounded-xl sports-input-dark text-sm"
+                  className="w-full pl-12 pr-4 py-2.5 rounded-xl sports-input text-sm"
                   placeholder="e.g. +919876543210"
                   disabled={isLoading}
                 />
@@ -284,23 +263,23 @@ const Register = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-text-dark uppercase tracking-wider mb-1.5">
                 Password
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-3 text-slate-500">
+                <span className="absolute left-4 top-3 text-text-light">
                   <Lock size={18} />
                 </span>
                 <input 
                   type={showPassword ? "text" : "password"} 
                   name="password"
-                  className="w-full pl-12 pr-12 py-2.5 rounded-xl sports-input-dark text-sm"
+                  className="w-full pl-12 pr-12 py-2.5 rounded-xl sports-input text-sm"
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
                 <button 
                   type="button"
-                  className="absolute right-4 top-3 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute right-4 top-3 text-text-light hover:text-primary transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
                 >
@@ -310,17 +289,17 @@ const Register = () => {
             </div>
             
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-text-dark uppercase tracking-wider mb-1.5">
                 Confirm Password
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-3 text-slate-500">
+                <span className="absolute left-4 top-3 text-text-light">
                   <Lock size={18} />
                 </span>
                 <input 
                   type="password" 
                   name="confirmPassword"
-                  className="w-full pl-12 pr-4 py-2.5 rounded-xl sports-input-dark text-sm"
+                  className="w-full pl-12 pr-4 py-2.5 rounded-xl sports-input text-sm"
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
@@ -344,7 +323,7 @@ const Register = () => {
                 disabled={isLoading}
                 className={`w-full py-3 rounded-xl text-white font-bold text-sm shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-200 flex items-center justify-center gap-2 mt-2 ${
                   isLoading 
-                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed shadow-none hover:scale-100' 
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none hover:scale-100' 
                     : 'bg-gradient-to-r from-secondary to-accent hover:from-blue-600 hover:to-orange-500 shadow-blue-500/25'
                 }`}
               >
@@ -353,21 +332,21 @@ const Register = () => {
             </div>
           </form>
 
-          <p className="text-slate-400 text-xs font-semibold text-center mt-4">
+          <p className="text-text-light text-xs font-semibold text-center mt-4">
             Already have an account? <Link to="/login" className="text-secondary hover:text-blue-400 font-bold transition-colors ml-1">Login Here</Link>
           </p>
         </div>
 
         {/* Footer info */}
-        <div className="text-center text-[10px] text-slate-500 font-medium mt-8 border-t border-slate-800/80 pt-4 relative z-10">
-          © 2026 SportSphere Inc. All Rights Reserved.
+        <div className="text-center text-[10px] text-text-light font-medium mt-6">
+          © 2026 SportSync Inc. All Rights Reserved.
         </div>
       </div>
 
       {/* Premium Dynamic Custom Toast Notification */}
       {toast.show && (
-        <div className={`fixed top-6 right-6 z-50 flex items-center gap-4 bg-slate-900 text-white px-5 py-4 rounded-xl shadow-2xl animate-fade-in-up max-w-sm border border-slate-800 border-l-4 ${toast.isError ? 'border-red-500' : 'border-gov-green'}`}>
-          <div className={`flex items-center justify-center rounded-full p-2.5 ${toast.isError ? 'bg-red-500/10 text-red-500' : 'bg-gov-green/10 text-gov-green'}`}>
+        <div className={`fixed top-6 right-6 z-50 flex items-center gap-4 bg-white text-primary px-5 py-4 rounded-xl shadow-2xl animate-fade-in-up max-w-sm border border-gray-100 border-l-4 ${toast.isError ? 'border-l-red-500' : 'border-l-gov-green'}`}>
+          <div className={`flex items-center justify-center rounded-full p-2.5 ${toast.isError ? 'bg-red-50 text-red-500' : 'bg-green-50 text-gov-green'}`}>
             {toast.isError ? (
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="animate-bounce">
                 <circle cx="12" cy="12" r="10" />
@@ -382,8 +361,8 @@ const Register = () => {
             )}
           </div>
           <div>
-            <h4 className="font-bold text-sm text-slate-100 tracking-wide">{toast.title}</h4>
-            <p className="text-xs text-slate-400 font-semibold mt-0.5">{toast.message}</p>
+            <h4 className="font-bold text-sm text-primary tracking-wide">{toast.title}</h4>
+            <p className="text-xs text-text-light font-semibold mt-0.5">{toast.message}</p>
           </div>
         </div>
       )}

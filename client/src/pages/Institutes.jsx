@@ -8,7 +8,6 @@ const Institutes = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [expandedId, setExpandedId] = useState(null);
@@ -24,7 +23,7 @@ const Institutes = () => {
     setError(null);
     try {
       const res = await fetch(
-        `${API_URL}/institutes?page=${page}&limit=10&search=${encodeURIComponent(search)}&status=${statusFilter}`,
+        `${API_URL}/institutes?page=${page}&limit=10&search=${encodeURIComponent(search)}&status=approved`,
         { headers: authHeaders }
       );
       if (!res.ok) throw new Error('Failed to fetch institutes');
@@ -40,7 +39,7 @@ const Institutes = () => {
 
   useEffect(() => {
     fetchInstitutes();
-  }, [page, search, statusFilter]);
+  }, [page, search]);
 
   const fetchStudents = async (instituteId) => {
     setStudentsLoading(true);
@@ -73,7 +72,7 @@ const Institutes = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-primary">Institutes</h1>
-          <p className="text-text-light text-sm">Manage and view registered institutes and their students.</p>
+          <p className="text-text-light text-sm">View approved institutes and their students.</p>
         </div>
       </div>
 
@@ -90,15 +89,6 @@ const Institutes = () => {
             />
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <select
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-text-dark bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary/50"
-            >
-              <option value="">All Status</option>
-              <option value="approved">Approved</option>
-              <option value="pending">Pending</option>
-            </select>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -147,7 +137,6 @@ const Institutes = () => {
                   <th className="p-4 font-semibold">City</th>
                   <th className="p-4 font-semibold">State</th>
                   <th className="p-4 font-semibold">Total Students</th>
-                  <th className="p-4 font-semibold">Status</th>
                   <th className="p-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
@@ -176,17 +165,6 @@ const Institutes = () => {
                       <td className="p-4 text-text-dark">{inst.city}</td>
                       <td className="p-4 text-text-dark">{inst.state}</td>
                       <td className="p-4 text-text-dark">{inst.totalStudents ?? 0}</td>
-                      <td className="p-4">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                            inst.status === 'approved'
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-yellow-100 text-yellow-700'
-                          }`}
-                        >
-                          {inst.status ? inst.status.charAt(0).toUpperCase() + inst.status.slice(1) : 'Pending'}
-                        </span>
-                      </td>
                       <td className="p-4 text-right">
                         <button
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-xs font-medium"
@@ -202,7 +180,7 @@ const Institutes = () => {
 
                     {expandedId === (inst._id || inst.id) && (
                       <tr>
-                        <td colSpan={7} className="bg-gray-50/70 px-8 py-4">
+                        <td colSpan={6} className="bg-gray-50/70 px-8 py-4">
                           {studentsLoading ? (
                             <div className="flex items-center justify-center py-8">
                               <Loader2 className="w-6 h-6 text-secondary animate-spin" />
