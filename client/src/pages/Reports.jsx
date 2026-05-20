@@ -33,7 +33,7 @@ const Reports = () => {
             <div className="w-12 h-12 bg-secondary rounded-xl ml-auto mb-2 flex items-center justify-center">
               <Award className="text-white" size={24} />
             </div>
-            <p className="font-bold text-primary">SportSync Academy</p>
+            <p className="font-bold text-primary">SportSphere Academy</p>
           </div>
         </div>
 

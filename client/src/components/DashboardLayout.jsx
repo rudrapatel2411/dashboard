@@ -1,16 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
 const DashboardLayout = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
+
   return (
-    <div className="flex h-screen bg-bg-main overflow-hidden font-sans">
-      <Sidebar />
+    <div className="flex h-screen bg-bg-main overflow-hidden font-sans relative">
+      {/* Responsive mobile sidebar container */}
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-bg-main p-6">
-          <Outlet />
+        {/* Header with hamburger toggle */}
+        <Header 
+          toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
+          searchTerm={globalSearchTerm}
+          setSearchTerm={setGlobalSearchTerm}
+        />
+        
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-bg-main p-4 md:p-8">
+          <Outlet context={{ searchTerm: globalSearchTerm, setSearchTerm: setGlobalSearchTerm }} />
         </main>
       </div>
     </div>

@@ -24,20 +24,42 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Auto-approve first user or admin emails. Others register as 'institution' with 'pending' status
+    const isFirstUser = (await User.countDocuments()) === 0;
+    const isSpecialAdmin = email.toLowerCase().includes('admin');
+    const role = (isFirstUser || isSpecialAdmin) ? 'admin' : 'institution';
+    const approvalStatus = role === 'admin' ? 'approved' : 'pending';
+
     const user = await User.create({
       name,
       email,
       phone,
-      password: hashedPassword
+      password: hashedPassword,
+      role,
+      approvalStatus
     });
 
     if (user) {
+      if (role === 'institution') {
+        try {
+          const { sendNotification } = require('../routes/notifications');
+          sendNotification(
+            "New Institution Registration",
+            `Institution "${name}" has registered and is pending admin approval.`,
+            "warning"
+          );
+        } catch (e) {
+          // Silent catch to handle server startup edge cases
+        }
+      }
+
       res.status(201).json({
         id: user._id,
         name: user.name,
         email: user.email,
         phone: user.phone,
         role: user.role,
+        approvalStatus: user.approvalStatus,
         token: generateToken(user._id)
       });
     }
@@ -60,11 +82,19 @@ exports.login = async (req, res) => {
     }
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      // Enforce Admin Approval check for non-admin accounts
+      if (user.role !== 'admin' && user.approvalStatus !== 'approved') {
+        return res.status(403).json({ 
+          message: 'Your institution account is pending admin approval. You will be able to access the dashboard once approved by the administrator.' 
+        });
+      }
+
       res.json({
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
+        approvalStatus: user.approvalStatus,
         token: generateToken(user._id)
       });
     } else {

@@ -4,8 +4,8 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import DashboardLayout from './components/DashboardLayout';
 import Dashboard from './pages/Dashboard';
-import Students from './pages/Students';
-import Sports from './pages/Sports';
+import Institutions from './pages/Institutions';
+import Tests from './pages/Tests';
 import Performance from './pages/Performance';
 import Reports from './pages/Reports';
 
@@ -25,8 +25,8 @@ function App() {
         <Route path="/" element={isAuthenticated ? <DashboardLayout /> : <Navigate to="/login" />}>
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="students" element={<Students />} />
-          <Route path="sports" element={<Sports />} />
+          <Route path="institutions" element={<Institutions />} />
+          <Route path="tests" element={<Tests />} />
           <Route path="performance" element={<Performance />} />
           <Route path="reports" element={<Reports />} />
         </Route>

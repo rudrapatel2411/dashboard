@@ -49,7 +49,24 @@ const studentSchema = new mongoose.Schema({
   },
   photoUrl: {
     type: String
-  }
+  },
+  institutionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
+  tests: [{
+    date: {
+      type: Date,
+      default: Date.now
+    },
+    sprintTime: Number,   // in seconds
+    broadJump: Number,    // in cm
+    pushups: Number,      // count
+    recommendedSport: String,
+    reportHardCopyUrl: String,
+    manualReportData: String
+  }]
 }, {
   timestamps: true
 });

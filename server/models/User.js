@@ -20,8 +20,13 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'coach'],
-    default: 'admin'
+    enum: ['admin', 'coach', 'institution'],
+    default: 'institution'
+  },
+  approvalStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
   },
   resetPasswordOTP: {
     type: String,
