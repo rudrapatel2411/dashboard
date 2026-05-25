@@ -12,36 +12,29 @@ const ForgotPassword = () => {
 
   const triggerToast = (title, message, isError = false) => {
     setToast({ show: true, title, message, isError });
-    setTimeout(() => {
-      setToast({ show: false, title: '', message: '', isError: false });
-    }, 4500);
+    setTimeout(() => setToast({ show: false, title: '', message: '', isError: false }), 4500);
   };
 
   const handleVerify = async (e) => {
     e.preventDefault();
     const identifier = e.target.identifier?.value;
     if (!identifier) {
-      triggerToast("Validation Alert", "Please enter your registered email or phone number.", true);
+      triggerToast('Validation', 'Please enter your registered email or phone number.', true);
       return;
     }
-    
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', {
-        identifier
-      });
-
+      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', { identifier });
       const generatedOtp = response.data.otp;
-
-      triggerToast("OTP Code Sent!", `Your recovery OTP is: ${generatedOtp}. Use it in the next step.`, false);
+      triggerToast('OTP Sent!', `Your OTP is: ${generatedOtp}. Enter it in the next step.`);
       setTimeout(() => {
         setIsLoading(false);
         setStep(2);
       }, 2000);
     } catch (error) {
       setIsLoading(false);
-      const errMsg = error.response?.data?.message || "User not found or connection error.";
-      triggerToast("Verification Failed", errMsg, true);
+      const errMsg = error.response?.data?.message || 'User not found or connection error.';
+      triggerToast('Verification Failed', errMsg, true);
     }
   };
 
@@ -49,33 +42,26 @@ const ForgotPassword = () => {
     e.preventDefault();
     const otp = e.target.otp?.value;
     const newPassword = e.target.newPassword?.value;
-
     if (!otp || !newPassword) {
-      triggerToast("Validation Alert", "Please enter both the OTP and the new password.", true);
+      triggerToast('Validation', 'Please enter the OTP and new password.', true);
       return;
     }
-
     if (otp.length !== 6) {
-      triggerToast("Validation Alert", "Invalid OTP. Must be 6 digits.", true);
+      triggerToast('Validation', 'OTP must be exactly 6 digits.', true);
       return;
     }
-
     setIsLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/reset-password', {
-        otp,
-        newPassword
-      });
-
-      triggerToast("Success!", "Successfully updated password! Returning to login...");
+      await axios.post('http://localhost:5000/api/auth/reset-password', { otp, newPassword });
+      triggerToast('Password Updated!', 'Redirecting you to login...');
       setTimeout(() => {
         setIsLoading(false);
         navigate('/login');
       }, 2000);
     } catch (error) {
       setIsLoading(false);
-      const errMsg = error.response?.data?.message || "Incorrect or expired OTP verification code.";
-      triggerToast("Password Reset Failed", errMsg, true);
+      const errMsg = error.response?.data?.message || 'Incorrect or expired OTP.';
+      triggerToast('Reset Failed', errMsg, true);
     }
   };
 
@@ -83,65 +69,57 @@ const ForgotPassword = () => {
     <AuthLayout
       isLoading={isLoading}
       toast={toast}
-      heroTitle={<>RECOVERY IS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">CRITICAL.</span></>}
-      heroSubtitle="Re-secure your profile settings to quickly return to tracking your fitness achievements and health goals."
       pageTitle="Reset Password"
-      pageSubtitle={step === 1 ? 'Step 1: Request OTP Verification' : 'Step 2: Enter OTP & Reset Password'}
+      pageSubtitle={step === 1 ? 'Enter your registered contact to receive an OTP' : 'Enter the OTP and choose a new password'}
     >
-      <form className="space-y-5" onSubmit={step === 1 ? handleVerify : handleReset}>
+      <form className="auth-form" onSubmit={step === 1 ? handleVerify : handleReset}>
+
+        {/* Step indicator */}
+        <div className="auth-steps">
+          <div className={`auth-step ${step >= 1 ? 'auth-step-active' : ''}`}>1</div>
+          <div className="auth-step-line" />
+          <div className={`auth-step ${step >= 2 ? 'auth-step-active' : ''}`}>2</div>
+        </div>
+
         {step === 1 ? (
-          <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-              Registered Email or Mobile Number
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-3.5 text-slate-500">
-                <Mail size={18} />
-              </span>
-              <input 
-                type="text" 
+          <div className="auth-field">
+            <label className="auth-label">Email or Mobile Number</label>
+            <div className="auth-input-wrap">
+              <span className="auth-input-icon"><Mail size={16} /></span>
+              <input
+                type="text"
                 name="identifier"
-                className="w-full pl-12 pr-4 py-3 rounded-xl sports-input-dark text-sm"
+                className="auth-input"
                 placeholder="Enter email or phone number"
                 disabled={isLoading}
               />
             </div>
-            <p className="text-[10px] text-slate-400 mt-2 font-semibold leading-relaxed">
-              * A 6-digit OTP verification code will be sent to your registered contact details.
-            </p>
+            <p className="auth-hint">A 6-digit OTP will be sent to your registered contact.</p>
           </div>
         ) : (
           <>
-            <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Enter 6-Digit OTP
-              </label>
-              <div className="relative">
-                <span className="absolute left-4 top-3.5 text-slate-500">
-                  <KeyRound size={18} />
-                </span>
-                <input 
-                  type="text" 
+            <div className="auth-field">
+              <label className="auth-label">6-Digit OTP</label>
+              <div className="auth-input-wrap">
+                <span className="auth-input-icon"><KeyRound size={16} /></span>
+                <input
+                  type="text"
                   name="otp"
-                  className="w-full pl-12 pr-4 py-3 rounded-xl sports-input-dark text-center tracking-widest text-lg font-bold text-white"
+                  className="auth-input auth-otp-input"
                   placeholder="000000"
                   maxLength={6}
                   disabled={isLoading}
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Enter New Password
-              </label>
-              <div className="relative">
-                <span className="absolute left-4 top-3.5 text-slate-500">
-                  <Lock size={18} />
-                </span>
-                <input 
-                  type="password" 
+            <div className="auth-field">
+              <label className="auth-label">New Password</label>
+              <div className="auth-input-wrap">
+                <span className="auth-input-icon"><Lock size={16} /></span>
+                <input
+                  type="password"
                   name="newPassword"
-                  className="w-full pl-12 pr-4 py-3 rounded-xl sports-input-dark text-sm"
+                  className="auth-input"
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
@@ -150,27 +128,23 @@ const ForgotPassword = () => {
           </>
         )}
 
-        <div className="relative pt-4">
-          <button 
-            type="submit" 
-            disabled={isLoading}
-            className={`w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-200 flex items-center justify-center gap-2 ${
-              isLoading 
-                ? 'bg-slate-800 text-slate-500 cursor-not-allowed shadow-none hover:scale-100' 
-                : 'bg-gradient-to-r from-secondary to-accent hover:from-blue-600 hover:to-orange-500 shadow-blue-500/25'
-            }`}
-          >
-            {isLoading ? (step === 1 ? 'Generating OTP...' : 'Resetting Password...') : (step === 1 ? 'Generate OTP' : 'Verify & Reset Password')}
-          </button>
-        </div>
-      </form>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={`auth-btn ${isLoading ? 'auth-btn-loading' : ''}`}
+        >
+          {isLoading
+            ? (step === 1 ? 'Sending OTP...' : 'Resetting...')
+            : (step === 1 ? 'Send OTP' : 'Reset Password')}
+        </button>
 
-      <div className="text-center text-xs mt-6 pt-4 border-t border-slate-800/80">
-        <Link to="/login" className="inline-flex items-center gap-1.5 text-secondary hover:text-blue-400 font-bold transition-colors">
-          <ArrowLeft size={14} />
-          Return to Login
-        </Link>
-      </div>
+        <p className="auth-redirect">
+          <Link to="/login" className="auth-link auth-link-back">
+            <ArrowLeft size={13} />
+            Back to Login
+          </Link>
+        </p>
+      </form>
     </AuthLayout>
   );
 };

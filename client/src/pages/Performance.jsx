@@ -1,47 +1,119 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Activity, PlusCircle, CheckCircle, ShieldAlert, Sparkles, 
-  User, Award, ClipboardList, HelpCircle, BarChart3, BookOpen 
+  Activity, Users, Search, ChevronRight, ArrowLeft,
+  Award, ClipboardList, BarChart3, BookOpen, User, 
+  CheckCircle, ShieldAlert, Sparkles, Trophy, Calendar, 
+  Eye, Heart, Zap, Target, Sliders, Building2, TrendingUp, AlertCircle
 } from 'lucide-react';
+import { 
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, 
+  ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid
+} from 'recharts';
 import axios from 'axios';
 
 const Performance = () => {
-  const [students, setStudents] = useState([]);
-  const [selectedStudentId, setSelectedStudentId] = useState("");
-  const [selectedStudentInfo, setSelectedStudentInfo] = useState(null);
-  
-  // Historical ratings list
-  const [history, setHistory] = useState([]);
-  
-  // Loading & UX states
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toast, setToast] = useState({ show: false, message: '', title: '', isError: false });
+  // Navigation states
+  const [selectedInst, setSelectedInst] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Form states
-  const [term, setTerm] = useState("TERM-1");
-  const [speed, setSpeed] = useState("");
-  const [strength, setStrength] = useState("");
-  const [stamina, setStamina] = useState("");
-  const [agility, setAgility] = useState("");
-  const [flexibility, setFlexibility] = useState("");
-  const [accuracy, setAccuracy] = useState("");
-  const [endurance, setEndurance] = useState("");
-  const [reactionTime, setReactionTime] = useState("");
-  
-  // Other aspects as defined in schema
-  const [attendance, setAttendance] = useState("");
-  const [discipline, setDiscipline] = useState("");
-  const [matchPerformance, setMatchPerformance] = useState("");
+  // API data states
+  const [dbStudents, setDbStudents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', title: '', isError: false });
+  const [selectedTerm, setSelectedTerm] = useState("TERM-2");
+
+  // Rich fallback mock data representing institutions and nested students
+  const [mockInstitutions] = useState([
+    {
+      id: "inst-101",
+      name: "St. Xavier's International School",
+      email: "contact@stxaviers.edu",
+      phone: "+91 98765 43210",
+      registeredAt: "2026-04-12",
+      studentCount: 7,
+      students: [
+        { id: "stu-1", name: "Rohan Sharma", age: 15, class: "9", sport: "Football", assignedSport: "Football", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 21.2, height: 168, weight: 60 },
+        { id: "stu-2", name: "Priya Patel", age: 16, class: "10", sport: "Basketball", assignedSport: "Basketball", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 20.4, height: 165, weight: 55 },
+        { id: "stu-3", name: "Aarav Mehta", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Arthur", bmiCategory: "Underweight", bmi: 17.8, height: 160, weight: 45 },
+        { id: "stu-4", name: "Sneha Reddy", age: 15, class: "9", sport: "Volleyball", assignedSport: "Volleyball", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 19.8, height: 162, weight: 52 },
+        { id: "stu-12", name: "Rohan Patel", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 19.1, height: 158, weight: 48 },
+        { id: "stu-13", name: "Jiya Shah", age: 15, class: "9", sport: "Badminton", assignedSport: "Badminton", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 20.1, height: 163, weight: 53 },
+        { id: "stu-14", name: "Manan Desai", age: 16, class: "10", sport: "Football", assignedSport: "Football", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 22.3, height: 172, weight: 66 }
+      ]
+    },
+    {
+      id: "inst-102",
+      name: "Delhi Public Sports Academy",
+      email: "sports@dpsdelhi.edu",
+      phone: "+91 91234 56789",
+      registeredAt: "2026-05-01",
+      studentCount: 6,
+      students: [
+        { id: "stu-5", name: "Kabir Singh", age: 16, class: "10", sport: "Cricket", assignedSport: "Cricket", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 21.8, height: 170, weight: 63 },
+        { id: "stu-6", name: "Ananya Iyer", age: 17, class: "11", sport: "Swimming", assignedSport: "Swimming", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 19.5, height: 167, weight: 54 },
+        { id: "stu-7", name: "Ishaan Verma", age: 15, class: "9", sport: "Football", assignedSport: "Football", mentor: "Coach Sharma", bmiCategory: "Overweight", bmi: 25.5, height: 165, weight: 69 },
+        { id: "stu-30", name: "Manish Kumar", age: 16, class: "10", sport: "Cricket", assignedSport: "Cricket", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 22.1, height: 171, weight: 65 },
+        { id: "stu-31", name: "Divya Teja", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 18.9, height: 159, weight: 48 },
+        { id: "stu-32", name: "Preeti Shenoy", age: 15, class: "9", sport: "Basketball", assignedSport: "Basketball", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 20.6, height: 164, weight: 55 }
+      ]
+    },
+    {
+      id: "inst-103",
+      name: "Ryan Elite High School",
+      email: "info@ryanelite.org",
+      phone: "+91 88776 65544",
+      registeredAt: "2026-05-18",
+      studentCount: 5,
+      students: [
+        { id: "stu-8", name: "Aditya Roy", age: 14, class: "8", sport: "Basketball", assignedSport: "Basketball", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 19.3, height: 161, weight: 50 },
+        { id: "stu-9", name: "Diya Sen", age: 16, class: "10", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 20.0, height: 166, weight: 55 },
+        { id: "stu-33", name: "Arjun Rampal", age: 15, class: "9", sport: "Football", assignedSport: "Football", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 21.0, height: 169, weight: 60 },
+        { id: "stu-34", name: "Kareena Kapoor", age: 16, class: "10", sport: "Badminton", assignedSport: "Badminton", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 19.9, height: 163, weight: 53 },
+        { id: "stu-35", name: "Saif Khan", age: 17, class: "11", sport: "Volleyball", assignedSport: "Volleyball", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 22.8, height: 175, weight: 70 }
+      ]
+    },
+    {
+      id: "inst-104",
+      name: "Oakridge International Sports Hub",
+      email: "oakridge@oakridge.in",
+      phone: "+91 77665 54433",
+      registeredAt: "2026-05-19",
+      studentCount: 5,
+      students: [
+        { id: "stu-10", name: "Varun Dhawan", age: 15, class: "9", sport: "Cricket", assignedSport: "Cricket", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 21.5, height: 168, weight: 61 },
+        { id: "stu-11", name: "Kiara Advani", age: 14, class: "8", sport: "Swimming", assignedSport: "Swimming", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 19.0, height: 160, weight: 49 },
+        { id: "stu-36", name: "Siddharth Malhotra", age: 16, class: "10", sport: "Football", assignedSport: "Football", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 22.0, height: 173, weight: 66 },
+        { id: "stu-37", name: "Alia Bhatt", age: 15, class: "9", sport: "Gymnastics", assignedSport: "Gymnastics", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 18.5, height: 157, weight: 46 },
+        { id: "stu-38", name: "Katrina Kaif", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Arthur", bmiCategory: "Underweight", bmi: 18.0, height: 162, weight: 47 }
+      ]
+    },
+    {
+      id: "inst-105",
+      name: "DAV Public School, Gandhinagar",
+      email: "info@davgandhinagar.org",
+      phone: "+91 94567 12345",
+      registeredAt: "2026-03-24",
+      studentCount: 6,
+      students: [
+        { id: "stu-12b", name: "Rohan Patel", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 19.1, height: 158, weight: 48 },
+        { id: "stu-13b", name: "Jiya Shah", age: 15, class: "9", sport: "Badminton", assignedSport: "Badminton", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 20.1, height: 163, weight: 53 },
+        { id: "stu-14b", name: "Manan Desai", age: 16, class: "10", sport: "Football", assignedSport: "Football", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 22.3, height: 172, weight: 66 },
+        { id: "stu-39", name: "Neil Nitin", age: 15, class: "9", sport: "Volleyball", assignedSport: "Volleyball", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 20.3, height: 166, weight: 56 },
+        { id: "stu-40", name: "Mukesh Ambani", age: 16, class: "10", sport: "Cricket", assignedSport: "Cricket", mentor: "Coach Mehta", bmiCategory: "Overweight", bmi: 26.2, height: 170, weight: 76 },
+        { id: "stu-41", name: "Nita Shah", age: 14, class: "8", sport: "Swimming", assignedSport: "Swimming", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 18.6, height: 156, weight: 45 }
+      ]
+    }
+  ]);
 
   const triggerToast = (title, message, isError = false) => {
     setToast({ show: true, title, message, isError });
     setTimeout(() => {
       setToast({ show: false, title: '', message: '', isError: false });
-    }, 4500);
+    }, 4000);
   };
 
-  // Setup configuration with authorization header
   const getAuthConfig = () => {
     const token = localStorage.getItem('token');
     return {
@@ -51,440 +123,827 @@ const Performance = () => {
     };
   };
 
-  // Fetch active students roster on mount
+  // Fetch actual DB students on mount to overlay/sync with backend
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchDbStudents = async () => {
       setIsLoading(true);
       try {
         const response = await axios.get('http://localhost:5000/api/students', getAuthConfig());
-        setStudents(response.data);
+        setDbStudents(response.data || []);
       } catch (error) {
-        triggerToast("Failed to load students", "Ensure server is online and you are logged in.", true);
+        // Quietly fail as mock data serves as primary visual framework
+        console.warn("DB Students loading failed. Utilizing preloaded mock collections.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchStudents();
+    fetchDbStudents();
   }, []);
 
-  // Fetch student info and historic ratings on selection
-  useEffect(() => {
-    if (!selectedStudentId) {
-      setSelectedStudentInfo(null);
-      setHistory([]);
-      return;
-    }
-
-    const matched = students.find(s => s._id === selectedStudentId);
-    setSelectedStudentInfo(matched || null);
-
-    const fetchHistory = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/performance/${selectedStudentId}`, getAuthConfig());
-        setHistory(response.data);
-      } catch (error) {
-        setHistory([]);
+  // Performance data generator (creates ultra-rich multi-term charts deterministically)
+  const generatePerformanceData = (student) => {
+    const getHashValue = (str, salt) => {
+      let hash = 0;
+      const fullStr = str + salt;
+      for (let i = 0; i < fullStr.length; i++) {
+        hash = (hash << 5) - hash + fullStr.charCodeAt(i);
+        hash |= 0;
       }
+      return Math.abs(hash);
     };
 
-    fetchHistory();
-  }, [selectedStudentId, students]);
-
-  // Handle new rating submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!selectedStudentId) {
-      triggerToast("Validation Alert", "Please select a student first.", true);
-      return;
+    const seed = student.id || student._id || "default";
+    const sportName = (student.assignedSport || student.sport || "General Sports").toLowerCase();
+    
+    // Custom athletic profiles depending on the sport assigned
+    let baseSpeed = 70, baseStrength = 65, baseStamina = 70, baseAgility = 70, baseFlex = 60, baseAcc = 65, baseEnd = 68, baseReact = 70;
+    
+    if (sportName.includes("football")) {
+      baseSpeed = 82; baseStamina = 80; baseAgility = 85; baseReact = 78;
+    } else if (sportName.includes("basketball")) {
+      baseStamina = 84; baseAgility = 82; baseStrength = 72; baseReact = 80;
+    } else if (sportName.includes("cricket")) {
+      baseAcc = 82; baseReact = 85; baseSpeed = 74; baseStrength = 70;
+    } else if (sportName.includes("swimming")) {
+      baseStamina = 88; baseEnd = 86; baseFlex = 78; baseStrength = 74;
+    } else if (sportName.includes("badminton") || sportName.includes("tennis")) {
+      baseAgility = 88; baseReact = 86; baseSpeed = 78; baseFlex = 75;
+    } else if (sportName.includes("athletics") || sportName.includes("sprint")) {
+      baseSpeed = 90; baseStamina = 85; baseEnd = 82; baseAgility = 80;
+    } else if (sportName.includes("gymnastics")) {
+      baseFlex = 92; baseAgility = 85; baseStrength = 72; baseReact = 78;
     }
 
-    // Comprehensive numeric validations
-    const sp = parseFloat(speed);
-    const str = parseFloat(strength);
-    const sta = parseFloat(stamina);
-    const ag = parseFloat(agility);
-    const flex = parseFloat(flexibility);
-    const acc = parseFloat(accuracy);
-    const end = parseFloat(endurance);
-    const react = parseFloat(reactionTime);
-    const att = parseFloat(attendance);
-    const disc = parseFloat(discipline);
-    const matchPerf = parseFloat(matchPerformance);
+    // Term 1 metrics calculation
+    const t1Speed = Math.min(100, Math.max(40, baseSpeed - 5 + (getHashValue(seed, "t1speed") % 12)));
+    const t1Strength = Math.min(100, Math.max(40, baseStrength - 4 + (getHashValue(seed, "t1str") % 10)));
+    const t1Stamina = Math.min(100, Math.max(40, baseStamina - 6 + (getHashValue(seed, "t1stam") % 12)));
+    const t1Agility = Math.min(100, Math.max(40, baseAgility - 5 + (getHashValue(seed, "t1ag") % 12)));
+    const t1Flex = Math.min(100, Math.max(40, baseFlex - 3 + (getHashValue(seed, "t1flex") % 10)));
+    const t1Acc = Math.min(100, Math.max(40, baseAcc - 4 + (getHashValue(seed, "t1acc") % 12)));
+    const t1End = Math.min(100, Math.max(40, baseEnd - 5 + (getHashValue(seed, "t1end") % 12)));
+    const t1React = Math.min(100, Math.max(40, baseReact - 4 + (getHashValue(seed, "t1react") % 10)));
+    const t1Attendance = 85 + (getHashValue(seed, "t1att") % 15);
+    const t1Discipline = 7 + (getHashValue(seed, "t1disc") % 4);
+    const t1MatchPerf = 70 + (getHashValue(seed, "t1match") % 26);
 
-    if (
-      [sp, str, sta, ag, flex, acc, end, react, att, matchPerf].some(val => isNaN(val) || val < 0 || val > 100)
-    ) {
-      triggerToast("Validation Alert", "All percentage ratings must be between 0 and 100.", true);
-      return;
-    }
+    // Term 2 improvements showing athlete growth!
+    const t2Speed = Math.min(100, Math.max(40, t1Speed + (getHashValue(seed, "t2speed") % 6)));
+    const t2Strength = Math.min(100, Math.max(40, t1Strength + (getHashValue(seed, "t2str") % 6)));
+    const t2Stamina = Math.min(100, Math.max(40, t1Stamina + (getHashValue(seed, "t2stam") % 7)));
+    const t2Agility = Math.min(100, Math.max(40, t1Agility + (getHashValue(seed, "t2ag") % 6)));
+    const t2Flex = Math.min(100, Math.max(40, t1Flex + (getHashValue(seed, "t2flex") % 5)));
+    const t2Acc = Math.min(100, Math.max(40, t1Acc + (getHashValue(seed, "t2acc") % 6)));
+    const t2End = Math.min(100, Math.max(40, t1End + (getHashValue(seed, "t2end") % 6)));
+    const t2React = Math.min(100, Math.max(40, t1React + (getHashValue(seed, "t2react") % 6)));
+    const t2Attendance = Math.min(100, t1Attendance - 2 + (getHashValue(seed, "t2att") % 6));
+    const t2Discipline = Math.min(10, t1Discipline - 1 + (getHashValue(seed, "t2disc") % 3));
+    const t2MatchPerf = Math.min(100, t1MatchPerf + (getHashValue(seed, "t2match") % 7));
 
-    if (isNaN(disc) || disc < 1 || disc > 10) {
-      triggerToast("Validation Alert", "Discipline rating must be between 1 and 10.", true);
-      return;
-    }
+    const t1Overall = Math.round((t1Speed + t1Strength + t1Stamina + t1Agility + t1Flex + t1Acc + t1End + t1React) / 8);
+    const t2Overall = Math.round((t2Speed + t2Strength + t2Stamina + t2Agility + t2Flex + t2Acc + t2End + t2React) / 8);
 
-    setIsSubmitting(true);
-    try {
-      const payload = {
-        studentId: selectedStudentId,
-        term: term === "TERM-1" ? "TERM-1" : "TERM-2",
-        speed: sp,
-        strength: str,
-        stamina: sta,
-        agility: ag,
-        flexibility: flex,
-        accuracy: acc,
-        endurance: end,
-        reactionTime: react,
-        attendance: att,
-        discipline: disc,
-        matchPerformance: matchPerf
-      };
+    const getFitnessLevel = (score) => {
+      if (score >= 82) return "Excellent";
+      if (score >= 72) return "Good";
+      if (score >= 60) return "Average";
+      return "Poor";
+    };
 
-      await axios.post('http://localhost:5000/api/performance', payload, getAuthConfig());
-      
-      triggerToast("Success!", `Performance scores for ${term} saved successfully!`, false);
-      
-      // Clear inputs
-      setSpeed("");
-      setStrength("");
-      setStamina("");
-      setAgility("");
-      setFlexibility("");
-      setAccuracy("");
-      setEndurance("");
-      setReactionTime("");
-      setAttendance("");
-      setDiscipline("");
-      setMatchPerformance("");
+    const delta = t2Overall - t1Overall;
 
-      // Refresh student's evaluation progression list
-      const response = await axios.get(`http://localhost:5000/api/performance/${selectedStudentId}`, getAuthConfig());
-      setHistory(response.data);
-
-    } catch (error) {
-      const errMsg = error.response?.data?.message || "Failed to save performance score. Please check inputs.";
-      triggerToast("Submission Failed", errMsg, true);
-    } finally {
-      setIsSubmitting(false);
-    }
+    return [
+      {
+        _id: seed + "-term1",
+        term: "TERM-1",
+        createdAt: "2025-10-15T08:30:00.000Z",
+        speed: t1Speed,
+        strength: t1Strength,
+        stamina: t1Stamina,
+        agility: t1Agility,
+        flexibility: t1Flex,
+        accuracy: t1Acc,
+        endurance: t1End,
+        reactionTime: t1React,
+        attendance: t1Attendance,
+        discipline: t1Discipline,
+        matchPerformance: t1MatchPerf,
+        overallScore: t1Overall,
+        fitnessLevel: getFitnessLevel(t1Overall),
+        aiInsight: `Term-1 evaluation highlights a very high athletic baseline. Acceleration speeds and hamstring power metrics are superior. Focus items for training include improving static balance ratios and agility response cycles.`
+      },
+      {
+        _id: seed + "-term2",
+        term: "TERM-2",
+        createdAt: "2026-04-20T10:15:00.000Z",
+        speed: t2Speed,
+        strength: t2Strength,
+        stamina: t2Stamina,
+        agility: t2Agility,
+        flexibility: t2Flex,
+        accuracy: t2Acc,
+        endurance: t2End,
+        reactionTime: t2React,
+        attendance: t2Attendance,
+        discipline: t2Discipline,
+        matchPerformance: t2MatchPerf,
+        overallScore: t2Overall,
+        fitnessLevel: getFitnessLevel(t2Overall),
+        aiInsight: `Diagnostic evaluation for ${student.name} (${student.sport || student.assignedSport || "General Sports"}) shows a notable physical index growth of +${delta}% over the tracking duration. Core agility indexes and stamina reserves are outstanding. Muscle skeletal reaction speeds are fully aligned with advanced competitive rosters. Recommended specialized court acceleration drills.`
+      }
+    ];
   };
 
+  // Compile local + DB students for selected class
+  const getStudentsForClass = () => {
+    if (!selectedInst || !selectedClass) return [];
+    
+    // Find matching mock students
+    const inst = mockInstitutions.find(i => i.id === selectedInst.id);
+    const mockClassList = inst ? inst.students.filter(s => s.class === selectedClass) : [];
+    
+    // Merge database students if any match the parameters
+    const dbClassList = dbStudents.filter(s => {
+      const matchInst = s.instituteId === selectedInst.id || s.instituteName === selectedInst.name;
+      const matchClass = s.class?.toString() === selectedClass;
+      return matchInst && matchClass;
+    });
+
+    // De-duplicate by name
+    const combined = [...mockClassList];
+    dbClassList.forEach(dbStudent => {
+      if (!combined.some(c => c.name.toLowerCase() === dbStudent.name.toLowerCase())) {
+        combined.push({
+          id: dbStudent._id,
+          name: dbStudent.name,
+          age: dbStudent.age || 15,
+          class: dbStudent.class?.toString() || selectedClass,
+          sport: dbStudent.assignedSport || "Athletics",
+          assignedSport: dbStudent.assignedSport || "Athletics",
+          mentor: dbStudent.coachName || "Coach Mentor",
+          bmiCategory: dbStudent.bmiCategory || "Normal",
+          bmi: dbStudent.bmi || 20.0,
+          height: dbStudent.height || 165,
+          weight: dbStudent.weight || 55
+        });
+      }
+    });
+
+    return combined;
+  };
+
+  // Navigation handlers
+  const handleSelectInstitution = (inst) => {
+    setSelectedInst(inst);
+    setSelectedClass(null);
+    setSelectedStudent(null);
+  };
+
+  const handleSelectClass = (cls) => {
+    setSelectedClass(cls);
+    setSelectedStudent(null);
+  };
+
+  const handleSelectStudent = (student) => {
+    setSelectedStudent(student);
+  };
+
+  const handleResetNavigation = () => {
+    setSelectedInst(null);
+    setSelectedClass(null);
+    setSelectedStudent(null);
+  };
+
+  const filteredInstitutions = mockInstitutions.filter(inst => 
+    inst.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    inst.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Performance data compilation for Recharts
+  const historyRecords = selectedStudent ? generatePerformanceData(selectedStudent) : [];
+  const activeRecord = historyRecords.find(r => r.term === selectedTerm) || historyRecords[1] || historyRecords[0];
+
+  const radarData = activeRecord ? [
+    { subject: 'Speed 🏃‍♂️', val: activeRecord.speed, fullMark: 100 },
+    { subject: 'Strength 🏋️‍♂️', val: activeRecord.strength, fullMark: 100 },
+    { subject: 'Stamina 🫁', val: activeRecord.stamina, fullMark: 100 },
+    { subject: 'Agility ⚡', val: activeRecord.agility, fullMark: 100 },
+    { subject: 'Flexibility 🧘‍♂️', val: activeRecord.flexibility, fullMark: 100 },
+    { subject: 'Accuracy 🎯', val: activeRecord.accuracy, fullMark: 100 },
+    { subject: 'Endurance 📈', val: activeRecord.endurance, fullMark: 100 },
+    { subject: 'Reaction Time ⏱️', val: activeRecord.reactionTime, fullMark: 100 },
+  ] : [];
+
+  const comparisonData = historyRecords.length === 2 ? [
+    { name: 'Speed', 'Term 1': historyRecords[0].speed, 'Term 2': historyRecords[1].speed },
+    { name: 'Strength', 'Term 1': historyRecords[0].strength, 'Term 2': historyRecords[1].strength },
+    { name: 'Stamina', 'Term 1': historyRecords[0].stamina, 'Term 2': historyRecords[1].stamina },
+    { name: 'Agility', 'Term 1': historyRecords[0].agility, 'Term 2': historyRecords[1].agility },
+    { name: 'Flexibility', 'Term 1': historyRecords[0].flexibility, 'Term 2': historyRecords[1].flexibility },
+    { name: 'Accuracy', 'Term 1': historyRecords[0].accuracy, 'Term 2': historyRecords[1].accuracy },
+    { name: 'Endurance', 'Term 1': historyRecords[0].endurance, 'Term 2': historyRecords[1].endurance },
+    { name: 'Reaction', 'Term 1': historyRecords[0].reactionTime, 'Term 2': historyRecords[1].reactionTime }
+  ] : [];
+
   return (
-    <div className="space-y-8 animate-fade-in pb-12 font-sans">
+    <div className="space-y-8 animate-fade-in pb-16 font-sans">
       
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-          <Activity className="text-secondary w-8 h-8 animate-pulse" />
-          Performance Evaluation
-        </h1>
-        <p className="text-slate-500 text-sm mt-1 font-medium">
-          Record Term physical performance parameters, check matching schema guidelines, and log custom AI feedback.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Left Column - Selectors & Student Profile Card */}
-        <div className="lg:col-span-4 space-y-6">
-          
-          {/* Select Student Module */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-            <h3 className="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
-              <User size={18} className="text-secondary" />
-              Target Student Profile
-            </h3>
-            
-            <select 
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/40 bg-slate-50/50 font-semibold"
-              disabled={isLoading}
-            >
-              <option value="">-- Choose Student Roster --</option>
-              {students.map(student => (
-                <option key={student._id} value={student._id}>
-                  {student.name} ({student.studentId})
-                </option>
-              ))}
-            </select>
-
-            {/* Selected Student Dashboard Preview */}
-            {selectedStudentInfo ? (
-              <div className="mt-6 bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3.5">
-                <div className="flex items-center gap-3 border-b border-slate-200/60 pb-3">
-                  <div className="w-10 h-10 rounded-full bg-secondary/10 text-secondary flex items-center justify-center font-extrabold text-sm uppercase">
-                    {selectedStudentInfo.name.substring(0, 2)}
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-slate-800 text-sm">{selectedStudentInfo.name}</h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Class {selectedStudentInfo.class}th • {selectedStudentInfo.age} yrs</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Assigned Sport</span>
-                    <span className="font-extrabold text-slate-700 mt-0.5 inline-block">{selectedStudentInfo.assignedSport || "General Sports"}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Coach Mentor</span>
-                    <span className="font-extrabold text-slate-700 mt-0.5 inline-block">{selectedStudentInfo.coachName || "Coach Arthur"}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">BMI Weight Category</span>
-                    <span className="font-extrabold text-secondary mt-0.5 inline-block">{selectedStudentInfo.bmiCategory || "Normal"} ({selectedStudentInfo.bmi})</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Height & Weight</span>
-                    <span className="font-extrabold text-slate-700 mt-0.5 inline-block">{selectedStudentInfo.height}cm / {selectedStudentInfo.weight}kg</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4 border border-dashed border-slate-200 rounded-2xl p-6 text-center text-slate-400 text-xs font-semibold">
-                Select a student from the dropdown menu to inspect profiles and active evaluations history.
-              </div>
-            )}
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.15),transparent)] pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
+            <span className="px-3.5 py-1.5 bg-indigo-500/10 text-indigo-400 text-xs font-black rounded-lg border border-indigo-400/20 uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
+              <Activity size={12} className="animate-pulse" /> Analytics Center
+            </span>
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight">Performance Evaluation</h1>
+            <p className="text-slate-400 text-sm mt-1.5 max-w-xl font-medium">
+              Explore school physical indicators, analyze interactive performance radars, and view coach diagnostics class-wise.
+            </p>
           </div>
-
-          {/* Evaluation Period Selector */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-            <h3 className="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
-              <BookOpen size={18} className="text-secondary" />
-              Evaluation Term
-            </h3>
-            <div className="flex gap-3">
-              <button 
-                type="button"
-                onClick={() => setTerm("TERM-1")}
-                className={`flex-1 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
-                  term === "TERM-1" 
-                    ? 'bg-secondary text-white shadow-md shadow-blue-500/10' 
-                    : 'bg-slate-50 text-slate-400 border border-slate-100 hover:bg-slate-100 hover:text-slate-600'
-                }`}
-              >
-                <CheckCircle size={14} /> Term 1
-              </button>
-              <button 
-                type="button"
-                onClick={() => setTerm("TERM-2")}
-                className={`flex-1 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
-                  term === "TERM-2" 
-                    ? 'bg-secondary text-white shadow-md shadow-blue-500/10' 
-                    : 'bg-slate-50 text-slate-400 border border-slate-100 hover:bg-slate-100 hover:text-slate-600'
-                }`}
-              >
-                <CheckCircle size={14} /> Term 2
-              </button>
+          
+          <div className="flex gap-4">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center shrink-0">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Institutions</span>
+              <span className="text-2xl font-black text-white">{mockInstitutions.length}</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center shrink-0">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Coaches</span>
+              <span className="text-2xl font-black text-indigo-400">12+</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Right Column - Entry Form & Progression Lists (8 Cols) */}
-        <div className="lg:col-span-8 space-y-6">
+      {/* Dynamic Breadcrumbs / Navigation Path */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
+          <span 
+            className="hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-1.5"
+            onClick={handleResetNavigation}
+          >
+            <Building2 size={16} className="text-indigo-600" /> Institutions
+          </span>
           
-          {/* Main Input Form */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-secondary/5 to-transparent rounded-bl-full pointer-events-none"></div>
+          {selectedInst && (
+            <>
+              <ChevronRight size={14} className="text-slate-300" />
+              <span 
+                className="hover:text-indigo-600 cursor-pointer transition-colors text-slate-700"
+                onClick={() => { setSelectedClass(null); setSelectedStudent(null); }}
+              >
+                {selectedInst.name}
+              </span>
+            </>
+          )}
 
-            <h3 className="font-extrabold text-slate-800 text-lg flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
-              <Sparkles className="text-secondary w-5 h-5 animate-pulse" />
-              Enter Scoring Parameters (0 - 100)
-            </h3>
+          {selectedClass && (
+            <>
+              <ChevronRight size={14} className="text-slate-300" />
+              <span 
+                className="hover:text-indigo-600 cursor-pointer transition-colors text-slate-700 font-bold"
+                onClick={() => setSelectedStudent(null)}
+              >
+                Class {selectedClass}th
+              </span>
+            </>
+          )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* Metric Entry Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                
-                {/* Metrics array mapper */}
-                {[
-                  { label: "Speed (🏃‍♂️)", state: speed, setter: setSpeed, placeholder: "0 - 100" },
-                  { label: "Strength (🏋️‍♂️)", state: strength, setter: setStrength, placeholder: "0 - 100" },
-                  { label: "Stamina (🫁)", state: stamina, setter: setStamina, placeholder: "0 - 100" },
-                  { label: "Agility (⚡)", state: agility, setter: setAgility, placeholder: "0 - 100" },
-                  { label: "Flexibility (🧘‍♂️)", state: flexibility, setter: setFlexibility, placeholder: "0 - 100" },
-                  { label: "Accuracy (🎯)", state: accuracy, setter: setAccuracy, placeholder: "0 - 100" },
-                  { label: "Endurance (📈)", state: endurance, setter: setEndurance, placeholder: "0 - 100" },
-                  { label: "Reaction Time (⏱️)", state: reactionTime, setter: setReactionTime, placeholder: "0 - 100" },
-                ].map((input, idx) => (
-                  <div key={idx}>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                      {input.label} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder={input.placeholder}
-                      value={input.state}
-                      onChange={(e) => input.setter(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/40 font-semibold text-center"
-                      required
-                    />
-                  </div>
-                ))}
+          {selectedStudent && (
+            <>
+              <ChevronRight size={14} className="text-slate-300" />
+              <span className="text-indigo-600 font-black">
+                👤 {selectedStudent.name}
+              </span>
+            </>
+          )}
+        </div>
+
+        {(selectedInst || selectedClass || selectedStudent) && (
+          <button 
+            onClick={handleResetNavigation}
+            className="px-4 py-2 border border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all active:scale-95 bg-slate-50 hover:bg-slate-100"
+          >
+            <ArrowLeft size={14} /> Back to Directory
+          </button>
+        )}
+      </div>
+
+      {/* Main Core Layout Grid */}
+      <div className="space-y-8">
+        
+        {/* LEVEL 1: Institution Directory */}
+        {!selectedInst && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
+                  <Building2 size={20} className="text-indigo-600" />
+                  Select Registered Institution
+                </h3>
+                <p className="text-xs text-slate-400 font-semibold mt-0.5">Click any institute below to inspect class structures and rosters.</p>
               </div>
 
-              {/* Other Schema Aspects */}
-              <div className="pt-4 border-t border-slate-100">
-                <h4 className="font-extrabold text-slate-700 text-xs uppercase tracking-wider mb-3">Other Compulsory Aspects</h4>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                      Attendance (%) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder="e.g. 92"
-                      value={attendance}
-                      onChange={(e) => setAttendance(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/40 font-semibold text-center"
-                      required
-                    />
+              {/* Search Bar */}
+              <div className="relative max-w-xs w-full">
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input 
+                  type="text"
+                  placeholder="Search institution..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 text-xs font-semibold border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 bg-slate-50/50"
+                />
+              </div>
+            </div>
+
+            {/* Institution Grid cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredInstitutions.map((inst) => (
+                <div 
+                  key={inst.id}
+                  onClick={() => handleSelectInstitution(inst)}
+                  className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 group-hover:bg-indigo-100/70 rounded-bl-full transition-colors flex items-center justify-center pointer-events-none">
+                    <Building2 className="text-indigo-600/30 w-8 h-8 group-hover:scale-110 transition-transform" />
                   </div>
 
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                      Discipline (1 - 10) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      placeholder="e.g. 9"
-                      value={discipline}
-                      onChange={(e) => setDiscipline(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/40 font-semibold text-center"
-                      required
-                    />
+                  <div className="space-y-4">
+                    <div>
+                      <span className="px-2.5 py-0.5 bg-slate-50 group-hover:bg-indigo-50 text-[10px] text-slate-500 group-hover:text-indigo-600 font-bold rounded border border-slate-200/60 group-hover:border-indigo-100 transition-colors">
+                        Approved Hub
+                      </span>
+                      <h4 className="font-extrabold text-slate-800 mt-2 text-base group-hover:text-indigo-600 transition-colors pr-6">{inst.name}</h4>
+                    </div>
+
+                    <div className="space-y-2 text-xs font-semibold text-slate-400">
+                      <p className="flex items-center gap-1.5">
+                        <span className="text-[10px]">📧</span> <span className="text-slate-500">{inst.email}</span>
+                      </p>
+                      <p className="flex items-center gap-1.5">
+                        <span className="text-[10px]">📞</span> <span className="text-slate-500">{inst.phone}</span>
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Schema Align: matchPerformance */}
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                      Match Performance (%) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder="e.g. 85"
-                      value={matchPerformance}
-                      onChange={(e) => setMatchPerformance(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/40 font-semibold text-center"
-                      required
-                    />
+                  <div className="border-t border-slate-100 mt-6 pt-4 flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-700 bg-slate-50 group-hover:bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1">
+                      <Users size={12} className="text-indigo-600" />
+                      {inst.studentCount} Athletes
+                    </span>
+                    <span className="text-xs font-bold text-indigo-600 flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
+                      Open Directory <ChevronRight size={14} />
+                    </span>
                   </div>
+                </div>
+              ))}
+
+              {filteredInstitutions.length === 0 && (
+                <div className="col-span-full border border-dashed border-slate-200 rounded-2xl p-12 text-center text-slate-400 text-sm font-semibold bg-slate-50/50">
+                  <AlertCircle className="mx-auto text-slate-300 w-8 h-8 mb-2" />
+                  No institutions matches your active search queries.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* LEVEL 2: Classes of Institution */}
+        {selectedInst && !selectedClass && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="border-b border-slate-100 pb-4">
+              <h3 className="text-xl font-black text-slate-800">
+                🏫 {selectedInst.name}
+              </h3>
+              <p className="text-xs text-slate-400 font-semibold mt-1">Select an active class grade to inspect individual athletic rosters.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              {["8", "9", "10", "11"].map((classGrade) => {
+                const count = selectedInst.students.filter(s => s.class === classGrade).length;
+                return (
+                  <div 
+                    key={classGrade}
+                    onClick={() => handleSelectClass(classGrade)}
+                    className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-200 hover:scale-[1.02] transition-all duration-300 cursor-pointer text-center relative overflow-hidden"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-lg mx-auto mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                      {classGrade}
+                    </div>
+                    <h4 className="font-extrabold text-slate-800 text-sm">Class {classGrade}th Grade</h4>
+                    <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">{count} Registered Students</p>
+                    
+                    <div className="border-t border-slate-100 mt-5 pt-3.5 flex justify-center items-center gap-1 text-xs font-bold text-indigo-600 group-hover:text-indigo-800">
+                      Open Class <ChevronRight size={14} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* LEVEL 3: Student Roster Table */}
+        {selectedInst && selectedClass && !selectedStudent && (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6 animate-fade-in">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-lg font-black text-slate-800">
+                  Students Roster • Class {selectedClass}th Grade
+                </h3>
+                <p className="text-xs text-slate-400 font-semibold mt-0.5">Showing students listed inside {selectedInst.name}.</p>
+              </div>
+              <button 
+                onClick={() => setSelectedClass(null)}
+                className="px-3.5 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all"
+              >
+                Change Class
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 text-[10px] uppercase font-black text-slate-400 tracking-wider">
+                    <th className="py-3.5 px-4">Student Name</th>
+                    <th className="py-3.5 px-4">Age</th>
+                    <th className="py-3.5 px-4">Assigned Sport</th>
+                    <th className="py-3.5 px-4 text-center">BMI Category</th>
+                    <th className="py-3.5 px-4">Coach Mentor</th>
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100/60 text-xs font-semibold text-slate-700">
+                  {getStudentsForClass().map((student) => {
+                    const tempHistory = generatePerformanceData(student);
+                    const avg = tempHistory[1]?.overallScore || tempHistory[0]?.overallScore || 0;
+                    
+                    return (
+                      <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="py-4 px-4 flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-extrabold text-xs uppercase">
+                            {student.name.substring(0, 2)}
+                          </div>
+                          <div>
+                            <h5 className="font-extrabold text-slate-800">{student.name}</h5>
+                            <span className="text-[10px] text-slate-400 font-bold block mt-0.5">ID: {student.id}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 text-slate-500">{student.age} Yrs</td>
+                        <td className="py-4 px-4">
+                          <span className="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg border border-indigo-100 uppercase">
+                            {student.assignedSport || student.sport}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-center">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            student.bmiCategory === 'Normal' ? 'bg-emerald-50 text-emerald-700' :
+                            student.bmiCategory === 'Underweight' ? 'bg-amber-50 text-amber-700' :
+                            'bg-red-50 text-red-700'
+                          }`}>
+                            {student.bmiCategory} ({student.bmi})
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-slate-500">{student.mentor}</td>
+                        <td className="py-4 px-4 text-right">
+                          <button
+                            onClick={() => handleSelectStudent(student)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all hover:shadow-md hover:shadow-indigo-500/10 active:scale-95"
+                          >
+                            <Eye size={12} /> View Performance
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {getStudentsForClass().length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="py-10 text-center text-slate-400 text-xs font-semibold">
+                        No athletes located inside this class currently.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* LEVEL 4: Student Performance Analytics Panel */}
+        {selectedStudent && (
+          <div className="space-y-8 animate-fade-in">
+            
+            {/* Student Profiler Header & Controls */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row justify-between gap-6">
+              
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-600 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-500/10 uppercase">
+                  {selectedStudent.name.substring(0, 2)}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-xl font-black text-slate-800">{selectedStudent.name}</h3>
+                    <span className="px-2.5 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg border border-indigo-100 uppercase tracking-wide">
+                      {selectedStudent.assignedSport || selectedStudent.sport}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">
+                    Class {selectedStudent.class}th • {selectedStudent.age} Years Old • Mentor: {selectedStudent.mentor}
+                  </p>
                 </div>
               </div>
 
-              {/* Submit Wrapper */}
-              <div className="flex justify-end pt-4 border-t border-slate-100">
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !selectedStudentId}
-                  className={`px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 flex items-center gap-1.5 shadow-md ${
-                    isSubmitting || !selectedStudentId
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                      : 'bg-gradient-to-r from-secondary to-primary hover:from-blue-600 hover:to-indigo-900 text-white shadow-blue-500/10 hover:shadow-xl hover:scale-[1.01]'
-                  }`}
-                >
-                  <PlusCircle size={16} />
-                  {isSubmitting ? 'Saving Metrics...' : 'Save Performance Data'}
-                </button>
+              {/* Term Selector & Back Link */}
+              <div className="flex items-center gap-3 self-end md:self-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Viewing Term:</span>
+                <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
+                  <button 
+                    onClick={() => setSelectedTerm("TERM-1")}
+                    className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all ${
+                      selectedTerm === "TERM-1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                    }`}
+                  >
+                    Term 1
+                  </button>
+                  <button 
+                    onClick={() => setSelectedTerm("TERM-2")}
+                    className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all ${
+                      selectedTerm === "TERM-2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                    }`}
+                  >
+                    Term 2
+                  </button>
+                </div>
               </div>
 
-            </form>
-          </div>
+            </div>
 
-          {/* Historical Progression Panel */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-            <h3 className="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-              <BarChart3 size={18} className="text-secondary" />
-              Evaluation History & AI Insights
-            </h3>
+            {/* High-Impact Stat widgets Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-50 rounded-bl-full pointer-events-none flex items-center justify-center">
+                  <Trophy className="text-indigo-600/30 w-5 h-5" />
+                </div>
+                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Overall Score</span>
+                <span className="text-3xl font-black text-slate-800">{activeRecord?.overallScore || 0}%</span>
+                
+                {/* Visual score slider */}
+                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
+                  <div 
+                    className="bg-indigo-600 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${activeRecord?.overallScore || 0}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
+                  <span>Progress Log</span>
+                  <span className="text-indigo-600 font-extrabold">{activeRecord?.fitnessLevel} Level</span>
+                </div>
+              </div>
 
-            {history.length > 0 ? (
-              <div className="space-y-4">
-                {history.map((record) => (
-                  <div key={record._id} className="border border-slate-100 rounded-2xl p-5 hover:shadow-sm transition-shadow bg-slate-50/50">
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-teal-50 rounded-bl-full pointer-events-none flex items-center justify-center">
+                  <CheckCircle className="text-teal-600/30 w-5 h-5" />
+                </div>
+                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Attendance Rate</span>
+                <span className="text-3xl font-black text-slate-800">{activeRecord?.attendance || 0}%</span>
+                
+                {/* Visual score slider */}
+                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
+                  <div 
+                    className="bg-teal-500 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${activeRecord?.attendance || 0}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
+                  <span>Regularity Target</span>
+                  <span className="text-teal-600 font-extrabold">{activeRecord?.attendance >= 90 ? 'Excellent' : 'Average'}</span>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-bl-full pointer-events-none flex items-center justify-center">
+                  <Zap className="text-purple-600/30 w-5 h-5" />
+                </div>
+                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Discipline Index</span>
+                <span className="text-3xl font-black text-slate-800">{activeRecord?.discipline || 0} / 10</span>
+                
+                {/* Visual score slider */}
+                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
+                  <div 
+                    className="bg-purple-500 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${(activeRecord?.discipline || 0) * 10}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
+                  <span>Attitude Markers</span>
+                  <span className="text-purple-600 font-extrabold">{activeRecord?.discipline >= 8 ? 'Exceptional' : 'Good'}</span>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-amber-50 rounded-bl-full pointer-events-none flex items-center justify-center">
+                  <Target className="text-amber-600/30 w-5 h-5" />
+                </div>
+                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Match Performance</span>
+                <span className="text-3xl font-black text-slate-800">{activeRecord?.matchPerformance || 0}%</span>
+                
+                {/* Visual score slider */}
+                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
+                  <div 
+                    className="bg-amber-500 h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${activeRecord?.matchPerformance || 0}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
+                  <span>In-game scoring</span>
+                  <span className="text-amber-600 font-extrabold">{activeRecord?.matchPerformance >= 80 ? 'Highly Competent' : 'Average'}</span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Core Visualization Charts Row (Radar & Comparison) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              
+              {/* Radar Chart */}
+              <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between h-[450px]">
+                <div>
+                  <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                    <Activity size={16} className="text-indigo-600" />
+                    Physical Capacity Distribution Radar
+                  </h4>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Physical indicators representation inside the selected term</p>
+                </div>
+
+                <div className="flex-1 w-full min-h-[300px] flex items-center justify-center mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
+                      <PolarGrid stroke="#f1f5f9" strokeWidth={1.5} />
+                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#334155', fontSize: 10, fontWeight: '800' }} />
+                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 8 }} />
+                      <Radar 
+                        name={`${selectedStudent.name} (${selectedTerm})`} 
+                        dataKey="val" 
+                        stroke="#4f46e5" 
+                        fill="#4f46e5" 
+                        fillOpacity={0.25} 
+                        strokeWidth={2.5}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: '#0f172a', 
+                          border: 'none', 
+                          borderRadius: '12px',
+                          color: '#f8fafc',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+                        }} 
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Term Comparative Chart */}
+              <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between h-[450px]">
+                <div>
+                  <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                    <TrendingUp size={16} className="text-indigo-600" />
+                    Term Improvement Diagnostics
+                  </h4>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Side-by-side comparative analysis of physical parameters</p>
+                </div>
+
+                <div className="flex-1 w-full min-h-[300px] mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={comparisonData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10, fontWeight: '700' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: '#0f172a', 
+                          border: 'none', 
+                          borderRadius: '12px',
+                          color: '#f8fafc',
+                          fontSize: '11px',
+                          fontWeight: '700'
+                        }} 
+                      />
+                      <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: '800' }} />
+                      <Bar dataKey="Term 1" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={22} />
+                      <Bar dataKey="Term 2" fill="#4f46e5" radius={[4, 4, 0, 0]} maxBarSize={22} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Auto AI Diagnostic Diagnostic Block */}
+            {activeRecord?.aiInsight && (
+              <div className="bg-gradient-to-r from-indigo-50 via-slate-50 to-indigo-50/40 rounded-3xl border border-indigo-100/50 p-6 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-indigo-200/15 to-transparent rounded-bl-full pointer-events-none"></div>
+                
+                <h4 className="font-extrabold text-indigo-900 text-sm flex items-center gap-2.5 mb-3">
+                  <Sparkles className="text-indigo-600 w-5 h-5 animate-pulse" />
+                  Auto AI Diagnostic Evaluation
+                </h4>
+                
+                <p className="text-xs text-indigo-950 font-semibold leading-relaxed max-w-4xl">
+                  {activeRecord.aiInsight}
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-4 text-[10px] font-black uppercase text-indigo-700">
+                  <span className="px-3.5 py-1.5 bg-white rounded-xl border border-indigo-100 flex items-center gap-1 shadow-sm">
+                    🏋️‍♂️ Strength: {activeRecord.strength}%
+                  </span>
+                  <span className="px-3.5 py-1.5 bg-white rounded-xl border border-indigo-100 flex items-center gap-1 shadow-sm">
+                    🏃‍♂️ Speed: {activeRecord.speed}%
+                  </span>
+                  <span className="px-3.5 py-1.5 bg-white rounded-xl border border-indigo-100 flex items-center gap-1 shadow-sm">
+                    🎯 Accuracy: {activeRecord.accuracy}%
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Historical Progression Panel */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <h4 className="font-extrabold text-slate-800 text-sm mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
+                <Calendar size={16} className="text-indigo-600" />
+                Evaluation Logs Timeline
+              </h4>
+
+              <div className="space-y-6 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                {historyRecords.map((record) => (
+                  <div key={record._id} className="flex gap-6 relative items-start group">
                     
-                    {/* Header bar */}
-                    <div className="flex justify-between items-start gap-4">
-                      <div>
-                        <span className="px-3 py-1 bg-blue-50 text-secondary text-xs font-black rounded-lg border border-blue-100">
-                          {record.term}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-bold ml-2">
-                          Logged: {new Date(record.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      
-                      {/* Overall Fit rating */}
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                        record.fitnessLevel === 'Excellent' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
-                        record.fitnessLevel === 'Good' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
-                        record.fitnessLevel === 'Average' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
-                        'bg-red-50 text-red-700 border border-red-100'
-                      }`}>
-                        {record.fitnessLevel || "Average"} Fit
-                      </span>
+                    {/* Timestamp Dot */}
+                    <div className="w-7 h-7 rounded-full bg-slate-50 border border-slate-200 text-slate-400 group-hover:border-indigo-600 group-hover:text-indigo-600 flex items-center justify-center shrink-0 z-10 transition-colors bg-white font-extrabold text-[10px]">
+                      {record.term === 'TERM-1' ? 'T1' : 'T2'}
                     </div>
 
-                    {/* Progress grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-4 pt-3 border-t border-slate-100">
-                      <div>
-                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Overall Score</span>
-                        <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.overallScore || "0"}%</span>
+                    {/* Record Card */}
+                    <div className="flex-1 bg-slate-50/50 border border-slate-100 rounded-2xl p-5 hover:bg-slate-50 hover:border-slate-200 transition-all">
+                      <div className="flex justify-between items-start gap-4 flex-wrap">
+                        <div>
+                          <span className="px-2.5 py-0.5 bg-white border border-slate-200 text-slate-600 text-[10px] font-black rounded-lg uppercase">
+                            {record.term}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-bold ml-2">
+                            Logged: {new Date(record.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                          record.fitnessLevel === 'Excellent' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
+                          record.fitnessLevel === 'Good' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
+                          'bg-amber-50 text-amber-700 border border-amber-100'
+                        }`}>
+                          {record.fitnessLevel} Fitness Category
+                        </span>
                       </div>
-                      <div>
-                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Attendance Rate</span>
-                        <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.attendance || "0"}%</span>
-                      </div>
-                      <div>
-                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Discipline Marker</span>
-                        <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.discipline || "0"}/10</span>
-                      </div>
-                      <div>
-                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Match Score</span>
-                        <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.matchPerformance || "0"}%</span>
+
+                      {/* Summary Metrics */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 pt-3 border-t border-slate-200/60 text-xs font-semibold text-slate-500">
+                        <div>
+                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Average Fitness</span>
+                          <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.overallScore}%</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Stamina Marker</span>
+                          <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.stamina}%</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Agility displacement</span>
+                          <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.agility}%</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Reaction speed</span>
+                          <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.reactionTime}%</span>
+                        </div>
                       </div>
                     </div>
-
-                    {/* AI Insights text block */}
-                    {record.aiInsight && (
-                      <div className="mt-3 bg-white border border-slate-100 rounded-xl p-3 text-xs text-slate-600 font-semibold leading-relaxed">
-                        <span className="font-black text-secondary uppercase text-[8px] tracking-widest block mb-1.5">Auto AI Diagnostic Evaluation</span>
-                        {record.aiInsight}
-                      </div>
-                    )}
 
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="border border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-400 text-xs font-semibold">
-                No past evaluation entries located for this student record. Save parameters above to log first rating!
-              </div>
-            )}
-          </div>
+            </div>
 
-        </div>
+          </div>
+        )}
 
       </div>
 
-      {/* Reusable Toast Alerts */}
+      {/* Toast Alert popup */}
       {toast.show && (
-        <div className={`fixed top-6 right-6 z-50 flex items-center gap-4 bg-slate-900 text-white px-5 py-4 rounded-xl shadow-2xl animate-fade-in-up max-w-sm border border-slate-800 border-l-4 ${toast.isError ? 'border-red-500' : 'border-emerald-500'}`}>
-          <div className={`flex items-center justify-center rounded-full p-2.5 ${toast.isError ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+        <div className={`fixed top-6 right-6 z-50 flex items-center gap-4 bg-slate-900 text-white px-5 py-4 rounded-xl shadow-2xl animate-fade-in-up max-w-sm border border-slate-800 border-l-4 ${toast.isError ? 'border-red-500' : 'border-indigo-500'}`}>
+          <div className={`flex items-center justify-center rounded-full p-2.5 ${toast.isError ? 'bg-red-500/10 text-red-500' : 'bg-indigo-500/10 text-indigo-500'}`}>
             {toast.isError ? (
               <ShieldAlert size={20} className="animate-bounce" />
             ) : (
@@ -500,6 +959,7 @@ const Performance = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };

@@ -1,13 +1,114 @@
 const Student = require('../models/Student');
 const Performance = require('../models/Performance');
+const Institute = require('../models/Institute');
 
 const seedStudents = async () => {
   try {
     // Clear previous records to ensure clean seed
     await Student.deleteMany({});
     await Performance.deleteMany({});
+    await Institute.deleteMany({});
 
-    console.log("Database empty. Seeding student roster with realistic athletic parameters...");
+    console.log("Database cleared. Seeding approved and pending institutions...");
+
+    const initialInstitutes = [
+      {
+        _id: "6650b2d1eb264088b036d101",
+        name: "St. Xavier's International School",
+        city: "Ahmedabad",
+        state: "Gujarat",
+        address: "Navrangpura, Near Stadium Road",
+        contactPerson: "Dr. Arthur D'Souza",
+        mobile: "+91 98765 43210",
+        status: "approved"
+      },
+      {
+        _id: "6650b2d1eb264088b036d102",
+        name: "Delhi Public Sports Academy",
+        city: "Delhi",
+        state: "Delhi",
+        address: "Sector 12, Dwarka",
+        contactPerson: "Mr. Sharma Kumar",
+        mobile: "+91 91234 56789",
+        status: "approved"
+      },
+      {
+        _id: "6650b2d1eb264088b036d103",
+        name: "Ryan Elite High School",
+        city: "Mumbai",
+        state: "Maharashtra",
+        address: "Malad West, Link Road",
+        contactPerson: "Mrs. Paul Fernandes",
+        mobile: "+91 88776 65544",
+        status: "approved"
+      },
+      {
+        _id: "6650b2d1eb264088b036d104",
+        name: "Oakridge International Sports Hub",
+        city: "Hyderabad",
+        state: "Telangana",
+        address: "Gachibowli, Nanakramguda",
+        contactPerson: "Dr. Arthur Winston",
+        mobile: "+91 77665 54433",
+        status: "approved"
+      },
+      {
+        _id: "6650b2d1eb264088b036d105",
+        name: "DAV Public School, Gandhinagar",
+        city: "Gandhinagar",
+        state: "Gujarat",
+        address: "Sector 21, Vyas Circle",
+        contactPerson: "Mrs. Mehta Patel",
+        mobile: "+91 94567 12345",
+        status: "approved"
+      },
+      // PENDING INSTITUTES (For the Pending Approvals page!)
+      {
+        _id: "6650b2d1eb264088b036d201",
+        name: "St. Mary's High School",
+        city: "Nadiad",
+        state: "Gujarat",
+        address: "College Road, Near Mission Area",
+        contactPerson: "Sister Maria Joseph",
+        mobile: "+91 98251 12345",
+        status: "pending"
+      },
+      {
+        _id: "6650b2d1eb264088b036d202",
+        name: "Emerald Valley Sports Academy",
+        city: "Rajkot",
+        state: "Gujarat",
+        address: "Kalawad Road, Opp. University Gate",
+        contactPerson: "Coach Ranjitsinh Jadeja",
+        mobile: "+91 94282 54321",
+        status: "pending"
+      },
+      {
+        _id: "6650b2d1eb264088b036d203",
+        name: "Galaxy Sports Academy",
+        city: "Surat",
+        state: "Gujarat",
+        address: "Adajan, Near Star Bazar",
+        contactPerson: "Mr. Ramesh Kalsaria",
+        mobile: "+91 81400 99887",
+        status: "pending"
+      },
+      {
+        _id: "6650b2d1eb264088b036d204",
+        name: "Global Pathfinder International",
+        city: "Vadodara",
+        state: "Gujarat",
+        address: "Gotri Road, Near Yash Complex",
+        contactPerson: "Dr. Vinay Malhotra",
+        mobile: "+91 76008 11223",
+        status: "pending"
+      }
+    ];
+
+    await Institute.insertMany(initialInstitutes);
+    console.log("Institutions successfully seeded into MongoDB!");
+
+    console.log("Seeding student roster with realistic athletic parameters...");
 
     const initialStudents = [
       {
@@ -23,6 +124,7 @@ const seedStudents = async () => {
         contact: "+91 98987 65432",
         assignedSport: "Athletics",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d101",
         photoUrl: "https://ui-avatars.com/api/?name=Rohan+Patel&background=2563EB&color=fff&size=200",
         tests: [{
           sprintTime: 12.8,
@@ -46,6 +148,7 @@ const seedStudents = async () => {
         contact: "+91 87654 32109",
         assignedSport: "Athletics",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d101",
         photoUrl: "https://ui-avatars.com/api/?name=Yashvi+Patel&background=EC4899&color=fff&size=200",
         tests: []
       },
@@ -62,6 +165,7 @@ const seedStudents = async () => {
         contact: "+91 76543 21098",
         assignedSport: "Swimming",
         coachName: "Coach Priya",
+        instituteId: "6650b2d1eb264088b036d102",
         photoUrl: "https://ui-avatars.com/api/?name=Shreya+Ghoshal&background=EC4899&color=fff&size=200",
         tests: [{
           sprintTime: 14.2,
@@ -85,6 +189,7 @@ const seedStudents = async () => {
         contact: "+91 99887 76655",
         assignedSport: "Basketball",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d103",
         photoUrl: "https://ui-avatars.com/api/?name=Aditya+Roy&background=2563EB&color=fff&size=200",
         tests: []
       },
@@ -101,6 +206,7 @@ const seedStudents = async () => {
         contact: "+91 77665 54433",
         assignedSport: "Volleyball",
         coachName: "Coach Priya",
+        instituteId: "6650b2d1eb264088b036d101",
         photoUrl: "https://ui-avatars.com/api/?name=Sneha+Reddy&background=EC4899&color=fff&size=200",
         tests: []
       },
@@ -117,6 +223,7 @@ const seedStudents = async () => {
         contact: "+91 91234 56789",
         assignedSport: "Football",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d102",
         photoUrl: "https://ui-avatars.com/api/?name=Ishaan+Verma&background=2563EB&color=fff&size=200",
         tests: []
       },
@@ -133,6 +240,7 @@ const seedStudents = async () => {
         contact: "+91 99911 22334",
         assignedSport: "Cricket",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d104",
         photoUrl: "https://ui-avatars.com/api/?name=Varun+Dhawan&background=2563EB&color=fff&size=200",
         tests: [{
           sprintTime: 12.1,
@@ -156,6 +264,7 @@ const seedStudents = async () => {
         contact: "+91 81812 34567",
         assignedSport: "Badminton",
         coachName: "Coach Priya",
+        instituteId: "6650b2d1eb264088b036d101",
         photoUrl: "https://ui-avatars.com/api/?name=Jiya+Shah&background=EC4899&color=fff&size=200",
         tests: []
       },
@@ -172,6 +281,7 @@ const seedStudents = async () => {
         contact: "+91 94250 12345",
         assignedSport: "Athletics",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d103",
         photoUrl: "https://ui-avatars.com/api/?name=Devansh+Vyas&background=2563EB&color=fff&size=200",
         tests: []
       },
@@ -188,6 +298,7 @@ const seedStudents = async () => {
         contact: "+91 90909 09090",
         assignedSport: "Basketball",
         coachName: "Coach Priya",
+        instituteId: "6650b2d1eb264088b036d101",
         photoUrl: "https://ui-avatars.com/api/?name=Priya+Patel&background=EC4899&color=fff&size=200",
         tests: [{
           sprintTime: 13.1,
@@ -211,6 +322,7 @@ const seedStudents = async () => {
         contact: "+91 98765 12345",
         assignedSport: "Cricket",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d102",
         photoUrl: "https://ui-avatars.com/api/?name=Kabir+Singh&background=2563EB&color=fff&size=200",
         tests: []
       },
@@ -227,6 +339,7 @@ const seedStudents = async () => {
         contact: "+91 76767 67676",
         assignedSport: "Athletics",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d103",
         photoUrl: "https://ui-avatars.com/api/?name=Diya+Sen&background=EC4899&color=fff&size=200",
         tests: []
       },
@@ -243,6 +356,7 @@ const seedStudents = async () => {
         contact: "+91 90088 12345",
         assignedSport: "Football",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d101",
         photoUrl: "https://ui-avatars.com/api/?name=Manan+Desai&background=2563EB&color=fff&size=200",
         tests: []
       },
@@ -259,6 +373,7 @@ const seedStudents = async () => {
         contact: "+91 99900 11122",
         assignedSport: "Volleyball",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d104",
         photoUrl: "https://ui-avatars.com/api/?name=Parth+Shah&background=2563EB&color=fff&size=200",
         tests: [{
           sprintTime: 12.9,
@@ -282,6 +397,7 @@ const seedStudents = async () => {
         contact: "+91 94444 55555",
         assignedSport: "Swimming",
         coachName: "Coach Priya",
+        instituteId: "6650b2d1eb264088b036d102",
         photoUrl: "https://ui-avatars.com/api/?name=Ananya+Iyer&background=EC4899&color=fff&size=200",
         tests: []
       },
@@ -298,6 +414,7 @@ const seedStudents = async () => {
         contact: "+91 91122 33445",
         assignedSport: "Cricket",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d103",
         photoUrl: "https://ui-avatars.com/api/?name=Arpit+Gupta&background=2563EB&color=fff&size=200",
         tests: []
       },
@@ -314,6 +431,7 @@ const seedStudents = async () => {
         contact: "+91 90088 77665",
         assignedSport: "Cricket",
         coachName: "Coach Arthur",
+        instituteId: "6650b2d1eb264088b036d104",
         photoUrl: "https://ui-avatars.com/api/?name=Naman+Pandya&background=2563EB&color=fff&size=200",
         tests: []
       }
@@ -346,7 +464,7 @@ const seedStudents = async () => {
           attendance: 88,
           discipline: 7,
           matchPerformance: 65,
-          overallScore: 67.2,
+          overallScore: 67,
           fitnessLevel: "Good",
           aiInsight: "Exhibits solid linear sprint capabilities and strong stamina response thresholds. Arm flexion counts are within healthy standard brackets. Core flexibility exercises are recommended to increase leg swing acceleration ranges."
         });
@@ -366,7 +484,7 @@ const seedStudents = async () => {
           attendance: 94,
           discipline: 9,
           matchPerformance: 85,
-          overallScore: 81.3,
+          overallScore: 81,
           fitnessLevel: "Excellent",
           aiInsight: "Flawless physical recovery rates! Agility and pushup counts showed a remarkable +15% increase compared to TERM-1. Stamina indexes suggest perfect adaptation for elite-tier track and field programs."
         });
