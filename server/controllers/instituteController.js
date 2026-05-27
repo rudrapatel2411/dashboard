@@ -1,5 +1,6 @@
 const Institute = require('../models/Institute');
 const Student = require('../models/Student');
+const User = require('../models/User');
 
 // GET all institutes with pagination, search, and status filter
 const getInstitutes = async (req, res) => {
@@ -46,7 +47,7 @@ const getInstituteStudents = async (req, res) => {
   }
 };
 
-// PUT approve an institute
+// PUT approve an institute — also approves the linked User account
 const approveInstitute = async (req, res) => {
   try {
     const institute = await Institute.findByIdAndUpdate(
@@ -57,13 +58,31 @@ const approveInstitute = async (req, res) => {
     if (!institute) {
       return res.status(404).json({ message: 'Institute not found' });
     }
+
+    // Sync the linked User's approvalStatus
+    if (institute.userId) {
+      await User.findByIdAndUpdate(institute.userId, { approvalStatus: 'approved' });
+    }
+
+    // Send notification
+    try {
+      const { sendNotification } = require('../routes/notifications');
+      sendNotification(
+        "Institute Approved",
+        `"${institute.name}" has been approved and can now access the institute portal.`,
+        "success"
+      );
+    } catch (e) {
+      // Silent catch
+    }
+
     res.json(institute);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// PUT reject an institute
+// PUT reject an institute — also rejects the linked User account
 const rejectInstitute = async (req, res) => {
   try {
     const institute = await Institute.findByIdAndUpdate(
@@ -74,6 +93,12 @@ const rejectInstitute = async (req, res) => {
     if (!institute) {
       return res.status(404).json({ message: 'Institute not found' });
     }
+
+    // Sync the linked User's approvalStatus
+    if (institute.userId) {
+      await User.findByIdAndUpdate(institute.userId, { approvalStatus: 'rejected' });
+    }
+
     res.json(institute);
   } catch (error) {
     res.status(500).json({ message: error.message });

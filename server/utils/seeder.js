@@ -1,20 +1,42 @@
 const Student = require('../models/Student');
 const Performance = require('../models/Performance');
+const TestPerformance = require('../models/TestPerformance');
 const Institute = require('../models/Institute');
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
 
 const seedStudents = async () => {
   try {
     // Clear previous records to ensure clean seed
     await Student.deleteMany({});
     await Performance.deleteMany({});
+    await TestPerformance.deleteMany({});
     await Institute.deleteMany({});
+    await User.deleteMany({});
 
-    console.log("Database cleared. Seeding approved and pending institutions...");
+    console.log("Database cleared. Seeding admin user and institute portal...");
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedAdminPassword = await bcrypt.hash("admin123", salt);
+    const hashedInstitutePassword = await bcrypt.hash("password123", salt);
+
+    // Seed admin user
+    await User.create({
+      name: "SportSphere Admin",
+      email: "admin@sportsphere.com",
+      phone: "+91 99999 99999",
+      password: hashedAdminPassword,
+      role: "admin",
+      approvalStatus: "approved"
+    });
+
+    console.log("Admin user seeded.");
 
     const initialInstitutes = [
       {
         _id: "6650b2d1eb264088b036d101",
         name: "St. Xavier's International School",
+        email: "stxaviers@sportsphere.com",
         city: "Ahmedabad",
         state: "Gujarat",
         address: "Navrangpura, Near Stadium Road",
@@ -25,6 +47,7 @@ const seedStudents = async () => {
       {
         _id: "6650b2d1eb264088b036d102",
         name: "Delhi Public Sports Academy",
+        email: "dps@sportsphere.com",
         city: "Delhi",
         state: "Delhi",
         address: "Sector 12, Dwarka",
@@ -35,6 +58,7 @@ const seedStudents = async () => {
       {
         _id: "6650b2d1eb264088b036d103",
         name: "Ryan Elite High School",
+        email: "ryan@sportsphere.com",
         city: "Mumbai",
         state: "Maharashtra",
         address: "Malad West, Link Road",
@@ -45,6 +69,7 @@ const seedStudents = async () => {
       {
         _id: "6650b2d1eb264088b036d104",
         name: "Oakridge International Sports Hub",
+        email: "oakridge@sportsphere.com",
         city: "Hyderabad",
         state: "Telangana",
         address: "Gachibowli, Nanakramguda",
@@ -55,6 +80,7 @@ const seedStudents = async () => {
       {
         _id: "6650b2d1eb264088b036d105",
         name: "DAV Public School, Gandhinagar",
+        email: "dav@sportsphere.com",
         city: "Gandhinagar",
         state: "Gujarat",
         address: "Sector 21, Vyas Circle",
@@ -66,6 +92,7 @@ const seedStudents = async () => {
       {
         _id: "6650b2d1eb264088b036d201",
         name: "St. Mary's High School",
+        email: "stmarys@sportsphere.com",
         city: "Nadiad",
         state: "Gujarat",
         address: "College Road, Near Mission Area",
@@ -76,6 +103,7 @@ const seedStudents = async () => {
       {
         _id: "6650b2d1eb264088b036d202",
         name: "Emerald Valley Sports Academy",
+        email: "emerald@sportsphere.com",
         city: "Rajkot",
         state: "Gujarat",
         address: "Kalawad Road, Opp. University Gate",
@@ -86,6 +114,7 @@ const seedStudents = async () => {
       {
         _id: "6650b2d1eb264088b036d203",
         name: "Galaxy Sports Academy",
+        email: "galaxy@sportsphere.com",
         city: "Surat",
         state: "Gujarat",
         address: "Adajan, Near Star Bazar",
@@ -96,6 +125,7 @@ const seedStudents = async () => {
       {
         _id: "6650b2d1eb264088b036d204",
         name: "Global Pathfinder International",
+        email: "pathfinder@sportsphere.com",
         city: "Vadodara",
         state: "Gujarat",
         address: "Gotri Road, Near Yash Complex",
@@ -105,351 +135,258 @@ const seedStudents = async () => {
       }
     ];
 
+    for (let inst of initialInstitutes) {
+      const user = await User.create({
+        name: inst.contactPerson,
+        email: inst.email,
+        phone: inst.mobile.replace(/[^0-9+]/g, ''),
+        password: hashedInstitutePassword,
+        role: "institution",
+        approvalStatus: inst.status
+      });
+      inst.userId = user._id;
+    }
+
     await Institute.insertMany(initialInstitutes);
     console.log("Institutions successfully seeded into MongoDB!");
 
-    console.log("Seeding student roster with realistic athletic parameters...");
+    console.log("Seeding student roster...");
 
     const initialStudents = [
       {
-        studentId: "STU-801",
+        studentId: "STU801XYZ1",
         name: "Rohan Patel",
-        age: 14,
-        gender: "Male",
-        height: 158,
-        weight: 52,
-        bmi: 20.83,
-        bmiCategory: "Normal",
+        dob: new Date("2012-05-15"),
         class: "8",
-        contact: "+91 98987 65432",
-        assignedSport: "Athletics",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d101",
-        photoUrl: "https://ui-avatars.com/api/?name=Rohan+Patel&background=2563EB&color=fff&size=200",
-        tests: [{
-          sprintTime: 12.8,
-          broadJump: 215,
-          pushups: 26,
-          recommendedSport: "Athletics & Long Jump",
-          manualReportData: "Good hamstring flexibility. High stride frequency. Aerobic capacity is standard for age.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop"
-        }]
+        gender: "Male",
+        contact: "9898765432",
+        address: "A-401, Shanti Heights, Near Stadium Road",
+        taaluka: "Haveli",
+        city: "Ahmedabad",
+        pincode: "380009",
+        instituteId: "6650b2d1eb264088b036d101"
       },
       {
-        studentId: "STU-802",
+        studentId: "STU802XYZ2",
         name: "Yashvi Patel",
-        age: 14,
-        gender: "Female",
-        height: 154,
-        weight: 48,
-        bmi: 20.24,
-        bmiCategory: "Normal",
+        dob: new Date("2012-08-20"),
         class: "8",
-        contact: "+91 87654 32109",
-        assignedSport: "Athletics",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d101",
-        photoUrl: "https://ui-avatars.com/api/?name=Yashvi+Patel&background=EC4899&color=fff&size=200",
-        tests: []
+        gender: "Female",
+        contact: "8765432109",
+        address: "B-202, Radhe Bungalows, Navrangpura",
+        taaluka: "Haveli",
+        city: "Ahmedabad",
+        pincode: "380009",
+        instituteId: "6650b2d1eb264088b036d101"
       },
       {
-        studentId: "STU-803",
+        studentId: "STU803XYZ3",
         name: "Shreya Ghoshal",
-        age: 14,
-        gender: "Female",
-        height: 152,
-        weight: 44,
-        bmi: 19.04,
-        bmiCategory: "Normal",
+        dob: new Date("2012-10-10"),
         class: "8",
-        contact: "+91 76543 21098",
-        assignedSport: "Swimming",
-        coachName: "Coach Priya",
-        instituteId: "6650b2d1eb264088b036d102",
-        photoUrl: "https://ui-avatars.com/api/?name=Shreya+Ghoshal&background=EC4899&color=fff&size=200",
-        tests: [{
-          sprintTime: 14.2,
-          broadJump: 190,
-          pushups: 15,
-          recommendedSport: "Cricket & General Sports",
-          manualReportData: "Average muscle force, but excellent coordination. Recommended swimming routines to develop core endurance.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop"
-        }]
+        gender: "Female",
+        contact: "7654321098",
+        address: "Sector 12, Flat 304, Dwarka",
+        taaluka: "Dwarka",
+        city: "Delhi",
+        pincode: "110075",
+        instituteId: "6650b2d1eb264088b036d102"
       },
       {
-        studentId: "STU-804",
+        studentId: "STU804XYZ4",
         name: "Aditya Roy",
-        age: 14,
-        gender: "Male",
-        height: 162,
-        weight: 56,
-        bmi: 21.34,
-        bmiCategory: "Normal",
+        dob: new Date("2012-01-25"),
         class: "8",
-        contact: "+91 99887 76655",
-        assignedSport: "Basketball",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d103",
-        photoUrl: "https://ui-avatars.com/api/?name=Aditya+Roy&background=2563EB&color=fff&size=200",
-        tests: []
+        gender: "Male",
+        contact: "9988776655",
+        address: "Malad West, Link Road, Flat 501",
+        taaluka: "Malad",
+        city: "Mumbai",
+        pincode: "400064",
+        instituteId: "6650b2d1eb264088b036d103"
       },
       {
-        studentId: "STU-901",
+        studentId: "STU901XYZ5",
         name: "Sneha Reddy",
-        age: 15,
-        gender: "Female",
-        height: 160,
-        weight: 53,
-        bmi: 20.7,
-        bmiCategory: "Normal",
+        dob: new Date("2011-04-12"),
         class: "9",
-        contact: "+91 77665 54433",
-        assignedSport: "Volleyball",
-        coachName: "Coach Priya",
-        instituteId: "6650b2d1eb264088b036d101",
-        photoUrl: "https://ui-avatars.com/api/?name=Sneha+Reddy&background=EC4899&color=fff&size=200",
-        tests: []
+        gender: "Female",
+        contact: "7766554433",
+        address: "Flat 102, Gachibowli Highrise",
+        taaluka: "Serilingampally",
+        city: "Hyderabad",
+        pincode: "500032",
+        instituteId: "6650b2d1eb264088b036d104"
       },
       {
-        studentId: "STU-902",
+        studentId: "STU902XYZ6",
         name: "Ishaan Verma",
-        age: 15,
-        gender: "Male",
-        height: 168,
-        weight: 60,
-        bmi: 21.26,
-        bmiCategory: "Normal",
+        dob: new Date("2011-06-30"),
         class: "9",
-        contact: "+91 91234 56789",
-        assignedSport: "Football",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d102",
-        photoUrl: "https://ui-avatars.com/api/?name=Ishaan+Verma&background=2563EB&color=fff&size=200",
-        tests: []
+        gender: "Male",
+        contact: "9123456789",
+        address: "Sector 5, Flat 12, Dwarka",
+        taaluka: "Dwarka",
+        city: "Delhi",
+        pincode: "110075",
+        instituteId: "6650b2d1eb264088b036d102"
       },
       {
-        studentId: "STU-903",
+        studentId: "STU903XYZ7",
         name: "Varun Dhawan",
-        age: 15,
-        gender: "Male",
-        height: 170,
-        weight: 64,
-        bmi: 22.15,
-        bmiCategory: "Normal",
+        dob: new Date("2011-12-05"),
         class: "9",
-        contact: "+91 99911 22334",
-        assignedSport: "Cricket",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d104",
-        photoUrl: "https://ui-avatars.com/api/?name=Varun+Dhawan&background=2563EB&color=fff&size=200",
-        tests: [{
-          sprintTime: 12.1,
-          broadJump: 225,
-          pushups: 29,
-          recommendedSport: "Athletics & Long Jump",
-          manualReportData: "Explosive leg power. Very quick reaction time off the mark. High cardiovascular recovery rate.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop"
-        }]
+        gender: "Male",
+        contact: "9991122334",
+        address: "Gachibowli, Nanakramguda, Villa 8",
+        taaluka: "Serilingampally",
+        city: "Hyderabad",
+        pincode: "500032",
+        instituteId: "6650b2d1eb264088b036d104"
       },
       {
-        studentId: "STU-904",
+        studentId: "STU904XYZ8",
         name: "Jiya Shah",
-        age: 15,
-        gender: "Female",
-        height: 156,
-        weight: 47,
-        bmi: 19.31,
-        bmiCategory: "Normal",
+        dob: new Date("2011-09-18"),
         class: "9",
-        contact: "+91 81812 34567",
-        assignedSport: "Badminton",
-        coachName: "Coach Priya",
-        instituteId: "6650b2d1eb264088b036d101",
-        photoUrl: "https://ui-avatars.com/api/?name=Jiya+Shah&background=EC4899&color=fff&size=200",
-        tests: []
+        gender: "Female",
+        contact: "8181234567",
+        address: "C-501, Tulip Heights, Near Stadium Road",
+        taaluka: "Haveli",
+        city: "Ahmedabad",
+        pincode: "380009",
+        instituteId: "6650b2d1eb264088b036d101"
       },
       {
-        studentId: "STU-905",
+        studentId: "STU905XYZ9",
         name: "Devansh Vyas",
-        age: 15,
-        gender: "Male",
-        height: 165,
-        weight: 58,
-        bmi: 21.3,
-        bmiCategory: "Normal",
+        dob: new Date("2011-03-22"),
         class: "9",
-        contact: "+91 94250 12345",
-        assignedSport: "Athletics",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d103",
-        photoUrl: "https://ui-avatars.com/api/?name=Devansh+Vyas&background=2563EB&color=fff&size=200",
-        tests: []
+        gender: "Male",
+        contact: "9425012345",
+        address: "Malad West, Link Road, Flat 602",
+        taaluka: "Malad",
+        city: "Mumbai",
+        pincode: "400064",
+        instituteId: "6650b2d1eb264088b036d103"
       },
       {
-        studentId: "STU-101",
+        studentId: "STU101XYZ10",
         name: "Priya Patel",
-        age: 16,
-        gender: "Female",
-        height: 158,
-        weight: 50,
-        bmi: 20.03,
-        bmiCategory: "Normal",
+        dob: new Date("2010-02-14"),
         class: "10",
-        contact: "+91 90909 09090",
-        assignedSport: "Basketball",
-        coachName: "Coach Priya",
-        instituteId: "6650b2d1eb264088b036d101",
-        photoUrl: "https://ui-avatars.com/api/?name=Priya+Patel&background=EC4899&color=fff&size=200",
-        tests: [{
-          sprintTime: 13.1,
-          broadJump: 235,
-          pushups: 27,
-          recommendedSport: "Basketball & Volleyball",
-          manualReportData: "Great vertical suspension. Fast acceleration curves. Arm flexion and extension scores are good.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop"
-        }]
+        gender: "Female",
+        contact: "9090909090",
+        address: "A-502, Shanti Heights, Near Stadium Road",
+        taaluka: "Haveli",
+        city: "Ahmedabad",
+        pincode: "380009",
+        instituteId: "6650b2d1eb264088b036d101"
       },
       {
-        studentId: "STU-102",
+        studentId: "STU102XYZ11",
         name: "Kabir Singh",
-        age: 16,
-        gender: "Male",
-        height: 172,
-        weight: 68,
-        bmi: 22.99,
-        bmiCategory: "Normal",
+        dob: new Date("2010-07-28"),
         class: "10",
-        contact: "+91 98765 12345",
-        assignedSport: "Cricket",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d102",
-        photoUrl: "https://ui-avatars.com/api/?name=Kabir+Singh&background=2563EB&color=fff&size=200",
-        tests: []
+        gender: "Male",
+        contact: "9876512345",
+        address: "Sector 12, Flat 101, Dwarka",
+        taaluka: "Dwarka",
+        city: "Delhi",
+        pincode: "110075",
+        instituteId: "6650b2d1eb264088b036d102"
       },
       {
-        studentId: "STU-103",
+        studentId: "STU103XYZ12",
         name: "Diya Sen",
-        age: 16,
-        gender: "Female",
-        height: 162,
-        weight: 52,
-        bmi: 19.81,
-        bmiCategory: "Normal",
+        dob: new Date("2010-11-19"),
         class: "10",
-        contact: "+91 76767 67676",
-        assignedSport: "Athletics",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d103",
-        photoUrl: "https://ui-avatars.com/api/?name=Diya+Sen&background=EC4899&color=fff&size=200",
-        tests: []
+        gender: "Female",
+        contact: "7676767676",
+        address: "Malad West, Link Road, Flat 301",
+        taaluka: "Malad",
+        city: "Mumbai",
+        pincode: "400064",
+        instituteId: "6650b2d1eb264088b036d103"
       },
       {
-        studentId: "STU-104",
+        studentId: "STU104XYZ13",
         name: "Manan Desai",
-        age: 16,
-        gender: "Male",
-        height: 176,
-        weight: 70,
-        bmi: 22.59,
-        bmiCategory: "Normal",
+        dob: new Date("2010-05-02"),
         class: "10",
-        contact: "+91 90088 12345",
-        assignedSport: "Football",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d101",
-        photoUrl: "https://ui-avatars.com/api/?name=Manan+Desai&background=2563EB&color=fff&size=200",
-        tests: []
+        gender: "Male",
+        contact: "9008812345",
+        address: "B-404, Tulip Heights, Near Stadium Road",
+        taaluka: "Haveli",
+        city: "Ahmedabad",
+        pincode: "380009",
+        instituteId: "6650b2d1eb264088b036d101"
       },
       {
-        studentId: "STU-106",
+        studentId: "STU106XYZ14",
         name: "Parth Shah",
-        age: 16,
-        gender: "Male",
-        height: 174,
-        weight: 66,
-        bmi: 21.8,
-        bmiCategory: "Normal",
+        dob: new Date("2010-08-11"),
         class: "10",
-        contact: "+91 99900 11122",
-        assignedSport: "Volleyball",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d104",
-        photoUrl: "https://ui-avatars.com/api/?name=Parth+Shah&background=2563EB&color=fff&size=200",
-        tests: [{
-          sprintTime: 12.9,
-          broadJump: 240,
-          pushups: 28,
-          recommendedSport: "Basketball & Volleyball",
-          manualReportData: "Exceptional jump heights. Fast recovery index. High standard of muscular endurance.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop"
-        }]
+        gender: "Male",
+        contact: "9990011122",
+        address: "Gachibowli, Nanakramguda, Villa 15",
+        taaluka: "Serilingampally",
+        city: "Hyderabad",
+        pincode: "500032",
+        instituteId: "6650b2d1eb264088b036d104"
       },
       {
-        studentId: "STU-111",
+        studentId: "STU111XYZ15",
         name: "Ananya Iyer",
-        age: 17,
+        dob: new Date("2009-01-30"),
+        class: "11",
         gender: "Female",
-        height: 164,
-        weight: 55,
-        bmi: 20.45,
-        bmiCategory: "Normal",
-        class: "11",
-        contact: "+91 94444 55555",
-        assignedSport: "Swimming",
-        coachName: "Coach Priya",
-        instituteId: "6650b2d1eb264088b036d102",
-        photoUrl: "https://ui-avatars.com/api/?name=Ananya+Iyer&background=EC4899&color=fff&size=200",
-        tests: []
+        contact: "9444455555",
+        address: "Sector 10, Flat 405, Dwarka",
+        taaluka: "Dwarka",
+        city: "Delhi",
+        pincode: "110075",
+        instituteId: "6650b2d1eb264088b036d102"
       },
       {
-        studentId: "STU-112",
+        studentId: "STU112XYZ16",
         name: "Arpit Gupta",
-        age: 17,
-        gender: "Male",
-        height: 180,
-        weight: 74,
-        bmi: 22.84,
-        bmiCategory: "Normal",
+        dob: new Date("2009-03-24"),
         class: "11",
-        contact: "+91 91122 33445",
-        assignedSport: "Cricket",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d103",
-        photoUrl: "https://ui-avatars.com/api/?name=Arpit+Gupta&background=2563EB&color=fff&size=200",
-        tests: []
+        gender: "Male",
+        contact: "9112233445",
+        address: "Malad West, Link Road, Flat 105",
+        taaluka: "Malad",
+        city: "Mumbai",
+        pincode: "400064",
+        instituteId: "6650b2d1eb264088b036d103"
       },
       {
-        studentId: "STU-113",
+        studentId: "STU113XYZ17",
         name: "Naman Pandya",
-        age: 17,
-        gender: "Male",
-        height: 178,
-        weight: 71,
-        bmi: 22.41,
-        bmiCategory: "Normal",
+        dob: new Date("2009-09-09"),
         class: "11",
-        contact: "+91 90088 77665",
-        assignedSport: "Cricket",
-        coachName: "Coach Arthur",
-        instituteId: "6650b2d1eb264088b036d104",
-        photoUrl: "https://ui-avatars.com/api/?name=Naman+Pandya&background=2563EB&color=fff&size=200",
-        tests: []
+        gender: "Male",
+        contact: "9008877665",
+        address: "Gachibowli, Nanakramguda, Villa 22",
+        taaluka: "Serilingampally",
+        city: "Hyderabad",
+        pincode: "500032",
+        instituteId: "6650b2d1eb264088b036d104"
       }
     ];
 
     const insertedStudents = await Student.insertMany(initialStudents);
     console.log("20+ student profiles successfully seeded into MongoDB!");
 
-    // Let's seed TERM-1 and TERM-2 performance histories for some of the seeded students!
-    console.log("Seeding student performance history...");
+    // Seed Performance
+    console.log("Seeding student physical performance history...");
     const performanceSeeds = [];
 
     insertedStudents.forEach((student) => {
-      // Seed 2 terms (TERM-1 and TERM-2) for selective students to demonstrate historical timelines!
       const targets = ["Rohan Patel", "Shreya Ghoshal", "Varun Dhawan", "Priya Patel", "Parth Shah"];
       
       if (targets.includes(student.name)) {
-        // TERM-1 (Slightly lower scores)
         performanceSeeds.push({
           studentId: student._id,
           term: "TERM-1",
@@ -466,10 +403,9 @@ const seedStudents = async () => {
           matchPerformance: 65,
           overallScore: 67,
           fitnessLevel: "Good",
-          aiInsight: "Exhibits solid linear sprint capabilities and strong stamina response thresholds. Arm flexion counts are within healthy standard brackets. Core flexibility exercises are recommended to increase leg swing acceleration ranges."
+          aiInsight: "Exhibits solid linear sprint capabilities and strong stamina response thresholds. Core flexibility exercises are recommended."
         });
 
-        // TERM-2 (Significant improvements!)
         performanceSeeds.push({
           studentId: student._id,
           term: "TERM-2",
@@ -486,16 +422,65 @@ const seedStudents = async () => {
           matchPerformance: 85,
           overallScore: 81,
           fitnessLevel: "Excellent",
-          aiInsight: "Flawless physical recovery rates! Agility and pushup counts showed a remarkable +15% increase compared to TERM-1. Stamina indexes suggest perfect adaptation for elite-tier track and field programs."
+          aiInsight: "Flawless physical recovery rates! Agility and pushup counts showed a remarkable +15% increase compared to TERM-1."
         });
       }
     });
 
     if (performanceSeeds.length > 0) {
       await Performance.insertMany(performanceSeeds);
-      console.log(`Successfully seeded ${performanceSeeds.length} performance evaluation history documents!`);
+      console.log(`Successfully seeded ${performanceSeeds.length} physical performance records!`);
     }
 
+    // Seed Academic TestPerformance
+    console.log("Seeding academic test performance...");
+    const testPerformanceSeeds = [];
+
+    insertedStudents.forEach((student) => {
+      if (student.instituteId.toString() === "6650b2d1eb264088b036d101") {
+        // Seed TERM-1, HALF-YEARLY and ANNUAL
+        testPerformanceSeeds.push({
+          instituteId: student.instituteId,
+          studentId: student._id,
+          class: student.class,
+          examName: "Unit Test 1",
+          term: "TERM-1",
+          subjects: [
+            { subjectName: "Mathematics", marks: 85, maxMarks: 100 },
+            { subjectName: "Science", marks: 78, maxMarks: 100 },
+            { subjectName: "English", marks: 92, maxMarks: 100 },
+            { subjectName: "Hindi", marks: 80, maxMarks: 100 },
+            { subjectName: "Social Studies", marks: 88, maxMarks: 100 }
+          ],
+          remarks: "Excellent progress in all subjects. Active participation."
+        });
+
+        testPerformanceSeeds.push({
+          instituteId: student.instituteId,
+          studentId: student._id,
+          class: student.class,
+          examName: "Half-Yearly Examination",
+          term: "HALF-YEARLY",
+          subjects: [
+            { subjectName: "Mathematics", marks: 90, maxMarks: 100 },
+            { subjectName: "Science", marks: 82, maxMarks: 100 },
+            { subjectName: "English", marks: 88, maxMarks: 100 },
+            { subjectName: "Hindi", marks: 85, maxMarks: 100 },
+            { subjectName: "Social Studies", marks: 90, maxMarks: 100 }
+          ],
+          remarks: "Continues to excel. Mathematics scores are very strong."
+        });
+      }
+    });
+
+    if (testPerformanceSeeds.length > 0) {
+      for (const t of testPerformanceSeeds) {
+        await TestPerformance.create(t);
+      }
+      console.log(`Successfully seeded ${testPerformanceSeeds.length} academic test performance records.`);
+    }
+
+    console.log("Seeding completed successfully!");
   } catch (error) {
     console.error("Seeding failed:", error.message);
   }

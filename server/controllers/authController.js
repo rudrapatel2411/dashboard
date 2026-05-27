@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Institute } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -8,7 +8,7 @@ const generateToken = (id) => {
   });
 };
 
-// @desc    Register a new user
+// @desc    Register a new user (admin internal use)
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = async (req, res) => {
@@ -68,6 +68,81 @@ exports.register = async (req, res) => {
   }
 };
 
+// @desc    Register institute (creates both User + Institute records)
+// @route   POST /api/auth/institute-register
+// @access  Public
+exports.instituteRegister = async (req, res) => {
+  try {
+    const { 
+      name, email, phone, password,
+      instituteName, city, state, address, contactPerson, mobile 
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password || !instituteName || !city || !state) {
+      return res.status(400).json({ 
+        message: 'Please provide all required fields: name, email, password, instituteName, city, state' 
+      });
+    }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'An account with this email already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create user with institution role and pending status
+    const user = await User.create({
+      name,
+      email,
+      phone: phone || mobile,
+      password: hashedPassword,
+      role: 'institution',
+      approvalStatus: 'pending'
+    });
+
+    // Create linked Institute record
+    const institute = await Institute.create({
+      userId: user._id,
+      email,
+      name: instituteName,
+      city,
+      state,
+      address: address || '',
+      contactPerson: contactPerson || name,
+      mobile: mobile || phone || '',
+      status: 'pending'
+    });
+
+    // Send notification to admin dashboard
+    try {
+      const { sendNotification } = require('../routes/notifications');
+      sendNotification(
+        "New Institute Registration",
+        `"${instituteName}" from ${city}, ${state} has registered and is awaiting approval.`,
+        "warning"
+      );
+    } catch (e) {
+      // Silent catch
+    }
+
+    res.status(201).json({
+      message: 'Registration successful! Your account is pending admin approval. You will be able to login once approved.',
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      approvalStatus: user.approvalStatus,
+      instituteId: institute._id,
+      instituteName: institute.name
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 // @desc    Auth user & get token
 // @route   POST /api/auth/login
 // @access  Public
@@ -89,14 +164,26 @@ exports.login = async (req, res) => {
         });
       }
 
-      res.json({
+      // Build response
+      const responseData = {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
         approvalStatus: user.approvalStatus,
         token: generateToken(user._id)
-      });
+      };
+
+      // If institution user, attach instituteId
+      if (user.role === 'institution') {
+        const institute = await Institute.findOne({ userId: user._id });
+        if (institute) {
+          responseData.instituteId = institute._id;
+          responseData.instituteName = institute.name;
+        }
+      }
+
+      res.json(responseData);
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
     }

@@ -10,8 +10,12 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  age: {
-    type: Number,
+  dob: {
+    type: Date,
+    required: true
+  },
+  class: {
+    type: String,
     required: true
   },
   gender: {
@@ -19,55 +23,30 @@ const studentSchema = new mongoose.Schema({
     enum: ['Male', 'Female', 'Other'],
     required: true
   },
-  height: { // in cm
-    type: Number,
-    required: true
-  },
-  weight: { // in kg
-    type: Number,
-    required: true
-  },
-  bmi: {
-    type: Number
-  },
-  bmiCategory: {
-    type: String
-  },
-  class: {
-    type: String,
-    required: true
-  },
   contact: {
-    type: String
-  },
-  assignedSport: {
     type: String,
     required: true
   },
-  coachName: {
-    type: String
+  address: {
+    type: String,
+    required: true
   },
-  photoUrl: {
-    type: String
+  taaluka: {
+    type: String,
+    required: true
   },
-  instituteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Institute' },
-  fatherName: { type: String },
-  admissionNo: { type: String },
-  dob: { type: Date },
-  city: { type: String },
-  state: { type: String },
-  tests: [{
-    date: {
-      type: Date,
-      default: Date.now
-    },
-    sprintTime: Number,   // in seconds
-    broadJump: Number,    // in cm
-    pushups: Number,      // count
-    recommendedSport: String,
-    reportHardCopyUrl: String,
-    manualReportData: String
-  }]
+  city: {
+    type: String,
+    required: true
+  },
+  pincode: {
+    type: String,
+    required: true
+  },
+  instituteId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Institute' 
+  }
 }, {
   timestamps: true
 });

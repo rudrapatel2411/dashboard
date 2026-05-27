@@ -12,8 +12,14 @@ import {
 import axios from 'axios';
 
 const Performance = () => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isInstituteUser = user.role === 'institution';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
   // Navigation states
-  const [selectedInst, setSelectedInst] = useState(null);
+  const [selectedInst, setSelectedInst] = useState(
+    isInstituteUser ? { id: user.instituteId, name: user.instituteName || "My Institute" } : null
+  );
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -128,7 +134,10 @@ const Performance = () => {
     const fetchDbStudents = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get('http://localhost:5000/api/students', getAuthConfig());
+        const fetchUrl = isInstituteUser 
+          ? `${API_URL}/institute-portal/students` 
+          : `${API_URL}/students`;
+        const response = await axios.get(fetchUrl, getAuthConfig());
         setDbStudents(response.data || []);
       } catch (error) {
         // Quietly fail as mock data serves as primary visual framework
@@ -140,6 +149,26 @@ const Performance = () => {
 
     fetchDbStudents();
   }, []);
+
+  const [dbPerformances, setDbPerformances] = useState([]);
+
+  useEffect(() => {
+    const fetchStudentPerformances = async () => {
+      if (!selectedStudent) {
+        setDbPerformances([]);
+        return;
+      }
+      try {
+        const studentId = selectedStudent.id || selectedStudent._id;
+        const res = await axios.get(`${API_URL}/performance/${studentId}`, getAuthConfig());
+        setDbPerformances(res.data || []);
+      } catch (error) {
+        console.warn("Could not fetch student performance from backend.");
+        setDbPerformances([]);
+      }
+    };
+    fetchStudentPerformances();
+  }, [selectedStudent]);
 
   // Performance data generator (creates ultra-rich multi-term charts deterministically)
   const generatePerformanceData = (student) => {
@@ -255,30 +284,28 @@ const Performance = () => {
     ];
   };
 
-  // Compile local + DB students for selected class
-  const getStudentsForClass = () => {
-    if (!selectedInst || !selectedClass) return [];
+  // Compile all local + DB students for selected institution
+  const getStudentsForInst = () => {
+    if (!selectedInst) return [];
     
     // Find matching mock students
     const inst = mockInstitutions.find(i => i.id === selectedInst.id);
-    const mockClassList = inst ? inst.students.filter(s => s.class === selectedClass) : [];
+    const mockList = inst ? inst.students : [];
     
     // Merge database students if any match the parameters
-    const dbClassList = dbStudents.filter(s => {
-      const matchInst = s.instituteId === selectedInst.id || s.instituteName === selectedInst.name;
-      const matchClass = s.class?.toString() === selectedClass;
-      return matchInst && matchClass;
+    const dbList = dbStudents.filter(s => {
+      return s.instituteId === selectedInst.id || s.instituteName === selectedInst.name;
     });
 
     // De-duplicate by name
-    const combined = [...mockClassList];
-    dbClassList.forEach(dbStudent => {
+    const combined = [...mockList];
+    dbList.forEach(dbStudent => {
       if (!combined.some(c => c.name.toLowerCase() === dbStudent.name.toLowerCase())) {
         combined.push({
           id: dbStudent._id,
           name: dbStudent.name,
           age: dbStudent.age || 15,
-          class: dbStudent.class?.toString() || selectedClass,
+          class: dbStudent.class?.toString() || "9",
           sport: dbStudent.assignedSport || "Athletics",
           assignedSport: dbStudent.assignedSport || "Athletics",
           mentor: dbStudent.coachName || "Coach Mentor",
@@ -291,6 +318,17 @@ const Performance = () => {
     });
 
     return combined;
+  };
+
+  // Compile local + DB students for a specific class grade
+  const getStudentsForClassGrade = (classGrade) => {
+    return getStudentsForInst().filter(s => s.class?.toString() === classGrade?.toString());
+  };
+
+  // Compile local + DB students for selected class
+  const getStudentsForClass = () => {
+    if (!selectedClass) return [];
+    return getStudentsForClassGrade(selectedClass);
   };
 
   // Navigation handlers
@@ -321,8 +359,15 @@ const Performance = () => {
   );
 
   // Performance data compilation for Recharts
-  const historyRecords = selectedStudent ? generatePerformanceData(selectedStudent) : [];
-  const activeRecord = historyRecords.find(r => r.term === selectedTerm) || historyRecords[1] || historyRecords[0];
+  const historyRecords = (() => {
+    if (!selectedStudent) return [];
+    if (dbPerformances && dbPerformances.length > 0) {
+      return [...dbPerformances].sort((a, b) => a.term.localeCompare(b.term));
+    }
+    return generatePerformanceData(selectedStudent);
+  })();
+
+  const activeRecord = historyRecords.find(r => r.term === selectedTerm) || historyRecords[historyRecords.length - 1] || historyRecords[0];
 
   const radarData = activeRecord ? [
     { subject: 'Speed 🏃‍♂️', val: activeRecord.speed, fullMark: 100 },
@@ -335,15 +380,15 @@ const Performance = () => {
     { subject: 'Reaction Time ⏱️', val: activeRecord.reactionTime, fullMark: 100 },
   ] : [];
 
-  const comparisonData = historyRecords.length === 2 ? [
-    { name: 'Speed', 'Term 1': historyRecords[0].speed, 'Term 2': historyRecords[1].speed },
-    { name: 'Strength', 'Term 1': historyRecords[0].strength, 'Term 2': historyRecords[1].strength },
-    { name: 'Stamina', 'Term 1': historyRecords[0].stamina, 'Term 2': historyRecords[1].stamina },
-    { name: 'Agility', 'Term 1': historyRecords[0].agility, 'Term 2': historyRecords[1].agility },
-    { name: 'Flexibility', 'Term 1': historyRecords[0].flexibility, 'Term 2': historyRecords[1].flexibility },
-    { name: 'Accuracy', 'Term 1': historyRecords[0].accuracy, 'Term 2': historyRecords[1].accuracy },
-    { name: 'Endurance', 'Term 1': historyRecords[0].endurance, 'Term 2': historyRecords[1].endurance },
-    { name: 'Reaction', 'Term 1': historyRecords[0].reactionTime, 'Term 2': historyRecords[1].reactionTime }
+  const comparisonData = historyRecords.length > 0 ? [
+    { name: 'Speed', 'Term 1': historyRecords.find(r => r.term === 'TERM-1')?.speed || 0, 'Term 2': historyRecords.find(r => r.term === 'TERM-2')?.speed || 0 },
+    { name: 'Strength', 'Term 1': historyRecords.find(r => r.term === 'TERM-1')?.strength || 0, 'Term 2': historyRecords.find(r => r.term === 'TERM-2')?.strength || 0 },
+    { name: 'Stamina', 'Term 1': historyRecords.find(r => r.term === 'TERM-1')?.stamina || 0, 'Term 2': historyRecords.find(r => r.term === 'TERM-2')?.stamina || 0 },
+    { name: 'Agility', 'Term 1': historyRecords.find(r => r.term === 'TERM-1')?.agility || 0, 'Term 2': historyRecords.find(r => r.term === 'TERM-2')?.agility || 0 },
+    { name: 'Flexibility', 'Term 1': historyRecords.find(r => r.term === 'TERM-1')?.flexibility || 0, 'Term 2': historyRecords.find(r => r.term === 'TERM-2')?.flexibility || 0 },
+    { name: 'Accuracy', 'Term 1': historyRecords.find(r => r.term === 'TERM-1')?.accuracy || 0, 'Term 2': historyRecords.find(r => r.term === 'TERM-2')?.accuracy || 0 },
+    { name: 'Endurance', 'Term 1': historyRecords.find(r => r.term === 'TERM-1')?.endurance || 0, 'Term 2': historyRecords.find(r => r.term === 'TERM-2')?.endurance || 0 },
+    { name: 'Reaction', 'Term 1': historyRecords.find(r => r.term === 'TERM-1')?.reactionTime || 0, 'Term 2': historyRecords.find(r => r.term === 'TERM-2')?.reactionTime || 0 }
   ] : [];
 
   return (
@@ -379,14 +424,20 @@ const Performance = () => {
       {/* Dynamic Breadcrumbs / Navigation Path */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
-          <span 
-            className="hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-1.5"
-            onClick={handleResetNavigation}
-          >
-            <Building2 size={16} className="text-indigo-600" /> Institutions
-          </span>
+          {!isInstituteUser ? (
+            <span 
+              className="hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-1.5"
+              onClick={handleResetNavigation}
+            >
+              <Building2 size={16} className="text-indigo-600" /> Institutions
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 text-slate-700 font-extrabold">
+              <Building2 size={16} className="text-indigo-600" /> {selectedInst?.name}
+            </span>
+          )}
           
-          {selectedInst && (
+          {selectedInst && !isInstituteUser && (
             <>
               <ChevronRight size={14} className="text-slate-300" />
               <span 
@@ -420,12 +471,20 @@ const Performance = () => {
           )}
         </div>
 
-        {(selectedInst || selectedClass || selectedStudent) && (
+        {((!isInstituteUser && (selectedInst || selectedClass || selectedStudent)) || (isInstituteUser && (selectedClass || selectedStudent))) && (
           <button 
-            onClick={handleResetNavigation}
+            onClick={() => {
+              if (selectedStudent) {
+                setSelectedStudent(null);
+              } else if (selectedClass) {
+                setSelectedClass(null);
+              } else {
+                handleResetNavigation();
+              }
+            }}
             className="px-4 py-2 border border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all active:scale-95 bg-slate-50 hover:bg-slate-100"
           >
-            <ArrowLeft size={14} /> Back to Directory
+            <ArrowLeft size={14} /> Back
           </button>
         )}
       </div>
@@ -522,7 +581,7 @@ const Performance = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {["8", "9", "10", "11"].map((classGrade) => {
-                const count = selectedInst.students.filter(s => s.class === classGrade).length;
+                const count = getStudentsForClassGrade(classGrade).length;
                 return (
                   <div 
                     key={classGrade}
@@ -869,6 +928,132 @@ const Performance = () => {
                     🎯 Accuracy: {activeRecord.accuracy}%
                   </span>
                 </div>
+              </div>
+            )}
+
+            {/* Raw Physical screening parameters entered by coach */}
+            {activeRecord && (
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-6">
+                <div className="border-b border-slate-150 pb-3 flex justify-between items-center">
+                  <div>
+                    <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                      <ClipboardList size={16} className="text-indigo-600" />
+                      Physical screening parameters (Real Scores)
+                    </h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                      Actual measurements recorded during {selectedTerm}
+                    </p>
+                  </div>
+                  {activeRecord.recommendedSport && activeRecord.recommendedSport !== 'N/A' && (
+                    <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-black rounded-xl border border-indigo-100 uppercase">
+                      Recommended Sport: {activeRecord.recommendedSport}
+                    </span>
+                  )}
+                </div>
+
+                {activeRecord.status === 'Absent' ? (
+                  <div className="text-center text-red-500 font-semibold text-xs py-6">
+                    ⚠️ Student was marked ABSENT for physical screenings during this term.
+                  </div>
+                ) : activeRecord.height ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    {/* General Body Composition */}
+                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-4">
+                      <h5 className="font-black text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 pb-1.5 flex items-center gap-1.5">
+                        📏 Body Composition
+                      </h5>
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Height</span>
+                          <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.height} cm</span>
+                        </div>
+                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Weight</span>
+                          <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.weight} kg</span>
+                        </div>
+                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">BMI</span>
+                          <span className="text-base font-black text-indigo-600 mt-1 block">{activeRecord.bmi}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Test Results depending on Age Group */}
+                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-4">
+                      <h5 className="font-black text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 pb-1.5 flex items-center gap-1.5">
+                        ⏱️ Evaluation Screening Scores
+                      </h5>
+                      {activeRecord.ageGroup === 1 ? (
+                        /* Group 1 tests */
+                        <div className="grid grid-cols-2 gap-4 text-center">
+                          <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                            <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Plate Tapping (Coord.)</span>
+                            <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.plateTapping} s</span>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                            <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Flamingo (Balancing)</span>
+                            <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.flamingoBalance} s</span>
+                          </div>
+                        </div>
+                      ) : (
+                        /* Group 2 tests */
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
+                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
+                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">Curl-Ups</span>
+                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.partialCurlUp} reps</span>
+                          </div>
+                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
+                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">Push-Ups</span>
+                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.pushups} reps</span>
+                          </div>
+                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
+                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">Sit & Reach</span>
+                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.sitAndReach} cm</span>
+                          </div>
+                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
+                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">600m Run</span>
+                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.runWalk600m}</span>
+                          </div>
+                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm col-span-2 sm:col-span-1">
+                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">50m Sprint</span>
+                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.run50m} s</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Observations and file uploads */}
+                    {(activeRecord.manualReportData || activeRecord.reportHardCopyUrl) && (
+                      <div className="md:col-span-2 bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-3">
+                        <h5 className="font-black text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 pb-1 flex items-center gap-1">
+                          📝 Observations & Proof
+                        </h5>
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 w-full">
+                          {activeRecord.manualReportData && (
+                            <p className="text-xs text-slate-600 italic leading-relaxed flex-1">
+                              "{activeRecord.manualReportData}"
+                            </p>
+                          )}
+                          {activeRecord.reportHardCopyUrl && (
+                            <a
+                              href={activeRecord.reportHardCopyUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-xl text-[10px] font-black uppercase flex items-center gap-1.5 shrink-0 shadow-sm transition-colors active:scale-95 cursor-pointer bg-white"
+                            >
+                              <Eye size={12} /> View Hardcopy Photo
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center text-slate-400 text-xs italic py-6">
+                    ℹ️ Showing derived indicators. Select a student that has been evaluated through the PE portal to view real screening logs.
+                  </div>
+                )}
               </div>
             )}
 

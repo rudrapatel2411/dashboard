@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+// --- Student photo uploads ---
 const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
@@ -32,4 +33,36 @@ const upload = multer({
   }
 });
 
+// --- Marksheet image/PDF uploads ---
+const marksheetDir = path.join(__dirname, '../uploads/marksheets');
+if (!fs.existsSync(marksheetDir)) {
+  fs.mkdirSync(marksheetDir, { recursive: true });
+}
+
+const marksheetStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, marksheetDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, 'marksheet-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+const marksheetUpload = multer({
+  storage: marksheetStorage,
+  limits: { fileSize: 10000000 }, // 10MB limit for higher-res scans
+  fileFilter: function (req, file, cb) {
+    const filetypes = /jpeg|jpg|png|webp|pdf/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = /jpeg|jpg|png|webp|pdf|application\/pdf/.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb('Error: Only images and PDFs are allowed!');
+    }
+  }
+});
+
 module.exports = upload;
+module.exports.marksheetUpload = marksheetUpload;

@@ -35,7 +35,23 @@ const performanceSchema = new mongoose.Schema({
   },
   aiInsight: {
     type: String
-  }
+  },
+  // Raw Physical Test screening details
+  status: { type: String, default: 'Present' },
+  ageGroup: { type: Number },
+  height: { type: Number },
+  weight: { type: Number },
+  bmi: { type: Number },
+  plateTapping: { type: Number },
+  flamingoBalance: { type: Number },
+  partialCurlUp: { type: Number },
+  pushups: { type: Number },
+  sitAndReach: { type: Number },
+  runWalk600m: { type: String },
+  run50m: { type: Number },
+  recommendedSport: { type: String },
+  manualReportData: { type: String },
+  reportHardCopyUrl: { type: String }
 }, {
   timestamps: true
 });

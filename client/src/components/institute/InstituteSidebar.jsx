@@ -1,20 +1,21 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Building2, ClipboardList, Activity, FileBarChart, UserCheck, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, FileBarChart, LogOut, X, Activity } from 'lucide-react';
 
-const Sidebar = ({ isOpen, setIsOpen }) => {
+const InstituteSidebar = ({ isOpen, setIsOpen }) => {
+  const user = JSON.parse(localStorage.getItem('user')) || {};
+
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
-    { name: 'Institutions', path: '/institutions', icon: <Building2 size={20} /> },
-    { name: 'Performance', path: '/performance', icon: <Activity size={20} /> },
-    { name: 'Reports', path: '/reports', icon: <FileBarChart size={20} /> },
-    { name: 'Institute Approvals', path: '/approval', icon: <UserCheck size={20} /> },
+    { name: 'Dashboard', path: '/institute/dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: 'Students', path: '/institute/students', icon: <Users size={20} /> },
+    { name: 'Physical Tests', path: '/institute/physical-tests', icon: <ClipboardList size={20} /> },
+    { name: 'Performance', path: '/institute/performance', icon: <Activity size={20} /> },
   ];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/admin/login';
+    window.location.href = '/institute/login';
   };
 
   return (
@@ -35,12 +36,17 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         {/* Sidebar Header */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-secondary to-accent flex items-center justify-center font-bold text-lg shadow-lg">
-              S
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center font-bold text-lg shadow-lg">
+              I
             </div>
-            <span className="font-bold text-lg tracking-wide uppercase">
-              Sport<span className="text-accent">Sphere</span>
-            </span>
+            <div>
+              <span className="font-bold text-sm tracking-wide uppercase block leading-tight">
+                Institute<span className="text-blue-400">Portal</span>
+              </span>
+              <span className="text-[9px] text-white/40 font-semibold uppercase tracking-widest">
+                {user.instituteName || 'SportSphere'}
+              </span>
+            </div>
           </div>
 
           {/* Close menu drawer button (Mobile only) */}
@@ -60,11 +66,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <NavLink
               key={item.name}
               to={item.path}
-              onClick={() => setIsOpen(false)} // Auto collapse drawer on mobile selection
+              onClick={() => setIsOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                   isActive 
-                    ? 'bg-secondary/20 text-accent border border-secondary/30 shadow-[0_0_15px_rgba(37,99,235,0.2)] font-bold' 
+                    ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.2)] font-bold' 
                     : 'text-white/70 hover:bg-white/5 hover:text-white font-medium'
                 }`
               }
@@ -91,4 +97,4 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   );
 };
 
-export default Sidebar;
+export default InstituteSidebar;

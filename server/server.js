@@ -20,6 +20,7 @@ app.use('/api/sports', require('./routes/sports'));
 app.use('/api/performance', require('./routes/performance'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/institutes', require('./routes/institutes'));
+app.use('/api/institute-portal', require('./routes/institutePortal'));
 app.use('/api/notifications', require('./routes/notifications').router);
 
 // Connect to Database

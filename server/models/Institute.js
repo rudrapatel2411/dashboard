@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const instituteSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  email: { type: String },
   name: { type: String, required: true },
   city: { type: String, required: true },
   state: { type: String, required: true },
