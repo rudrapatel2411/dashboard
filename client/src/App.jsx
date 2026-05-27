@@ -65,7 +65,7 @@ function App() {
         {/* ========= Admin Protected Routes ========= */}
         <Route 
           path="/" 
-          element={isAdmin ? <DashboardLayout /> : <Navigate to="/admin/login" />}
+          element={isAdmin ? <DashboardLayout /> : <Navigate to="/institute/login" />}
         >
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
