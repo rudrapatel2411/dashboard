@@ -588,6 +588,7 @@ const Academies = () => {
                                         </div>
                                         <div>
                                           <p className="font-extrabold text-slate-800 group-hover:text-secondary transition-colors">{student.name}</p>
+                                          <span className="text-[10px] text-slate-400 font-bold block mt-0.5">ID: {student.id || student._id}</span>
                                         </div>
                                       </div>
                                     </td>
@@ -868,6 +869,10 @@ const Academies = () => {
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-600">
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Student / Athlete ID</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedStudentReport.id || selectedStudentReport._id || "STU-001"}</p>
+                  </div>
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase font-black">Full Name</p>
                     <p className="text-slate-800 font-extrabold mt-0.5">{selectedStudentReport.name}</p>

@@ -1123,7 +1123,7 @@ const Performance = () => {
                     </span>
                   </div>
                   <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">
-                    Class {selectedStudent.class}th • {selectedStudent.age} Years Old • Mentor: {selectedStudent.mentor}
+                    ID: {selectedStudent.id || selectedStudent._id || 'STU-001'} • Class {selectedStudent.class}th • {selectedStudent.age} Years Old • Mentor: {selectedStudent.mentor}
                   </p>
                 </div>
               </div>
