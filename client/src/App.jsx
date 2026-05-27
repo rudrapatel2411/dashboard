@@ -10,6 +10,7 @@ import Performance from './pages/Performance';
 import Reports from './pages/Reports';
 import Tests from './pages/Tests';
 import Approval from './pages/Approval';
+import Academies from './pages/Academies';
 
 // New Auth pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -70,6 +71,7 @@ function App() {
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="institutions" element={<Institutions />} />
+          <Route path="academies" element={<Academies />} />
           <Route path="students" element={<Students />} />
           <Route path="approval" element={<Approval />} />
           <Route path="performance" element={<Performance />} />

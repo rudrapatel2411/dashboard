@@ -27,23 +27,15 @@ app.use('/api/notifications', require('./routes/notifications').router);
 connectDB();
 
 const DEFAULT_PORT = 5000;
-const initialPort = Number(process.env.PORT) || DEFAULT_PORT;
+const port = Number(process.env.PORT) || DEFAULT_PORT;
 
-function startServer(port) {
-  const server = app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
+const server = app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
 
-  server.on('error', (error) => {
-    if (error.code === 'EADDRINUSE') {
-      const nextPort = port + 1;
-      console.warn(`Port ${port} is in use, trying port ${nextPort}...`);
-      startServer(nextPort);
-    } else {
-      console.error(error);
-      process.exit(1);
-    }
-  });
-}
+server.on('error', (error) => {
+  console.error('Server error:', error.message);
+  process.exit(1);
+});
 
-startServer(initialPort);
+// Trigger nodemon restart

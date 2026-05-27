@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Building2, ClipboardList, Activity, FileBarChart, UserCheck, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, Building2, ClipboardList, Activity, FileBarChart, UserCheck, LogOut, X, School } from 'lucide-react';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Institutions', path: '/institutions', icon: <Building2 size={20} /> },
+    { name: 'Academies', path: '/academies', icon: <School size={20} /> },
     { name: 'Performance', path: '/performance', icon: <Activity size={20} /> },
     { name: 'Reports', path: '/reports', icon: <FileBarChart size={20} /> },
     { name: 'Institute Approvals', path: '/approval', icon: <UserCheck size={20} /> },

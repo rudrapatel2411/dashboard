@@ -23,12 +23,290 @@ const Performance = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("institutions"); // "institutions" or "academies"
 
   // API data states
   const [dbStudents, setDbStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', title: '', isError: false });
   const [selectedTerm, setSelectedTerm] = useState("TERM-2");
+
+  // Rich mock data representing Sports Academies with Grade 9-10 students
+  const [mockAcademies] = useState([
+    {
+      id: "acad-1",
+      name: "Dronacharya Cricket Academy",
+      sport: "Cricket",
+      coach: "Coach Devendra Prasad",
+      email: "contact@dronacharyacricket.in",
+      phone: "+91 99887 76655",
+      registeredAt: "2026-03-10",
+      location: "Ahmedabad, Gujarat",
+      gradient: "from-red-500 to-rose-600",
+      students: [
+        { 
+          id: "stu-c1", 
+          name: "Rohan Patel", 
+          age: 15, 
+          class: "9", 
+          sport: "Cricket",
+          assignedSport: "Cricket",
+          mentor: "Coach Devendra Prasad",
+          bmiCategory: "Normal",
+          bmi: 20.8,
+          height: 168,
+          weight: 58.8
+        },
+        { 
+          id: "stu-c2", 
+          name: "Amit Mishra", 
+          age: 15, 
+          class: "9", 
+          sport: "Cricket",
+          assignedSport: "Cricket",
+          mentor: "Coach Devendra Prasad",
+          bmiCategory: "Normal",
+          bmi: 21.3,
+          height: 166,
+          weight: 58.7
+        },
+        { 
+          id: "stu-c3", 
+          name: "Kabir Dev", 
+          age: 16, 
+          class: "10", 
+          sport: "Cricket",
+          assignedSport: "Cricket",
+          mentor: "Coach Devendra Prasad",
+          bmiCategory: "Underweight",
+          bmi: 18.0,
+          height: 172,
+          weight: 53.2
+        },
+        { 
+          id: "stu-c4", 
+          name: "Sachin Verma", 
+          age: 16, 
+          class: "10", 
+          sport: "Cricket",
+          assignedSport: "Cricket",
+          mentor: "Coach Devendra Prasad",
+          bmiCategory: "Normal",
+          bmi: 22.1,
+          height: 170,
+          weight: 63.9
+        }
+      ]
+    },
+    {
+      id: "acad-2",
+      name: "Golden Boot Football Academy",
+      sport: "Football",
+      coach: "Coach Arthur Winston",
+      email: "hello@goldenbootfc.com",
+      phone: "+91 91234 98765",
+      registeredAt: "2026-04-15",
+      location: "Mumbai, Maharashtra",
+      gradient: "from-emerald-500 to-teal-600",
+      students: [
+        { 
+          id: "stu-f1", 
+          name: "Aditya Roy", 
+          age: 15, 
+          class: "9", 
+          sport: "Football",
+          assignedSport: "Football",
+          mentor: "Coach Arthur Winston",
+          bmiCategory: "Normal",
+          bmi: 20.4,
+          height: 165,
+          weight: 55.5
+        },
+        { 
+          id: "stu-f2", 
+          name: "Neil Nitin", 
+          age: 16, 
+          class: "10", 
+          sport: "Football",
+          assignedSport: "Football",
+          mentor: "Coach Arthur Winston",
+          bmiCategory: "Normal",
+          bmi: 21.8,
+          height: 171,
+          weight: 63.7
+        },
+        { 
+          id: "stu-f3", 
+          name: "Arjun Rampal", 
+          age: 15, 
+          class: "9", 
+          sport: "Football",
+          assignedSport: "Football",
+          mentor: "Coach Arthur Winston",
+          bmiCategory: "Normal",
+          bmi: 21.0,
+          height: 168,
+          weight: 59.3
+        }
+      ]
+    },
+    {
+      id: "acad-3",
+      name: "Pinnacle Badminton Club",
+      sport: "Badminton",
+      coach: "Coach Paul Fernandes",
+      email: "contact@pinnaclebadminton.org",
+      phone: "+91 88776 11223",
+      registeredAt: "2026-05-01",
+      location: "Bangalore, Karnataka",
+      gradient: "from-cyan-500 to-blue-600",
+      students: [
+        { 
+          id: "stu-b1", 
+          name: "Jiya Shah", 
+          age: 15, 
+          class: "9", 
+          sport: "Badminton",
+          assignedSport: "Badminton",
+          mentor: "Coach Paul Fernandes",
+          bmiCategory: "Normal",
+          bmi: 19.8,
+          height: 162,
+          weight: 52.0
+        },
+        { 
+          id: "stu-b2", 
+          name: "Sneha Reddy", 
+          age: 15, 
+          class: "9", 
+          sport: "Badminton",
+          assignedSport: "Badminton",
+          mentor: "Coach Paul Fernandes",
+          bmiCategory: "Normal",
+          bmi: 20.1,
+          height: 163,
+          weight: 53.4
+        },
+        { 
+          id: "stu-b3", 
+          name: "Kareena Kapoor", 
+          age: 16, 
+          class: "10", 
+          sport: "Badminton",
+          assignedSport: "Badminton",
+          mentor: "Coach Paul Fernandes",
+          bmiCategory: "Normal",
+          bmi: 19.5,
+          height: 164,
+          weight: 52.4
+        }
+      ]
+    },
+    {
+      id: "acad-4",
+      name: "Apex Swimming Academy",
+      sport: "Swimming",
+      coach: "Coach Ranjitsinh Jadeja",
+      email: "elite@apexswim.in",
+      phone: "+91 76008 55443",
+      registeredAt: "2026-05-12",
+      location: "Hyderabad, Telangana",
+      gradient: "from-blue-500 to-indigo-600",
+      students: [
+        { 
+          id: "stu-s1", 
+          name: "Priya Patel", 
+          age: 16, 
+          class: "10", 
+          sport: "Swimming",
+          assignedSport: "Swimming",
+          mentor: "Coach Ranjitsinh Jadeja",
+          bmiCategory: "Normal",
+          bmi: 20.4,
+          height: 165,
+          weight: 55.5
+        },
+        { 
+          id: "stu-s2", 
+          name: "Ishaan Verma", 
+          age: 15, 
+          class: "9", 
+          sport: "Swimming",
+          assignedSport: "Swimming",
+          mentor: "Coach Ranjitsinh Jadeja",
+          bmiCategory: "Overweight",
+          bmi: 25.5,
+          height: 165,
+          weight: 69.4
+        },
+        { 
+          id: "stu-s3", 
+          name: "Kiara Advani", 
+          age: 15, 
+          class: "9", 
+          sport: "Swimming",
+          assignedSport: "Swimming",
+          mentor: "Coach Ranjitsinh Jadeja",
+          bmiCategory: "Normal",
+          bmi: 19.0,
+          height: 160,
+          weight: 48.6
+        }
+      ]
+    },
+    {
+      id: "acad-5",
+      name: "Vanguard Athletics Academy",
+      sport: "Athletics",
+      coach: "Coach Ramesh Kalsaria",
+      email: "admin@vanguardathletics.com",
+      phone: "+91 94282 33221",
+      registeredAt: "2026-02-18",
+      location: "Delhi NCR",
+      gradient: "from-orange-500 to-amber-600",
+      students: [
+        { 
+          id: "stu-a1", 
+          name: "Rohan Sharma", 
+          age: 15, 
+          class: "9", 
+          sport: "Athletics",
+          assignedSport: "Athletics",
+          mentor: "Coach Ramesh Kalsaria",
+          bmiCategory: "Normal",
+          bmi: 21.2,
+          height: 168,
+          weight: 59.8
+        },
+        { 
+          id: "stu-a2", 
+          name: "Diya Sen", 
+          age: 16, 
+          class: "10", 
+          sport: "Athletics",
+          assignedSport: "Athletics",
+          mentor: "Coach Ramesh Kalsaria",
+          bmiCategory: "Normal",
+          bmi: 20.0,
+          height: 166,
+          weight: 55.1
+        },
+        { 
+          id: "stu-a3", 
+          name: "Aarav Mehta", 
+          age: 15, 
+          class: "9", 
+          sport: "Athletics",
+          assignedSport: "Athletics",
+          mentor: "Coach Ramesh Kalsaria",
+          bmiCategory: "Underweight",
+          bmi: 17.8,
+          height: 160,
+          weight: 45.6
+        }
+      ]
+    }
+  ]);
 
   // Rich fallback mock data representing institutions and nested students
   const [mockInstitutions] = useState([
@@ -288,9 +566,15 @@ const Performance = () => {
   const getStudentsForInst = () => {
     if (!selectedInst) return [];
     
-    // Find matching mock students
-    const inst = mockInstitutions.find(i => i.id === selectedInst.id);
-    const mockList = inst ? inst.students : [];
+    // Find matching mock students depending on the active category
+    let mockList = [];
+    if (activeCategory === 'academies') {
+      const acad = mockAcademies.find(a => a.id === selectedInst.id);
+      mockList = acad ? acad.students : [];
+    } else {
+      const inst = mockInstitutions.find(i => i.id === selectedInst.id);
+      mockList = inst ? inst.students : [];
+    }
     
     // Merge database students if any match the parameters
     const dbList = dbStudents.filter(s => {
@@ -331,6 +615,13 @@ const Performance = () => {
     return getStudentsForClassGrade(selectedClass);
   };
 
+  const getDisplayStudents = () => {
+    if (activeCategory === 'academies') {
+      return getStudentsForInst();
+    }
+    return getStudentsForClass();
+  };
+
   // Navigation handlers
   const handleSelectInstitution = (inst) => {
     setSelectedInst(inst);
@@ -356,6 +647,12 @@ const Performance = () => {
   const filteredInstitutions = mockInstitutions.filter(inst => 
     inst.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     inst.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredAcademies = mockAcademies.filter(acad => 
+    acad.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    acad.sport.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    acad.coach.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Performance data compilation for Recharts
@@ -404,7 +701,7 @@ const Performance = () => {
             </span>
             <h1 className="text-3xl md:text-4xl font-black tracking-tight">Performance Evaluation</h1>
             <p className="text-slate-400 text-sm mt-1.5 max-w-xl font-medium">
-              Explore school physical indicators, analyze interactive performance radars, and view coach diagnostics class-wise.
+              Explore school and sports academy physical indicators, analyze interactive performance radars, and view coach diagnostics.
             </p>
           </div>
           
@@ -414,8 +711,8 @@ const Performance = () => {
               <span className="text-2xl font-black text-white">{mockInstitutions.length}</span>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center shrink-0">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Coaches</span>
-              <span className="text-2xl font-black text-indigo-400">12+</span>
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Academies</span>
+              <span className="text-2xl font-black text-indigo-400">{mockAcademies.length}</span>
             </div>
           </div>
         </div>
@@ -429,7 +726,15 @@ const Performance = () => {
               className="hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-1.5"
               onClick={handleResetNavigation}
             >
-              <Building2 size={16} className="text-indigo-600" /> Institutions
+              {activeCategory === "institutions" ? (
+                <>
+                  <Building2 size={16} className="text-indigo-600" /> Schools & Institutions
+                </>
+              ) : (
+                <>
+                  <Trophy size={16} className="text-indigo-600" /> Sports Academies
+                </>
+              )}
             </span>
           ) : (
             <span className="flex items-center gap-1.5 text-slate-700 font-extrabold">
@@ -441,7 +746,7 @@ const Performance = () => {
             <>
               <ChevronRight size={14} className="text-slate-300" />
               <span 
-                className="hover:text-indigo-600 cursor-pointer transition-colors text-slate-700"
+                className="hover:text-indigo-600 cursor-pointer transition-colors text-slate-700 font-extrabold"
                 onClick={() => { setSelectedClass(null); setSelectedStudent(null); }}
               >
                 {selectedInst.name}
@@ -492,16 +797,65 @@ const Performance = () => {
       {/* Main Core Layout Grid */}
       <div className="space-y-8">
         
-        {/* LEVEL 1: Institution Directory */}
+        {/* LEVEL 0: Category Segmented Control (Shown at Hub view) */}
+        {!selectedInst && !isInstituteUser && (
+          <div className="flex justify-center">
+            <div className="bg-slate-100/80 backdrop-blur-md p-1 rounded-2xl border border-slate-200/60 inline-flex shadow-inner">
+              <button
+                onClick={() => {
+                  setActiveCategory("institutions");
+                  handleResetNavigation();
+                }}
+                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                  activeCategory === "institutions"
+                    ? "bg-white text-indigo-600 shadow-md scale-[1.02]"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <Building2 size={16} />
+                Schools & Institutions
+              </button>
+              <button
+                onClick={() => {
+                  setActiveCategory("academies");
+                  handleResetNavigation();
+                }}
+                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                  activeCategory === "academies"
+                    ? "bg-white text-indigo-600 shadow-md scale-[1.02]"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <Trophy size={16} />
+                Sports Academies
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* LEVEL 1: Directory List */}
         {!selectedInst && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
-                  <Building2 size={20} className="text-indigo-600" />
-                  Select Registered Institution
+                  {activeCategory === "institutions" ? (
+                    <>
+                      <Building2 size={20} className="text-indigo-600" />
+                      Select Registered Institution
+                    </>
+                  ) : (
+                    <>
+                      <Trophy size={20} className="text-indigo-600" />
+                      Select Registered Sports Academy
+                    </>
+                  )}
                 </h3>
-                <p className="text-xs text-slate-400 font-semibold mt-0.5">Click any institute below to inspect class structures and rosters.</p>
+                <p className="text-xs text-slate-400 font-semibold mt-0.5">
+                  {activeCategory === "institutions"
+                    ? "Click any institute below to inspect class structures and rosters."
+                    : "Click any sports academy below to inspect athletes and performance indexes."}
+                </p>
               </div>
 
               {/* Search Bar */}
@@ -509,7 +863,7 @@ const Performance = () => {
                 <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input 
                   type="text"
-                  placeholder="Search institution..."
+                  placeholder={activeCategory === "institutions" ? "Search institution..." : "Search academy..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 text-xs font-semibold border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 bg-slate-50/50"
@@ -517,70 +871,121 @@ const Performance = () => {
               </div>
             </div>
 
-            {/* Institution Grid cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredInstitutions.map((inst) => (
-                <div 
-                  key={inst.id}
-                  onClick={() => handleSelectInstitution(inst)}
-                  className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 group-hover:bg-indigo-100/70 rounded-bl-full transition-colors flex items-center justify-center pointer-events-none">
-                    <Building2 className="text-indigo-600/30 w-8 h-8 group-hover:scale-110 transition-transform" />
-                  </div>
+            {/* Entity Grid cards */}
+            {activeCategory === "institutions" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredInstitutions.map((inst) => (
+                  <div 
+                    key={inst.id}
+                    onClick={() => handleSelectInstitution(inst)}
+                    className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 group-hover:bg-indigo-100/70 rounded-bl-full transition-colors flex items-center justify-center pointer-events-none">
+                      <Building2 className="text-indigo-600/30 w-8 h-8 group-hover:scale-110 transition-transform" />
+                    </div>
 
-                  <div className="space-y-4">
-                    <div>
-                      <span className="px-2.5 py-0.5 bg-slate-50 group-hover:bg-indigo-50 text-[10px] text-slate-500 group-hover:text-indigo-600 font-bold rounded border border-slate-200/60 group-hover:border-indigo-100 transition-colors">
-                        Approved Hub
+                    <div className="space-y-4">
+                      <div>
+                        <span className="px-2.5 py-0.5 bg-slate-50 group-hover:bg-indigo-50 text-[10px] text-slate-500 group-hover:text-indigo-600 font-bold rounded border border-slate-200/60 group-hover:border-indigo-100 transition-colors">
+                          Approved Hub
+                        </span>
+                        <h4 className="font-extrabold text-slate-800 mt-2 text-base group-hover:text-indigo-600 transition-colors pr-6">{inst.name}</h4>
+                      </div>
+
+                      <div className="space-y-2 text-xs font-semibold text-slate-400">
+                        <p className="flex items-center gap-1.5">
+                          <span className="text-[10px]">📧</span> <span className="text-slate-500">{inst.email}</span>
+                        </p>
+                        <p className="flex items-center gap-1.5">
+                          <span className="text-[10px]">📞</span> <span className="text-slate-500">{inst.phone}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-100 mt-6 pt-4 flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-700 bg-slate-50 group-hover:bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1">
+                        <Users size={12} className="text-indigo-600" />
+                        {inst.studentCount} Athletes
                       </span>
-                      <h4 className="font-extrabold text-slate-800 mt-2 text-base group-hover:text-indigo-600 transition-colors pr-6">{inst.name}</h4>
-                    </div>
-
-                    <div className="space-y-2 text-xs font-semibold text-slate-400">
-                      <p className="flex items-center gap-1.5">
-                        <span className="text-[10px]">📧</span> <span className="text-slate-500">{inst.email}</span>
-                      </p>
-                      <p className="flex items-center gap-1.5">
-                        <span className="text-[10px]">📞</span> <span className="text-slate-500">{inst.phone}</span>
-                      </p>
+                      <span className="text-xs font-bold text-indigo-600 flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
+                        Open Directory <ChevronRight size={14} />
+                      </span>
                     </div>
                   </div>
+                ))}
 
-                  <div className="border-t border-slate-100 mt-6 pt-4 flex items-center justify-between">
-                    <span className="text-xs font-black text-slate-700 bg-slate-50 group-hover:bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1">
-                      <Users size={12} className="text-indigo-600" />
-                      {inst.studentCount} Athletes
-                    </span>
-                    <span className="text-xs font-bold text-indigo-600 flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
-                      Open Directory <ChevronRight size={14} />
-                    </span>
+                {filteredInstitutions.length === 0 && (
+                  <div className="col-span-full border border-dashed border-slate-200 rounded-2xl p-12 text-center text-slate-400 text-sm font-semibold bg-slate-50/50">
+                    <AlertCircle className="mx-auto text-slate-300 w-8 h-8 mb-2" />
+                    No institutions matches your active search queries.
                   </div>
-                </div>
-              ))}
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAcademies.map((acad) => (
+                  <div 
+                    key={acad.id}
+                    onClick={() => handleSelectInstitution(acad)}
+                    className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 group-hover:bg-indigo-100/70 rounded-bl-full transition-colors flex items-center justify-center pointer-events-none">
+                      <Trophy className="text-indigo-600/30 w-8 h-8 group-hover:scale-110 transition-transform" />
+                    </div>
 
-              {filteredInstitutions.length === 0 && (
-                <div className="col-span-full border border-dashed border-slate-200 rounded-2xl p-12 text-center text-slate-400 text-sm font-semibold bg-slate-50/50">
-                  <AlertCircle className="mx-auto text-slate-300 w-8 h-8 mb-2" />
-                  No institutions matches your active search queries.
-                </div>
-              )}
-            </div>
+                    <div className="space-y-4">
+                      <div>
+                        <span className={`px-2.5 py-0.5 bg-gradient-to-r ${acad.gradient || 'from-indigo-500 to-blue-600'} text-white text-[10px] font-black rounded uppercase tracking-wider`}>
+                          {acad.sport} Only
+                        </span>
+                        <h4 className="font-extrabold text-slate-800 mt-2 text-base group-hover:text-indigo-600 transition-colors pr-6">{acad.name}</h4>
+                      </div>
+
+                      <div className="space-y-2 text-xs font-semibold text-slate-400">
+                        <p className="flex items-center gap-1.5">
+                          <span className="text-[10px]">👤</span> <span className="text-slate-700 font-extrabold">{acad.coach}</span>
+                        </p>
+                        <p className="flex items-center gap-1.5">
+                          <span className="text-[10px]">📍</span> <span className="text-slate-500">{acad.location}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-100 mt-6 pt-4 flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-700 bg-slate-50 group-hover:bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1">
+                        <Users size={12} className="text-indigo-600" />
+                        {acad.students.length} Enrolled Athletes
+                      </span>
+                      <span className="text-xs font-bold text-indigo-600 flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
+                        Open Roster <ChevronRight size={14} />
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+                {filteredAcademies.length === 0 && (
+                  <div className="col-span-full border border-dashed border-slate-200 rounded-2xl p-12 text-center text-slate-400 text-sm font-semibold bg-slate-50/50">
+                    <AlertCircle className="mx-auto text-slate-300 w-8 h-8 mb-2" />
+                    No academies matches your active search queries.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
         {/* LEVEL 2: Classes of Institution */}
-        {selectedInst && !selectedClass && (
+        {selectedInst && !selectedClass && activeCategory === 'institutions' && (
           <div className="space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h3 className="text-xl font-black text-slate-800">
-                🏫 {selectedInst.name}
+                {activeCategory === "institutions" ? "🏫" : "🏆"} {selectedInst.name}
               </h3>
               <p className="text-xs text-slate-400 font-semibold mt-1">Select an active class grade to inspect individual athletic rosters.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {["8", "9", "10", "11"].map((classGrade) => {
+              {(activeCategory === "institutions" ? ["8", "9", "10", "11"] : ["9", "10"]).map((classGrade) => {
                 const count = getStudentsForClassGrade(classGrade).length;
                 return (
                   <div 
@@ -605,20 +1010,29 @@ const Performance = () => {
         )}
 
         {/* LEVEL 3: Student Roster Table */}
-        {selectedInst && selectedClass && !selectedStudent && (
+        {((activeCategory === 'institutions' && selectedInst && selectedClass && !selectedStudent) ||
+          (activeCategory === 'academies' && selectedInst && !selectedStudent)) && (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6 animate-fade-in">
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-lg font-black text-slate-800">
-                  Students Roster • Class {selectedClass}th Grade
+                  {activeCategory === 'academies' 
+                    ? `Academy Roster • Enrolled Athletes` 
+                    : `Students Roster • Class ${selectedClass}th Grade`}
                 </h3>
                 <p className="text-xs text-slate-400 font-semibold mt-0.5">Showing students listed inside {selectedInst.name}.</p>
               </div>
               <button 
-                onClick={() => setSelectedClass(null)}
+                onClick={() => {
+                  if (activeCategory === 'academies') {
+                    handleResetNavigation();
+                  } else {
+                    setSelectedClass(null);
+                  }
+                }}
                 className="px-3.5 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all"
               >
-                Change Class
+                {activeCategory === 'academies' ? "Change Academy" : "Change Class"}
               </button>
             </div>
 
@@ -635,7 +1049,7 @@ const Performance = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/60 text-xs font-semibold text-slate-700">
-                  {getStudentsForClass().map((student) => {
+                  {getDisplayStudents().map((student) => {
                     const tempHistory = generatePerformanceData(student);
                     const avg = tempHistory[1]?.overallScore || tempHistory[0]?.overallScore || 0;
                     
@@ -677,10 +1091,10 @@ const Performance = () => {
                       </tr>
                     );
                   })}
-                  {getStudentsForClass().length === 0 && (
+                  {getDisplayStudents().length === 0 && (
                     <tr>
                       <td colSpan="6" className="py-10 text-center text-slate-400 text-xs font-semibold">
-                        No athletes located inside this class currently.
+                        No athletes located inside this roster currently.
                       </td>
                     </tr>
                   )}

@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [totalInstitutes, setTotalInstitutes] = useState('—');
   const [totalStudents, setTotalStudents] = useState('—');
   const [pendingCount, setPendingCount] = useState('—');
+  const [avgPerformance, setAvgPerformance] = useState('—');
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -18,30 +19,33 @@ const Dashboard = () => {
     const token = localStorage.getItem('token');
     const headers = { 'Authorization': `Bearer ${token}` };
 
-    // Fetch total institutes count
-    fetch(`${API_URL}/institutes?limit=1`, { headers })
-      .then(res => res.json())
-      .then(data => {
-        setTotalInstitutes(data.totalCount?.toLocaleString() || '0');
-      })
-      .catch(() => setTotalInstitutes('0'));
+    console.log('Fetching dashboard stats from:', `${API_URL}/dashboard`);
 
-    // Fetch total students count
-    fetch(`${API_URL}/students`, { headers })
-      .then(res => res.json())
-      .then(data => {
-        const count = Array.isArray(data) ? data.length : (data.totalCount || data.total || 0);
-        setTotalStudents(count.toLocaleString());
+    fetch(`${API_URL}/dashboard`, { headers })
+      .then(res => {
+        console.log('Dashboard API status:', res.status);
+        if (!res.ok) {
+          return res.json().then(err => {
+            console.error('Dashboard API Error Body:', err);
+            throw new Error(err.message || 'Failed to fetch stats');
+          });
+        }
+        return res.json();
       })
-      .catch(() => setTotalStudents('0'));
-
-    // Fetch pending approvals count
-    fetch(`${API_URL}/institutes/pending-count`, { headers })
-      .then(res => res.json())
       .then(data => {
-        setPendingCount(data.count?.toString() || '0');
+        console.log('Loaded Dashboard Data:', data);
+        setTotalStudents(data.totalStudents !== undefined ? data.totalStudents.toLocaleString() : '0');
+        setTotalInstitutes(data.totalInstitutes !== undefined ? data.totalInstitutes.toLocaleString() : '0');
+        setPendingCount(data.pendingCount !== undefined ? data.pendingCount.toString() : '0');
+        setAvgPerformance(data.averagePerformance !== undefined ? `${data.averagePerformance}%` : '0%');
       })
-      .catch(() => setPendingCount('0'));
+      .catch(err => {
+        console.error('Fetch dashboard failed:', err);
+        setTotalStudents('0');
+        setTotalInstitutes('0');
+        setPendingCount('0');
+        setAvgPerformance('0%');
+      });
   }, []);
 
   // Mock Data
@@ -75,7 +79,7 @@ const Dashboard = () => {
     { title: 'Total Institutes', value: totalInstitutes, icon: <Building2 size={24} />, color: 'from-blue-500 to-blue-700', link: '/institutions' },
     { title: 'Total Students', value: totalStudents, icon: <Users size={24} />, color: 'from-orange-400 to-orange-600', link: '/students' },
     { title: 'Pending Approvals', value: pendingCount, icon: <Clock size={24} />, color: 'from-yellow-400 to-yellow-600', link: '/approval' },
-    { title: 'Avg Performance', value: '78.5%', icon: <Activity size={24} />, color: 'from-green-400 to-green-600', link: '/performance' },
+    { title: 'Avg Performance', value: avgPerformance, icon: <Activity size={24} />, color: 'from-green-400 to-green-600', link: '/performance' },
   ];
 
   return (

@@ -4,12 +4,72 @@ import {
   Building2, Users, Search, 
   ChevronDown, ChevronUp, GraduationCap, Phone, Mail,
   Award, Printer, Eye, Activity, Sparkles, Trophy, FileText, CheckCircle,
-  ArrowLeft, BookOpen, X
+  ArrowLeft, BookOpen, X, User, MapPin, Camera
 } from 'lucide-react';
+
+const generateMockStudentsForMissingClasses = (institutionsList) => {
+  const sports = ["Football", "Cricket", "Basketball", "Swimming", "Athletics", "Badminton", "Tennis", "Volleyball"];
+  const firstNames = ["Amit", "Rohan", "Priya", "Sneha", "Kabir", "Jiya", "Ananya", "Ishaan", "Aditya", "Diya", "Varun", "Kiara", "Siddharth", "Alia", "Neil", "Meera", "Devansh", "Shreya", "Arijit", "Sonu", "Sunidhi", "Rahul", "Pooja", "Vikram", "Neha", "Arjun", "Kareena", "Raj", "Simran", "Vijay"];
+  const lastNames = ["Sharma", "Patel", "Mehta", "Reddy", "Singh", "Shah", "Iyer", "Verma", "Roy", "Sen", "Dhawan", "Advani", "Malhotra", "Bhatt", "Nitin", "Joshi", "Vyas", "Ghoshal", "Nigam", "Chauhan", "Kapoor", "Khan", "Desai", "Gupta", "Trivedi", "Kalsaria", "Jadeja", "Mishra", "Winston", "Fernandes"];
+  const genders = ["Male", "Female"];
+  const performances = ["Excellent", "Good", "Average"];
+
+  return institutionsList.map(inst => {
+    const existingStudents = [...inst.students];
+    
+    // Ensure every class from 1 to 12 has at least 5 students
+    for (let c = 1; c <= 12; c++) {
+      const clsStr = c.toString();
+      const countInClass = existingStudents.filter(s => s.class === clsStr).length;
+      
+      if (countInClass < 5) {
+        const needed = 5 - countInClass;
+        for (let i = 0; i < needed; i++) {
+          const randFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+          const randLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+          const name = `${randFirstName} ${randLastName}`;
+          const gender = genders[Math.floor(Math.random() * genders.length)];
+          const age = c + 5;
+          const sport = sports[Math.floor(Math.random() * sports.length)];
+          const performance = performances[Math.floor(Math.random() * performances.length)];
+          
+          const studentId = `stu-gen-${inst.id}-${c}-${i}`;
+          
+          existingStudents.push({
+            id: studentId,
+            name,
+            age,
+            class: clsStr,
+            sport,
+            performance,
+            attendance: Math.random() > 0.15 ? "Present" : "Absent",
+            sprintTime: performance === "Excellent" ? parseFloat((11 + Math.random() * 2).toFixed(1)) : parseFloat((13 + Math.random() * 2).toFixed(1)),
+            broadJump: performance === "Excellent" ? Math.floor(220 + Math.random() * 40) : Math.floor(180 + Math.random() * 40),
+            pushups: performance === "Excellent" ? Math.floor(30 + Math.random() * 15) : Math.floor(15 + Math.random() * 15),
+            recommendedSport: `${sport} & Tracks`,
+            manualReportData: `Demonstrates good baseline physical capability in ${sport}. Shows positive attitude and solid growth potential.`,
+            dob: `${Math.floor(1 + Math.random() * 28)}th ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Math.floor(Math.random() * 12)]} ${2026 - age}`,
+            gender,
+            contact: `+91 ${90000 + Math.floor(Math.random() * 9999)} ${10000 + Math.floor(Math.random() * 89999)}`,
+            address: `Shanti Vihar, Near ${sport} Ground`,
+            taluka: "Haveli",
+            city: "Ahmedabad",
+            pincode: "380009"
+          });
+        }
+      }
+    }
+    
+    return {
+      ...inst,
+      students: existingStudents.sort((a, b) => parseInt(a.class) - parseInt(b.class) || a.name.localeCompare(b.name))
+    };
+  });
+};
 
 const Institutions = () => {
   // Rich mock data representing institutions and their nested students
-  const [institutions, setInstitutions] = useState([
+  const [institutions, setInstitutions] = useState(() => generateMockStudentsForMissingClasses([
     {
       id: "inst-101",
       name: "St. Xavier's International School",
@@ -66,7 +126,15 @@ const Institutions = () => {
           manualReportData: "Fast court movement, superior agility scores. Excellent lateral displacement velocity.",
           reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop"
         },
-        { id: "stu-14", name: "Manan Desai", age: 16, class: "10", sport: "Football", performance: "Average", attendance: "Present" }
+        { id: "stu-14", name: "Manan Desai", age: 16, class: "10", sport: "Football", performance: "Average", attendance: "Present" },
+        { id: "stu-p1", name: "Aarav Kumar", age: 6, class: "1", sport: "Gymnastics", performance: "Excellent", attendance: "Present", recommendedSport: "Gymnastics & Athletics", manualReportData: "Highly flexible joints and excellent balance control. Very active.", dob: "12th March 2020", gender: "Male", contact: "+91 99001 12233", address: "Sector 4, Gandhinagar", taluka: "Gandhinagar", city: "Gandhinagar", pincode: "382010" },
+        { id: "stu-p2", name: "Riya Sharma", age: 7, class: "2", sport: "Athletics", performance: "Good", attendance: "Present", dob: "18th August 2019", gender: "Female", contact: "+91 99001 12234", address: "Ghatlodia, Ahmedabad", taluka: "Ghatlodia", city: "Ahmedabad", pincode: "380061" },
+        { id: "stu-p3", name: "Kunal Gupta", age: 8, class: "3", sport: "Swimming", performance: "Excellent", attendance: "Present", recommendedSport: "Swimming", manualReportData: "Natural aquatic comfort. High endurance potential.", dob: "25th December 2018", gender: "Male", contact: "+91 99001 12235", address: "Satellite, Ahmedabad", taluka: "Vejalpur", city: "Ahmedabad", pincode: "380015" },
+        { id: "stu-p4", name: "Ishita Patel", age: 9, class: "4", sport: "Football", performance: "Average", attendance: "Absent", dob: "03th January 2017", gender: "Female", contact: "+91 99001 12236", address: "Naranpura, Ahmedabad", taluka: "Naranpura", city: "Ahmedabad", pincode: "380013" },
+        { id: "stu-p5", name: "Manav Shah", age: 10, class: "5", sport: "Basketball", performance: "Good", attendance: "Present", dob: "14th June 2016", gender: "Male", contact: "+91 99001 12237", address: "Paldi, Ahmedabad", taluka: "Paldi", city: "Ahmedabad", pincode: "380007" },
+        { id: "stu-p6", name: "Kavya Desai", age: 11, class: "6", sport: "Badminton", performance: "Excellent", attendance: "Present", recommendedSport: "Badminton & Tennis", manualReportData: "Excellent hand-eye coordination and racket acceleration.", dob: "22nd February 2015", gender: "Female", contact: "+91 99001 12238", address: "Vastrapur, Ahmedabad", taluka: "Vejalpur", city: "Ahmedabad", pincode: "380015" },
+        { id: "stu-p7", name: "Preet Mehta", age: 12, class: "7", sport: "Cricket", performance: "Good", attendance: "Present", dob: "09th September 2014", gender: "Male", contact: "+91 99001 12239", address: "Bopal, Ahmedabad", taluka: "Daskroi", city: "Ahmedabad", pincode: "380058" },
+        { id: "stu-p12", name: "Harshil Vyas", age: 18, class: "12", sport: "Volleyball", performance: "Excellent", attendance: "Present", recommendedSport: "Volleyball", manualReportData: "Outstanding height advantage, quick reflexes, high vertical jump clearance.", dob: "11th July 2008", gender: "Male", contact: "+91 99001 12240", address: "Gota, Ahmedabad", taluka: "Gota", city: "Ahmedabad", pincode: "382481" }
       ]
     },
     {
@@ -290,7 +358,7 @@ const Institutions = () => {
         { id: "stu-52", name: "Allu Arjun", age: 16, class: "10", sport: "Cricket", performance: "Excellent", sprintTime: 12.2, broadJump: 238, pushups: 30, attendance: "Present", recommendedSport: "Cricket & Athletics", manualReportData: "Strong physical endurance and reaction time.", reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop" }
       ]
     }
-  ]);
+  ]));
 
   const [expandedId, setExpandedId] = useState(null);
   
@@ -298,8 +366,7 @@ const Institutions = () => {
   // Format: { [instId]: "9" } or null
   const [selectedClass, setSelectedClass] = useState({});
 
-  // Track if print sheet modal is open: { instId, className, students }
-  const [printSheet, setPrintSheet] = useState(null);
+
   
   // Connect with global DashboardLayout search context
   const outletContext = useOutletContext();
@@ -309,6 +376,13 @@ const Institutions = () => {
 
   // State for active student portfolio report modal
   const [selectedStudentReport, setSelectedStudentReport] = useState(null);
+
+  // Scanned Hardcopy Sheet Upload States
+  const [classHardcopies, setClassHardcopies] = useState({
+    "inst-101-9": "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800&auto=format&fit=crop",
+    "inst-101-10": "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=800&auto=format&fit=crop"
+  });
+  const [zoomedImage, setZoomedImage] = useState(null);
 
   // Toggle accordion expand/collapse
   const toggleExpand = (id) => {
@@ -321,10 +395,9 @@ const Institutions = () => {
     }
   };
 
-  // Get unique classes for an institution
+  // Get unique classes for an institution (Returns all standards 1 to 12)
   const getClasses = (students) => {
-    const classSet = new Set(students.map(s => s.class));
-    return Array.from(classSet).sort((a, b) => parseInt(a) - parseInt(b));
+    return ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
   };
 
   // Count students per class
@@ -345,18 +418,7 @@ const Institutions = () => {
     }));
   };
 
-  // Open print sheet modal
-  const openPrintSheet = (inst, cls) => {
-    const classStudents = inst.students.filter(s => s.class === cls);
-    setPrintSheet({
-      instId: inst.id,
-      instName: inst.name,
-      instEmail: inst.email,
-      instPhone: inst.phone,
-      className: cls,
-      students: classStudents
-    });
-  };
+
 
   return (
     <div className="space-y-8 animate-fade-in pb-12 font-sans">
@@ -589,14 +651,69 @@ const Institutions = () => {
                               Class {activeClass}th Students ({classStudents.length})
                             </h4>
                           </div>
-                          <button
-                            onClick={() => openPrintSheet(inst, activeClass)}
-                            className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-slate-900/15 hover:scale-[1.02]"
-                          >
-                            <Printer size={14} />
-                            Print Class Sheet (Hardcopy)
-                          </button>
+                          <div className="flex flex-wrap items-center gap-2 self-end sm:self-center">
+                            <label className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/15 hover:scale-[1.02] cursor-pointer">
+                              <Camera size={14} />
+                              {classHardcopies[`${inst.id}-${activeClass}`] ? 'Update Scanned Photo' : 'Upload Scanned Photo'}
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={(e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                      setClassHardcopies(prev => ({
+                                        ...prev,
+                                        [`${inst.id}-${activeClass}`]: event.target.result
+                                      }));
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                              />
+                            </label>
+                          </div>
                         </div>
+
+                        {/* Class Hardcopy Photo Scanned Scan Preview Banner */}
+                        {classHardcopies[`${inst.id}-${activeClass}`] && (
+                          <div className="mb-4 bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                              <div 
+                                className="w-16 h-12 rounded-xl bg-slate-900 border border-slate-200 overflow-hidden cursor-zoom-in shrink-0 relative group shadow-sm"
+                                onClick={() => setZoomedImage(classHardcopies[`${inst.id}-${activeClass}`])}
+                                title="Click to zoom hardcopy sheet photo"
+                              >
+                                <img 
+                                  src={classHardcopies[`${inst.id}-${activeClass}`]} 
+                                  alt="Class Hardcopy Scan" 
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                                />
+                                <div className="absolute inset-0 bg-slate-950/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Eye size={14} className="text-white" />
+                                </div>
+                              </div>
+                              <div>
+                                <p className="font-extrabold text-slate-800 text-sm">Class {activeClass}th Hardcopy Sheet Scanned Upload</p>
+                                <p className="text-xs text-slate-500 font-medium">Scanned copy of physical screening registry loaded successfully.</p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setClassHardcopies(prev => {
+                                  const copy = { ...prev };
+                                  delete copy[`${inst.id}-${activeClass}`];
+                                  return copy;
+                                });
+                              }}
+                              className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition-all"
+                            >
+                              Delete Upload
+                            </button>
+                          </div>
+                        )}
 
                         {classStudents.length > 0 ? (
                           <div className="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
@@ -685,168 +802,6 @@ const Institutions = () => {
           })}
       </div>
 
-      {/* ═══════════════ PRINT CLASS SHEET MODAL ═══════════════ */}
-      {printSheet && (
-        <div 
-          className="fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in"
-          onClick={() => setPrintSheet(null)}
-        >
-          <div 
-            className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl relative border border-white/10 flex flex-col overflow-hidden max-h-[90vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="px-6 py-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
-              <span className="font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
-                <FileText size={18} className="text-accent" />
-                Class {printSheet.className}th — Hardcopy Sheet
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => window.print()}
-                  className="bg-accent hover:bg-orange-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-orange-500/10"
-                >
-                  <Printer size={14} /> Print Sheet
-                </button>
-                <button 
-                  onClick={() => setPrintSheet(null)}
-                  className="text-slate-400 hover:text-white text-xs font-bold uppercase bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-all"
-                >
-                  ✕ Close
-                </button>
-              </div>
-            </div>
-
-            {/* Printable Sheet Content */}
-            <div className="p-6 overflow-y-auto" id="print-class-sheet">
-              
-              {/* Sheet Header */}
-              <div className="text-center mb-6 pb-4 border-b-2 border-slate-200">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-secondary to-accent flex items-center justify-center font-bold text-lg text-white shadow-lg">
-                    S
-                  </div>
-                  <span className="font-black text-lg tracking-wide uppercase text-slate-800">
-                    Sport<span className="text-accent">Sphere</span>
-                  </span>
-                </div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase mt-2">
-                  Physical Test Evaluation Sheet
-                </h2>
-                <p className="text-sm font-bold text-slate-600 mt-2">{printSheet.instName}</p>
-                <div className="flex items-center justify-center gap-6 mt-2 text-xs text-slate-500 font-semibold">
-                  <span>Class: {printSheet.className}th Standard</span>
-                  <span>•</span>
-                  <span>Total Students: {printSheet.students.length}</span>
-                  <span>•</span>
-                  <span>Date: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                </div>
-              </div>
-
-              {/* Sheet Table */}
-              <div className="border border-slate-300 rounded-xl overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-800 text-white text-[10px] font-bold uppercase tracking-wider">
-                      <th className="p-3 border-r border-slate-600 text-center w-10">#</th>
-                      <th className="p-3 border-r border-slate-600">Student Name</th>
-                      <th className="p-3 border-r border-slate-600 text-center w-14">Age</th>
-                      <th className="p-3 border-r border-slate-600 text-center">Sport</th>
-                      <th className="p-3 border-r border-slate-600 text-center w-20">Sprint (s)</th>
-                      <th className="p-3 border-r border-slate-600 text-center w-20">Jump (cm)</th>
-                      <th className="p-3 border-r border-slate-600 text-center w-20">Pushups</th>
-                      <th className="p-3 border-r border-slate-600 text-center w-24">Attendance</th>
-                      <th className="p-3 text-center w-24">Fitness</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-xs font-semibold text-slate-700">
-                    {printSheet.students.map((student, idx) => (
-                      <tr key={student.id} className={`border-t border-slate-200 ${student.attendance === 'Absent' ? 'bg-red-50/40' : idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
-                        <td className="p-3 border-r border-slate-200 text-center font-bold text-slate-400">{idx + 1}</td>
-                        <td className="p-3 border-r border-slate-200">
-                          <span className="font-extrabold text-slate-800">{student.name}</span>
-                        </td>
-                        <td className="p-3 border-r border-slate-200 text-center">{student.age}</td>
-                        <td className="p-3 border-r border-slate-200 text-center">{student.sport}</td>
-                        <td className="p-3 border-r border-slate-200 text-center font-bold">
-                          {student.attendance === 'Absent' ? '-' : (student.sprintTime || '-')}
-                        </td>
-                        <td className="p-3 border-r border-slate-200 text-center font-bold">
-                          {student.attendance === 'Absent' ? '-' : (student.broadJump || '-')}
-                        </td>
-                        <td className="p-3 border-r border-slate-200 text-center font-bold">
-                          {student.attendance === 'Absent' ? '-' : (student.pushups || '-')}
-                        </td>
-                        <td className="p-3 border-r border-slate-200 text-center">
-                          <span className={`inline-block px-2 py-0.5 rounded font-black text-[10px] uppercase ${
-                            student.attendance === 'Absent' 
-                              ? 'bg-red-100 text-red-600' 
-                              : 'bg-emerald-100 text-emerald-700'
-                          }`}>
-                            {student.attendance || 'Present'}
-                          </span>
-                        </td>
-                        <td className="p-3 text-center">
-                          <span className={`inline-block px-2 py-0.5 rounded font-bold text-[10px] ${
-                            student.performance === 'Excellent' ? 'bg-emerald-100 text-emerald-700' :
-                            student.performance === 'Good' ? 'bg-blue-100 text-blue-700' :
-                            'bg-amber-100 text-amber-700'
-                          }`}>
-                            {student.performance}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Summary Row */}
-              <div className="mt-4 grid grid-cols-3 gap-4 text-xs font-bold text-slate-600">
-                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-center">
-                  <p className="text-[10px] text-emerald-600 uppercase tracking-wider mb-1">Present</p>
-                  <p className="text-lg font-black text-emerald-700">
-                    {printSheet.students.filter(s => s.attendance !== 'Absent').length}
-                  </p>
-                </div>
-                <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
-                  <p className="text-[10px] text-red-600 uppercase tracking-wider mb-1">Absent</p>
-                  <p className="text-lg font-black text-red-600">
-                    {printSheet.students.filter(s => s.attendance === 'Absent').length}
-                  </p>
-                </div>
-                <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-center">
-                  <p className="text-[10px] text-blue-600 uppercase tracking-wider mb-1">Total</p>
-                  <p className="text-lg font-black text-blue-700">
-                    {printSheet.students.length}
-                  </p>
-                </div>
-              </div>
-
-              {/* Footer Signatures */}
-              <div className="grid grid-cols-3 gap-8 pt-10 mt-8 border-t border-slate-200">
-                <div className="text-center">
-                  <div className="w-full h-px bg-slate-300 mb-1.5"></div>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Class Teacher</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-full h-px bg-slate-300 mb-1.5"></div>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Physical Education Coach</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-full h-px bg-slate-300 mb-1.5"></div>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Principal</p>
-                </div>
-              </div>
-
-              <p className="text-center text-[8px] text-slate-300 font-bold uppercase tracking-widest mt-6">
-                Generated by SportSphere Athletic Alliance • {new Date().toLocaleDateString('en-IN')}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ═══════════════ STUDENT REPORT MODAL (preserved) ═══════════════ */}
       {selectedStudentReport && (
         <div 
@@ -905,6 +860,66 @@ const Institutions = () => {
                   }`}>
                     {selectedStudentReport.attendance === 'Absent' ? '🔴 Absent' : '🟢 Present'}
                   </span>
+                </div>
+              </div>
+
+              {/* Student Personal Information Details Block */}
+              <div className="mt-6 bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 text-slate-700 font-extrabold text-sm border-b border-slate-150 pb-2">
+                  <User size={16} className="text-secondary" />
+                  Student Personal Profile & Contact Details
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-600">
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Full Name</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedStudentReport.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Date of Birth (DOB)</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedStudentReport.dob || "15th May 2011"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Gender</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedStudentReport.gender || "Male"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Standard / Class</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5">Class {selectedStudentReport.class}th</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Primary Mobile Number</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5 flex items-center gap-1">
+                      <Phone size={12} className="text-slate-400" />
+                      {selectedStudentReport.contact || "+91 98987 65432"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Secondary Mobile (Optional)</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5 flex items-center gap-1">
+                      <Phone size={12} className="text-slate-400" />
+                      {selectedStudentReport.contactOptional || "+91 87654 32109 (Parent)"}
+                    </p>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Residential Address</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5 flex items-center gap-1">
+                      <MapPin size={12} className="text-slate-400 shrink-0" />
+                      {selectedStudentReport.address || "A-401, Shanti Heights, Near Stadium Road"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Taluka</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedStudentReport.taluka || "Haveli"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">City</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedStudentReport.city || "Ahmedabad"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Pincode</p>
+                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedStudentReport.pincode || "380009"}</p>
+                  </div>
                 </div>
               </div>
 
@@ -999,22 +1014,7 @@ const Institutions = () => {
                     </p>
                   </div>
 
-                  {/* Hardcopy Proof link */}
-                  {selectedStudentReport.reportHardCopyUrl && (
-                    <div className="space-y-3 print:hidden">
-                      <div className="flex items-center gap-2 text-slate-700 font-extrabold text-sm border-b border-slate-150 pb-2">
-                        <Eye size={16} className="text-secondary" />
-                        Report Hardcopy Verification Proof
-                      </div>
-                      <div className="border border-slate-200 rounded-2xl overflow-hidden aspect-video bg-slate-900 flex items-center justify-center max-w-sm">
-                        <img 
-                          src={selectedStudentReport.reportHardCopyUrl} 
-                          alt="Physical Screening Document" 
-                          className="h-full w-auto object-cover hover:scale-105 transition-transform" 
-                        />
-                      </div>
-                    </div>
-                  )}
+
 
                   {/* Print Signatures */}
                   <div className="hidden print:grid grid-cols-2 gap-12 pt-8 border-t border-slate-200 mt-12">
@@ -1057,6 +1057,31 @@ const Institutions = () => {
             <div className="px-6 py-3 bg-slate-100 text-center text-[10px] text-slate-400 font-bold uppercase tracking-wider">
               Verification Code: {selectedStudentReport.id.toUpperCase()}-VERIFIED
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════ FULL SCREEN SCAN LIGHTBOX MODAL ═══════════════ */}
+      {zoomedImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-slate-950/95 flex items-center justify-center p-4 backdrop-blur-md animate-fade-in"
+          onClick={() => setZoomedImage(null)}
+        >
+          <button 
+            className="absolute top-5 right-5 text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all cursor-pointer font-bold text-lg"
+            onClick={() => setZoomedImage(null)}
+          >
+            ✕
+          </button>
+          <div 
+            className="max-w-4xl max-h-[85vh] w-full flex items-center justify-center relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img 
+              src={zoomedImage} 
+              alt="Scanned Class Hardcopy" 
+              className="max-w-full max-h-[85vh] object-contain" 
+            />
           </div>
         </div>
       )}
