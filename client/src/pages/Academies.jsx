@@ -533,7 +533,7 @@ const Academies = () => {
       </div>
 
       {/* Analytics Counter Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-tr from-slate-900 to-slate-800 p-6 rounded-2xl border border-slate-700 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
             <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Academies</p>
@@ -551,16 +551,6 @@ const Academies = () => {
           </div>
           <div className="w-12 h-12 bg-blue-100 text-secondary rounded-xl flex items-center justify-center">
             <Users size={24} />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
-          <div>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Fees Collected</p>
-            <h3 className="text-3xl font-black text-emerald-600 mt-2">₹{totalFeesCollected.toLocaleString('en-IN')}</h3>
-          </div>
-          <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
-            <DollarSign size={24} />
           </div>
         </div>
 

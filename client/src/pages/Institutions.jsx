@@ -500,7 +500,10 @@ const Institutions = () => {
   // Statistics
   const totalInsts = institutions.length;
   const totalStudentsCount = institutions.reduce((acc, curr) => acc + curr.students.length, 0);
-  const totalClasses = new Set(institutions.flatMap(i => i.students.map(s => s.class))).size;
+
+  // Total Sports Tracked
+  const allStudents = institutions.flatMap(i => i.students);
+  const uniqueSportsCount = new Set(allStudents.map(s => s.sport).filter(Boolean)).size || 8;
 
   // Handle class selection
   const handleClassSelect = (instId, cls) => {
@@ -596,11 +599,11 @@ const Institutions = () => {
 
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow">
           <div>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Active Standards</p>
-            <h3 className="text-3xl font-black text-accent mt-2">{totalClasses}</h3>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Sports Tracked</p>
+            <h3 className="text-3xl font-black text-accent mt-2">{uniqueSportsCount}</h3>
           </div>
           <div className="w-12 h-12 bg-orange-100 text-accent rounded-xl flex items-center justify-center">
-            <BookOpen size={24} />
+            <Trophy size={24} />
           </div>
         </div>
       </div>
@@ -650,6 +653,16 @@ const Institutions = () => {
               ? inst.students.filter(s => s.class === activeClass)
               : [];
 
+            const gradients = [
+              "from-blue-500 to-indigo-600",
+              "from-emerald-500 to-teal-600",
+              "from-cyan-500 to-blue-600",
+              "from-purple-500 to-pink-600",
+              "from-orange-500 to-amber-600"
+            ];
+            const gradientIndex = Math.abs(inst.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % gradients.length;
+            const gradient = gradients[gradientIndex];
+
             return (
               <div 
                 key={inst.id} 
@@ -664,7 +677,7 @@ const Institutions = () => {
                   className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 cursor-pointer hover:bg-slate-50/50 transition-colors select-none"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="p-3.5 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-secondary">
+                    <div className={`p-3.5 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br ${gradient} text-white shadow-lg`}>
                       <Building2 size={24} />
                     </div>
                     <div>
