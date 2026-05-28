@@ -35,3 +35,7 @@ logs/
 
 # Server uploads
 server/uploads/
+
+# Vite temporary files
+*.timestamp-*
+

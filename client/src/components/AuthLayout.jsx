@@ -20,7 +20,7 @@ const AuthLayout = ({ children, isLoading, toast, pageTitle, pageSubtitle }) => 
           </div>
 
           {/* Tagline */}
-          <div className="auth-panel-tagline">
+          <div className="auth-panel-tagline relative">
             <h2 className="auth-panel-headline">
               Track. Analyze.<br />
               <span className="auth-panel-headline-accent">Conquer.</span>
@@ -55,7 +55,7 @@ const AuthLayout = ({ children, isLoading, toast, pageTitle, pageSubtitle }) => 
           </div>
 
           {/* Card */}
-          <div className="auth-card">
+          <div className="auth-card overflow-y-auto">
             {/* Card top accent bar */}
             <div className="auth-card-bar" />
 

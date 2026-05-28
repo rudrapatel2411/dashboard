@@ -18,6 +18,7 @@ const seedStudents = async () => {
 
     const salt = await bcrypt.genSalt(10);
     const hashedAdminPassword = await bcrypt.hash("admin123", salt);
+    const hashedGmailAdminPassword = await bcrypt.hash("123456", salt);
     const hashedInstitutePassword = await bcrypt.hash("password123", salt);
 
     // Seed admin user
@@ -30,7 +31,17 @@ const seedStudents = async () => {
       approvalStatus: "approved"
     });
 
-    console.log("Admin user seeded.");
+    // Seed admin@gmail.com admin user to prevent deletion on restart
+    await User.create({
+      name: "System Admin",
+      email: "admin@gmail.com",
+      phone: "1234567890",
+      password: hashedGmailAdminPassword,
+      role: "admin",
+      approvalStatus: "approved"
+    });
+
+    console.log("Admin users seeded.");
 
     const initialInstitutes = [
       {

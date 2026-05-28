@@ -18,12 +18,14 @@ const Performance = () => {
 
   // Navigation states
   const [selectedInst, setSelectedInst] = useState(
-    isInstituteUser ? { id: user.instituteId, name: user.instituteName || "My Institute" } : null
+    isInstituteUser ? { id: user.instituteId, name: user.instituteName || (user.instituteType === 'academy' ? "My Academy" : "My Institute") } : null
   );
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("institutions"); // "institutions" or "academies"
+  const [activeCategory, setActiveCategory] = useState(
+    (isInstituteUser && user.instituteType === 'academy') ? "academies" : "institutions"
+  );
 
   // API data states
   const [dbStudents, setDbStudents] = useState([]);

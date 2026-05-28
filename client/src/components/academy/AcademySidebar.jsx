@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, ClipboardList, FileBarChart, LogOut, X, Activity } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, LogOut, X, Activity } from 'lucide-react';
 
-const InstituteSidebar = ({ isOpen, setIsOpen }) => {
+const AcademySidebar = ({ isOpen, setIsOpen }) => {
   const [currentUser, setCurrentUser] = useState(() => {
     return JSON.parse(localStorage.getItem('user')) || {};
   });
@@ -18,10 +18,10 @@ const InstituteSidebar = ({ isOpen, setIsOpen }) => {
   }, []);
 
   const navItems = [
-    { name: 'Dashboard', path: '/institute/dashboard', icon: <LayoutDashboard size={20} /> },
-    { name: 'Students', path: '/institute/students', icon: <Users size={20} /> },
-    { name: 'Physical Tests', path: '/institute/physical-tests', icon: <ClipboardList size={20} /> },
-    { name: 'Performance', path: '/institute/performance', icon: <Activity size={20} /> },
+    { name: 'Dashboard', path: '/academy/dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: 'Athletes', path: '/academy/students', icon: <Users size={20} /> },
+    { name: 'Physical Tests', path: '/academy/physical-tests', icon: <ClipboardList size={20} /> },
+    { name: 'Performance', path: '/academy/performance', icon: <Activity size={20} /> },
   ];
 
   const handleLogout = () => {
@@ -48,14 +48,14 @@ const InstituteSidebar = ({ isOpen, setIsOpen }) => {
         {/* Sidebar Header */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center font-bold text-lg shadow-lg">
-              I
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center font-bold text-lg shadow-lg">
+              A
             </div>
             <div>
               <span className="font-bold text-sm tracking-wide uppercase block leading-tight">
-                Institute<span className="text-blue-400">Portal</span>
+                Academy<span className="text-amber-400">Portal</span>
               </span>
-              <span className="text-[9px] text-white/40 font-semibold uppercase tracking-widest">
+              <span className="text-[9px] text-white/40 font-semibold uppercase tracking-widest truncate max-w-[120px] block">
                 {currentUser.instituteName || 'SportSphere'}
               </span>
             </div>
@@ -82,7 +82,7 @@ const InstituteSidebar = ({ isOpen, setIsOpen }) => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                   isActive 
-                    ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.2)] font-bold' 
+                    ? 'bg-amber-600/20 text-amber-400 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)] font-bold' 
                     : 'text-white/70 hover:bg-white/5 hover:text-white font-medium'
                 }`
               }
@@ -109,4 +109,4 @@ const InstituteSidebar = ({ isOpen, setIsOpen }) => {
   );
 };
 
-export default InstituteSidebar;
+export default AcademySidebar;

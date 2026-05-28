@@ -9,6 +9,7 @@ const getInstitutes = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || '';
     const status = req.query.status || '';
+    const type = req.query.type || '';
 
     const query = {};
 
@@ -22,6 +23,10 @@ const getInstitutes = async (req, res) => {
 
     if (status) {
       query.status = status;
+    }
+
+    if (type) {
+      query.type = type;
     }
 
     const totalCount = await Institute.countDocuments(query);

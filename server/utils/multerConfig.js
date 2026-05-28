@@ -64,5 +64,32 @@ const marksheetUpload = multer({
   }
 });
 
+// --- Avatar image uploads ---
+const avatarStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, 'avatar-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 2000000 }, // 2MB limit
+  fileFilter: function (req, file, cb) {
+    const filetypes = /jpeg|jpg|png|webp/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Images Only!'));
+    }
+  }
+});
+
 module.exports = upload;
 module.exports.marksheetUpload = marksheetUpload;
+module.exports.avatarUpload = avatarUpload;

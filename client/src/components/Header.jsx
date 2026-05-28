@@ -1,10 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Search, User, ShieldAlert, Sparkles, Check, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) => {
-  // Read user from localStorage
-  const user = JSON.parse(localStorage.getItem('user')) || { name: 'Admin', role: 'Sports Director' };
-  const initial = user.name ? user.name.charAt(0).toUpperCase() : 'A';
+  const navigate = useNavigate();
+
+  // Read user from localStorage dynamically
+  const [currentUser, setCurrentUser] = useState(() => {
+    return JSON.parse(localStorage.getItem('user')) || { name: 'Admin', role: 'Sports Director' };
+  });
+
+  useEffect(() => {
+    const handleUserUpdate = () => {
+      const u = JSON.parse(localStorage.getItem('user')) || { name: 'Admin', role: 'Sports Director' };
+      setCurrentUser(u);
+    };
+
+    window.addEventListener('user-update', handleUserUpdate);
+    return () => window.removeEventListener('user-update', handleUserUpdate);
+  }, []);
+
+  const initial = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'A';
+
+  const handleProfileRedirect = () => {
+    if (currentUser.role === 'admin') {
+      navigate('/profile');
+    } else if (currentUser.role === 'institution' && currentUser.instituteType === 'academy') {
+      navigate('/academy/profile');
+    } else {
+      navigate('/institute/profile');
+    }
+  };
 
   // Notifications State
   const [notifications, setNotifications] = useState([
@@ -218,13 +244,32 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
         </div>
         
         {/* User Badge */}
-        <div className="flex items-center gap-3 border-l pl-6 border-slate-100 select-none">
-          <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-black shadow-md shadow-blue-500/25">
-            {initial}
-          </div>
-          <div>
-            <p className="text-sm font-extrabold text-slate-800 leading-tight">{user.name}</p>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{user.role}</p>
+        <div 
+          onClick={handleProfileRedirect}
+          className="flex items-center gap-3 border-l pl-6 border-slate-100 select-none cursor-pointer hover:bg-slate-50/80 p-1.5 rounded-2xl transition-all"
+          title="View Profile"
+        >
+          {currentUser.avatar ? (
+            <img 
+              src={`http://localhost:5000${currentUser.avatar}`} 
+              alt={currentUser.name} 
+              className="w-10 h-10 rounded-full object-cover border-2 border-secondary shadow-md shadow-blue-500/10"
+              onError={(e) => {
+                e.target.onerror = null;
+                // clear to fallback
+                e.target.style.display = 'none';
+              }}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-black shadow-md shadow-blue-500/25">
+              {initial}
+            </div>
+          )}
+          <div className="hidden sm:block">
+            <p className="text-sm font-extrabold text-slate-800 leading-tight">{currentUser.name}</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+              {currentUser.role === 'admin' ? 'Admin' : currentUser.instituteType === 'academy' ? 'Academy' : 'Institute'}
+            </p>
           </div>
         </div>
 

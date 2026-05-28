@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserCheck, Eye, Check, X, Loader2, Building2, MapPin, Phone, User, Calendar, Sparkles } from 'lucide-react';
+import { UserCheck, Eye, Check, X, Loader2, Building2, MapPin, Phone, User, Calendar, Sparkles, Trophy, Award } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -22,6 +22,12 @@ const Approval = () => {
       const res = await fetch(`${API_URL}/institutes?status=pending`, {
         headers: authHeaders,
       });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/admin/login';
+        return;
+      }
       if (!res.ok) throw new Error('Failed to fetch pending institutes');
       const data = await res.json();
       setInstitutes(data.institutes || data.data || []);
@@ -43,6 +49,12 @@ const Approval = () => {
         method: 'PUT',
         headers: authHeaders,
       });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/admin/login';
+        return;
+      }
       if (!res.ok) throw new Error('Failed to approve institute');
       setInstitutes((prev) => prev.filter((inst) => (inst._id || inst.id) !== id));
     } catch (err) {
@@ -59,6 +71,12 @@ const Approval = () => {
         method: 'PUT',
         headers: authHeaders,
       });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/admin/login';
+        return;
+      }
       if (!res.ok) throw new Error('Failed to reject institute');
       setInstitutes((prev) => prev.filter((inst) => (inst._id || inst.id) !== id));
     } catch (err) {
@@ -139,10 +157,21 @@ const Approval = () => {
                     <tr key={id} className="hover:bg-indigo-50/20 transition-colors">
                       <td className="py-4.5 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                            <Building2 size={18} />
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                            inst.type === 'academy' ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'
+                          }`}>
+                            {inst.type === 'academy' ? <Trophy size={18} /> : <Building2 size={18} />}
                           </div>
-                          <p className="font-black text-slate-800">{inst.name}</p>
+                          <div>
+                            <p className="font-black text-slate-800 flex items-center gap-2">
+                              {inst.name}
+                              <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
+                                inst.type === 'academy' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                              }`}>
+                                {inst.type === 'academy' ? 'Academy' : 'Institute'}
+                              </span>
+                            </p>
+                          </div>
                         </div>
                       </td>
                       <td className="py-4.5 px-6 text-slate-550">{inst.city}</td>
@@ -203,12 +232,20 @@ const Approval = () => {
               
               <div className="relative z-10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-400/20 flex items-center justify-center">
-                    <Building2 size={24} className="text-indigo-400" />
+                  <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center ${
+                    selectedInstitute.type === 'academy' 
+                      ? 'bg-amber-500/10 border-amber-400/20 text-amber-400' 
+                      : 'bg-indigo-500/10 border-indigo-400/20 text-indigo-400'
+                  }`}>
+                    {selectedInstitute.type === 'academy' ? <Trophy size={24} /> : <Building2 size={24} />}
                   </div>
                   <div>
-                    <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-[9px] font-black rounded border border-indigo-400/20 uppercase tracking-widest block w-max">
-                      Pending Registration
+                    <span className={`px-2.5 py-0.5 text-[9px] font-black rounded border uppercase tracking-widest block w-max ${
+                      selectedInstitute.type === 'academy'
+                        ? 'bg-amber-500/10 border-amber-400/20 text-amber-400'
+                        : 'bg-indigo-500/10 border-indigo-400/20 text-indigo-400'
+                    }`}>
+                      Pending {selectedInstitute.type === 'academy' ? 'Academy' : 'Institute'}
                     </span>
                     <h3 className="text-lg font-black mt-1 leading-tight">{selectedInstitute.name}</h3>
                   </div>
@@ -224,6 +261,21 @@ const Approval = () => {
 
             <div className="p-6 space-y-6">
               
+              {/* Specialty Sport Details (if Academy) */}
+              {selectedInstitute.type === 'academy' && selectedInstitute.sport && (
+                <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 space-y-3">
+                  <h4 className="text-[10px] uppercase font-black text-amber-600 tracking-wider flex items-center gap-1.5 border-b border-amber-200/50 pb-2">
+                    <Award size={12} /> Specialty Sport Details
+                  </h4>
+                  <div className="space-y-2 text-xs font-semibold">
+                    <div className="flex items-start gap-3">
+                      <span className="text-slate-400 text-[10px] w-20 shrink-0 font-bold uppercase">Sport</span>
+                      <span className="text-amber-700 font-extrabold">{selectedInstitute.sport}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Highlight Location section */}
               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3">
                 <h4 className="text-[10px] uppercase font-black text-indigo-600 tracking-wider flex items-center gap-1.5 border-b border-slate-200/50 pb-2">

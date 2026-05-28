@@ -11,6 +11,7 @@ import Reports from './pages/Reports';
 import Tests from './pages/Tests';
 import Approval from './pages/Approval';
 import Academies from './pages/Academies';
+import Profile from './pages/Profile';
 
 // New Auth pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -23,12 +24,18 @@ import InstituteDashboardLayout from './components/institute/InstituteDashboardL
 import InstituteDashboard from './pages/institute/InstituteDashboard';
 import InstituteStudents from './pages/institute/InstituteStudents';
 
+// Academy Dashboard
+import AcademyDashboardLayout from './components/academy/AcademyDashboardLayout';
+import AcademyDashboard from './pages/academy/AcademyDashboard';
+import AcademyStudents from './pages/academy/AcademyStudents';
+
 function App() {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const isAuthenticated = !!token;
   const isAdmin = isAuthenticated && user.role === 'admin';
-  const isInstitute = isAuthenticated && user.role === 'institution';
+  const isInstitute = isAuthenticated && user.role === 'institution' && user.instituteType !== 'academy';
+  const isAcademy = isAuthenticated && user.role === 'institution' && user.instituteType === 'academy';
 
   return (
     <BrowserRouter>
@@ -49,18 +56,18 @@ function App() {
           element={isAuthenticated ? <Navigate to="/dashboard" /> : <ForgotPassword />} 
         />
 
-        {/* ========= Institute Auth Routes ========= */}
+        {/* ========= Institute / Academy Auth Routes ========= */}
         <Route 
           path="/institute/login" 
-          element={isInstitute ? <Navigate to="/institute/dashboard" /> : <InstituteLogin />} 
+          element={isAcademy ? <Navigate to="/academy/dashboard" /> : isInstitute ? <Navigate to="/institute/dashboard" /> : <InstituteLogin />} 
         />
         <Route 
           path="/institute/register" 
-          element={isInstitute ? <Navigate to="/institute/dashboard" /> : <InstituteRegister />} 
+          element={isAcademy ? <Navigate to="/academy/dashboard" /> : isInstitute ? <Navigate to="/institute/dashboard" /> : <InstituteRegister />} 
         />
         <Route 
           path="/institute/forgot-password" 
-          element={isInstitute ? <Navigate to="/institute/dashboard" /> : <InstituteForgotPassword />} 
+          element={isAcademy ? <Navigate to="/academy/dashboard" /> : isInstitute ? <Navigate to="/institute/dashboard" /> : <InstituteForgotPassword />} 
         />
 
         {/* ========= Admin Protected Routes ========= */}
@@ -76,6 +83,7 @@ function App() {
           <Route path="approval" element={<Approval />} />
           <Route path="performance" element={<Performance />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
 
         {/* ========= Institute Protected Routes ========= */}
@@ -88,11 +96,25 @@ function App() {
           <Route path="students" element={<InstituteStudents />} />
           <Route path="physical-tests" element={<Tests />} />
           <Route path="performance" element={<Performance />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
+
+        {/* ========= Academy Protected Routes ========= */}
+        <Route 
+          path="/academy" 
+          element={isAcademy ? <AcademyDashboardLayout /> : <Navigate to="/institute/login" />}
+        >
+          <Route index element={<Navigate to="/academy/dashboard" />} />
+          <Route path="dashboard" element={<AcademyDashboard />} />
+          <Route path="students" element={<AcademyStudents />} />
+          <Route path="physical-tests" element={<Tests />} />
+          <Route path="performance" element={<Performance />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
 
         {/* ========= Catch-all ========= */}
         <Route path="*" element={
-          <Navigate to={isAdmin ? '/dashboard' : isInstitute ? '/institute/dashboard' : '/institute/login'} replace />
+          <Navigate to={isAdmin ? '/dashboard' : isAcademy ? '/academy/dashboard' : isInstitute ? '/institute/dashboard' : '/institute/login'} replace />
         } />
 
       </Routes>

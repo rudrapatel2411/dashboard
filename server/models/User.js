@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
   },
+  avatar: {
+    type: String,
+    default: ''
+  },
   resetPasswordOTP: {
     type: String,
     default: null

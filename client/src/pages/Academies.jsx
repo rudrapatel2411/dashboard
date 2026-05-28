@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
   School, Users, Search, ChevronDown, ChevronUp, GraduationCap, 
@@ -264,6 +264,58 @@ const Academies = () => {
   const [toast, setToast] = useState(null);
   const [selectedStudentReport, setSelectedStudentReport] = useState(null);
 
+  // Fetch approved academies from the backend database on load
+  useEffect(() => {
+    const fetchApprovedAcademies = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/institutes?status=approved&type=academy`, {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'Content-Type': 'application/json',
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const formatted = (data.institutes || []).map(acad => {
+            const id = acad._id || acad.id;
+            const gradients = [
+              "from-red-500 to-rose-600",
+              "from-emerald-500 to-teal-600",
+              "from-cyan-500 to-blue-600",
+              "from-blue-500 to-indigo-600",
+              "from-orange-500 to-amber-600"
+            ];
+            const gradientIndex = Math.abs(id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % gradients.length;
+            const gradient = gradients[gradientIndex];
+
+            return {
+              id,
+              name: acad.name,
+              sport: acad.sport || 'Multi-Sport',
+              coach: acad.contactPerson || 'Head Coach',
+              email: acad.email || '',
+              phone: acad.mobile || '',
+              registeredAt: new Date(acad.createdAt).toISOString().split('T')[0],
+              location: (acad.city && acad.state) ? `${acad.city}, ${acad.state}` : acad.city || acad.state || 'India',
+              budget: '₹4,00,000 / Year',
+              gradient,
+              students: [],
+              isDb: true
+            };
+          });
+          
+          setAcademies(prev => {
+            const filteredDb = formatted.filter(db => !prev.some(p => p.id === db.id || p.name.toLowerCase() === db.name.toLowerCase()));
+            return [...filteredDb, ...prev];
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching approved academies:", err);
+      }
+    };
+    fetchApprovedAcademies();
+  }, []);
+
   // Search Context
   const outletContext = useOutletContext();
   const [localSearchTerm, setLocalSearchTerm] = useState("");
@@ -271,10 +323,72 @@ const Academies = () => {
   const setSearchTerm = outletContext ? outletContext.setSearchTerm : setLocalSearchTerm;
 
   // Toggle Accordion
-  const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id);
-    setSelectedClass(prev => ({ ...prev, [id]: null }));
-  };
+  const toggleExpand = async (id) => {
+    const target = academies.find(acad => acad.id === id);
+    if (!target) return;
+
+    if (expandedId === id) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(id);
+      setSelectedClass(prev => ({ ...prev, [id]: null }));
+
+      // Lazy load students from the backend for database-backed academies
+      if (target.isDb && target.students.length === 0) {
+        try {
+          const res = await fetch(`http://localhost:5000/api/institutes/${id}/students`, {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('token'),
+              'Content-Type': 'application/json',
+            }
+          });
+          if (res.ok) {
+            const studentsData = await res.json();
+            const mappedStudents = studentsData.map(s => {
+              const age = s.dob ? (new Date().getFullYear() - new Date(s.dob).getFullYear()) : 15;
+              const feesStatus = s.feesStatus || (Math.random() > 0.3 ? "Paid" : "Pending");
+              const feesAmount = s.feesAmount || 15000;
+              const hasPaid = feesStatus === "Paid";
+              
+              return {
+                id: s._id || s.id,
+                studentId: s.studentId,
+                name: s.name,
+                age,
+                class: s.class,
+                attendance: s.attendance || "Present",
+                feesStatus,
+                feesAmount,
+                receiptId: hasPaid ? (s.receiptId || `REC-2026-${Math.floor(100 + Math.random() * 900)}`) : undefined,
+                paymentDate: hasPaid ? (s.paymentDate || new Date().toISOString().split('T')[0]) : undefined,
+                paymentMethod: hasPaid ? (s.paymentMethod || 'UPI (Google Pay)') : undefined,
+                dob: s.dob ? new Date(s.dob).toLocaleDateString('en-IN') : '',
+                gender: s.gender || 'Male',
+                contact: s.contact || s.phone || '',
+                contactOptional: s.contactOptional || '',
+                address: s.address || '',
+                taluka: s.taluka || s.taaluka || '',
+                city: s.city || '',
+                pincode: s.pincode || ''
+              };
+            });
+
+            setAcademies(prev => prev.map(acad => {
+              if (acad.id === id) {
+                return {
+                  ...acad,
+                  students: mappedStudents
+                };
+              }
+              return acad;
+            }));
+          }
+        } catch (err) {
+          console.error("Error fetching students for academy:", err);
+      }
+    }
+  }
+};
 
   // Handle Class Select (Grade 9 & 10 Only)
   const handleClassSelect = (acadId, cls) => {

@@ -1,4 +1,4 @@
-const { User, Institute } = require('../models');
+const { User, Institute, Student, Performance, TestPerformance } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -75,7 +75,8 @@ exports.instituteRegister = async (req, res) => {
   try {
     const { 
       name, email, phone, password,
-      instituteName, city, state, address, contactPerson, mobile 
+      instituteName, city, state, address, contactPerson, mobile,
+      type, sport
     } = req.body;
 
     // Validate required fields
@@ -113,15 +114,18 @@ exports.instituteRegister = async (req, res) => {
       address: address || '',
       contactPerson: contactPerson || name,
       mobile: mobile || phone || '',
-      status: 'pending'
+      status: 'pending',
+      type: type || 'institute',
+      sport: type === 'academy' ? sport : undefined
     });
 
     // Send notification to admin dashboard
     try {
       const { sendNotification } = require('../routes/notifications');
+      const typeLabel = type === 'academy' ? 'Academy' : 'Institute';
       sendNotification(
-        "New Institute Registration",
-        `"${instituteName}" from ${city}, ${state} has registered and is awaiting approval.`,
+        `New ${typeLabel} Registration`,
+        `"${instituteName}" (${city}, ${state}) has registered as an ${typeLabel} and is awaiting approval.`,
         "warning"
       );
     } catch (e) {
@@ -180,6 +184,8 @@ exports.login = async (req, res) => {
         if (institute) {
           responseData.instituteId = institute._id;
           responseData.instituteName = institute.name;
+          responseData.instituteType = institute.type;
+          responseData.sport = institute.sport;
         }
       }
 
@@ -258,6 +264,171 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     res.json({ message: 'Password has been reset successfully.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Get user profile
+// @route   GET /api/auth/profile
+// @access  Private
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let institute = null;
+    if (user.role === 'institution') {
+      institute = await Institute.findOne({ userId: user._id });
+    }
+
+    res.json({ user, institute });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, phone, email, ...instituteFields } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if email already exists on another user
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: 'Email is already in use by another account' });
+      }
+      user.email = email;
+    }
+
+    // Update user fields
+    if (name) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+
+    // Handle avatar upload
+    if (req.file) {
+      user.avatar = `/uploads/${req.file.filename}`;
+    }
+
+    await user.save();
+
+    let institute = null;
+    if (user.role === 'institution') {
+      institute = await Institute.findOne({ userId: user._id });
+      if (institute) {
+        // Update institute fields
+        if (instituteFields.instituteName) institute.name = instituteFields.instituteName;
+        if (instituteFields.city) institute.city = instituteFields.city;
+        if (instituteFields.state) institute.state = instituteFields.state;
+        if (instituteFields.address !== undefined) institute.address = instituteFields.address;
+        if (instituteFields.contactPerson !== undefined) institute.contactPerson = instituteFields.contactPerson;
+        if (instituteFields.mobile !== undefined) institute.mobile = instituteFields.mobile;
+        if (instituteFields.sport !== undefined) institute.sport = instituteFields.sport;
+        if (email) institute.email = email; // sync email
+
+        await institute.save();
+      }
+    }
+
+    // Exclude password from returned user object
+    const updatedUser = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      avatar: user.avatar,
+      approvalStatus: user.approvalStatus
+    };
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: updatedUser,
+      institute
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Change password
+// @route   PUT /api/auth/change-password
+// @access  Private
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current password and new password are required' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Incorrect current password' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Delete user account and all associated data
+// @route   DELETE /api/auth/delete-account
+// @access  Private
+exports.deleteAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.role === 'institution') {
+      const institute = await Institute.findOne({ userId: user._id });
+      if (institute) {
+        // 1. Find all students belonging to this institute
+        const students = await Student.find({ instituteId: institute._id });
+        const studentIds = students.map(s => s._id);
+
+        if (studentIds.length > 0) {
+          // 2. Delete all performance entries for these students
+          await Performance.deleteMany({ studentId: { $in: studentIds } });
+          
+          // 3. Delete all academic test performance entries for these students
+          await TestPerformance.deleteMany({ studentId: { $in: studentIds } });
+
+          // 4. Delete the students themselves
+          await Student.deleteMany({ instituteId: institute._id });
+        }
+
+        // 5. Delete the institute details record
+        await Institute.findByIdAndDelete(institute._id);
+      }
+    }
+
+    // 6. Delete the authentication User record
+    await User.findByIdAndDelete(user._id);
+
+    res.json({ message: 'Account and all associated records deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

@@ -222,21 +222,34 @@ body {
   flex-direction: row;
   background-color: #F8FAFC; /* same as --color-bg-main */
   font-family: var(--font-sans);
-  overflow: hidden;
+  overflow-y: auto;
 }
 
-/* ── Left decorative panel (mirrors sidebar: bg-primary = #0F172A) ── */
+@media (min-width: 900px) {
+  .auth-root {
+    height: 100vh;
+    overflow: hidden;
+  }
+}
+
+/* ── Left decorative panel (mirrors sidebar: bg-[#020B2D]) ── */
 .auth-panel {
   display: none;
   position: relative;
-  width: 42%;
+  width: 50%;
   flex-shrink: 0;
-  background-color: #0F172A; /* --color-primary */
+  background-color: #020B2D;
   overflow: hidden;
 }
 
 @media (min-width: 900px) {
-  .auth-panel { display: flex; flex-direction: column; justify-content: center; }
+  .auth-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+    padding: 3rem;
+  }
 }
 
 .auth-panel-glow {
@@ -357,13 +370,26 @@ body {
   justify-content: center;
   padding: 32px 24px;
   background-color: #F8FAFC;
-  overflow-y: auto;
   min-height: 100vh;
+  scrollbar-width: none;
+}
+
+@media (min-width: 900px) {
+  .auth-form-panel {
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    align-items: flex-start;
+  }
+  .auth-form-wrap {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
 }
 
 .auth-form-wrap {
   width: 100%;
-  max-width: 400px;
+  max-width: 650px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -447,6 +473,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.auth-form-wide {
+  max-width: 100% !important;
 }
 
 .auth-field {
@@ -710,4 +743,15 @@ body {
   font-weight: 500;
   margin: 0;
   line-height: 1.5;
+}
+
+
+.no-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
   Building2, Users, Search, 
@@ -366,7 +366,43 @@ const Institutions = () => {
   // Format: { [instId]: "9" } or null
   const [selectedClass, setSelectedClass] = useState({});
 
-
+  // Fetch approved institutions from the backend database on load
+  useEffect(() => {
+    const fetchApprovedInstitutes = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/institutes?status=approved&type=institute`, {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'Content-Type': 'application/json',
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const formatted = (data.institutes || []).map(inst => {
+            const id = inst._id || inst.id;
+            return {
+              id,
+              name: inst.name,
+              email: inst.email || '',
+              phone: inst.mobile || inst.phone || '',
+              registeredAt: new Date(inst.createdAt).toISOString().split('T')[0],
+              students: [],
+              isDb: true
+            };
+          });
+          
+          setInstitutions(prev => {
+            // Avoid duplicate name or ID entries
+            const filteredDb = formatted.filter(db => !prev.some(p => p.id === db.id || p.name.toLowerCase() === db.name.toLowerCase()));
+            return [...filteredDb, ...prev];
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching approved institutes:", err);
+      }
+    };
+    fetchApprovedInstitutes();
+  }, []);
   
   // Connect with global DashboardLayout search context
   const outletContext = useOutletContext();
@@ -385,13 +421,69 @@ const Institutions = () => {
   const [zoomedImage, setZoomedImage] = useState(null);
 
   // Toggle accordion expand/collapse
-  const toggleExpand = (id) => {
+  const toggleExpand = async (id) => {
+    const target = institutions.find(inst => inst.id === id);
+    if (!target) return;
+
     if (expandedId === id) {
       setExpandedId(null);
     } else {
       setExpandedId(id);
       // Reset class selection when switching institutes
       setSelectedClass(prev => ({ ...prev, [id]: null }));
+
+      // Lazy load students from the backend for database-backed institutions
+      if (target.isDb && target.students.length === 0) {
+        try {
+          const res = await fetch(`http://localhost:5000/api/institutes/${id}/students`, {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('token'),
+              'Content-Type': 'application/json',
+            }
+          });
+          if (res.ok) {
+            const studentsData = await res.json();
+            const mappedStudents = studentsData.map(s => {
+              const age = s.dob ? (new Date().getFullYear() - new Date(s.dob).getFullYear()) : 15;
+              const performance = "Good";
+              return {
+                id: s._id || s.id,
+                studentId: s.studentId,
+                name: s.name,
+                age,
+                class: s.class,
+                sport: "Football", // default sport for students
+                performance,
+                attendance: "Present",
+                sprintTime: 12.8,
+                broadJump: 215,
+                pushups: 28,
+                recommendedSport: "Football & Sprint Tracks",
+                manualReportData: "Good agility and core coordination indices.",
+                dob: s.dob ? new Date(s.dob).toLocaleDateString('en-IN') : '',
+                gender: s.gender,
+                contact: s.contact,
+                address: s.address,
+                taluka: s.taaluka,
+                city: s.city,
+                pincode: s.pincode
+              };
+            });
+
+            setInstitutions(prev => prev.map(inst => {
+              if (inst.id === id) {
+                return {
+                  ...inst,
+                  students: mappedStudents
+                };
+              }
+              return inst;
+            }));
+          }
+        } catch (err) {
+          console.error("Error fetching students for institute:", err);
+        }
+      }
     }
   };
 

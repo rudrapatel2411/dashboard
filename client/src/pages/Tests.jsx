@@ -16,6 +16,9 @@ const calculateAge = (dobString) => {
 };
 
 const Tests = () => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAcademy = user.instituteType === 'academy';
+
   // Live students fetched from backend
   const [students, setStudents] = useState([]);
   const [selectedClass, setSelectedClass] = useState("10"); // Default standard select
@@ -417,15 +420,15 @@ const Tests = () => {
           Physical Test Evaluation
         </h1>
         <p className="text-slate-500 text-sm mt-1 font-medium">
-          Conduct bulk physical screening, view all class students inline, and log test parameters or mark absentees.
+          Conduct bulk physical screening, view all {isAcademy ? 'athletes' : 'class students'} inline, and log test parameters or mark absentees.
         </p>
       </div>
 
       {/* Select Standard / Class Toolbar */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider mb-1">Class / Standard Roster</h3>
-          <p className="text-xs text-slate-400 font-semibold">Select a school grade standard to load all registered students in that class.</p>
+          <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider mb-1">{isAcademy ? 'Standard / Age Level' : 'Class / Standard'} Roster</h3>
+          <p className="text-xs text-slate-400 font-semibold">Select a {isAcademy ? 'standard / age level' : 'school grade standard'} to load all registered {isAcademy ? 'athletes' : 'students'}.</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
@@ -434,7 +437,7 @@ const Tests = () => {
             <Search className="absolute left-3 top-2.5 text-slate-400 w-4 h-4" />
             <input 
               type="text" 
-              placeholder="Search student by name..." 
+              placeholder={`Search ${isAcademy ? 'athlete' : 'student'} by name...`} 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/40 font-semibold bg-slate-50 text-slate-700"
@@ -478,7 +481,7 @@ const Tests = () => {
         <div className="px-6 py-4 border-b border-slate-100 bg-slate-900 text-white flex justify-between items-center">
           <span className="font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
             <User size={16} className="text-accent" />
-            Class {selectedClass}th Active Student Screening Sheet
+            Class {selectedClass}th Active {isAcademy ? 'Athlete' : 'Student'} Screening Sheet
           </span>
           <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-black">
             {filteredStudents.length} ROSTER
@@ -490,7 +493,7 @@ const Tests = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="py-4 px-6 w-1/4">Student Info</th>
+                  <th className="py-4 px-6 w-1/4">{isAcademy ? 'Athlete Info' : 'Student Info'}</th>
                   <th className="py-4 px-3 text-center w-[12%]">Status</th>
                   <th className="py-4 px-4 w-1/2">Fitness Test Parameters & Evaluation</th>
                   <th className="py-4 px-6 text-center w-[13%]">Action</th>
@@ -557,7 +560,7 @@ const Tests = () => {
                       <td className="py-4 px-4">
                         {input.status === "Absent" ? (
                           <div className="text-center text-slate-400 text-xs italic font-semibold py-4">
-                            Student is marked ABSENT. No parameters needed.
+                            {isAcademy ? 'Athlete' : 'Student'} is marked ABSENT. No parameters needed.
                           </div>
                         ) : isAlreadyLogged ? (
                           // Render saved details
@@ -845,188 +848,7 @@ const Tests = () => {
         )}
       </div>
 
-      {/* History and Certificate Feed Area */}
-      <div className="space-y-4">
-        
-        {/* Header & Sorting Toolbar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <h3 className="font-extrabold text-slate-800 text-lg flex items-center gap-2">
-            <FileText className="text-secondary w-5 h-5" />
-            Evaluated Sports Selection Records ({submissions.length})
-          </h3>
-          
-          <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl text-xs font-bold text-slate-500 self-start sm:self-auto select-none shrink-0 border border-slate-200">
-            <span className="flex items-center gap-1 pl-1"><ArrowUpDown size={12} /> Sort:</span>
-            <button 
-              onClick={() => setSortBy("date")}
-              className={`px-2.5 py-1 rounded-lg transition-all ${
-                sortBy === "date" ? "bg-white text-secondary shadow-sm" : "hover:text-slate-800"
-              }`}
-            >
-              Date
-            </button>
-            <button 
-              onClick={() => setSortBy("sprint")}
-              className={`px-2.5 py-1 rounded-lg transition-all ${
-                sortBy === "sprint" ? "bg-white text-secondary shadow-sm" : "hover:text-slate-800"
-              }`}
-            >
-              Sprint (⚡)
-            </button>
-            <button 
-              onClick={() => setSortBy("jump")}
-              className={`px-2.5 py-1 rounded-lg transition-all ${
-                sortBy === "jump" ? "bg-white text-secondary shadow-sm" : "hover:text-slate-800"
-              }`}
-            >
-              Broad Jump
-            </button>
-          </div>
-        </div>
-
-        {/* List layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {sortedSubmissions.map((sub) => (
-            <div key={sub.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md transition-shadow relative overflow-hidden group">
-              
-              {/* Header: Student Profile */}
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-secondary font-bold">
-                    <User size={20} />
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-slate-800 text-base">{sub.studentName}</h4>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">
-                      ID: {sub.studentId} • Class {sub.class}th • Age {sub.age}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {sub.status === "Present" && (
-                    <button
-                      onClick={() => setActiveCertificate(sub)}
-                      title="Print Certificate / Endorsement"
-                      className="text-slate-500 hover:text-secondary hover:bg-blue-50 p-2 rounded-lg transition-all"
-                    >
-                      <Printer size={16} />
-                    </button>
-                  )}
-                  <button
-                    onClick={() => deleteSubmission(sub.id)}
-                    title="Delete Entry"
-                    className="text-slate-300 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Status Badge */}
-              <div className="my-3">
-                <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
-                  sub.status === 'Absent' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                }`}>
-                  {sub.status === 'Absent' ? '🔴 ABSENT' : '🟢 PRESENT'}
-                </span>
-              </div>
-
-              {/* Score Badges */}
-              {sub.status === "Present" && (
-                <div className="my-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                  <div className="flex justify-between items-center text-[10px] font-black text-indigo-600 uppercase tracking-wider mb-2 pb-1.5 border-b border-slate-200/50">
-                    <span>Test Parameters Summary</span>
-                    <span>BMI: {sub.bmi} (Height: {sub.height}cm / Weight: {sub.weight}kg)</span>
-                  </div>
-                  {sub.ageGroup === 1 ? (
-                    <div className="grid grid-cols-2 gap-3 text-center">
-                      <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Plate Tapping</p>
-                        <p className="font-extrabold text-slate-800 text-sm mt-0.5">{sub.plateTapping}s</p>
-                      </div>
-                      <div className="border-l border-slate-200">
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Flamingo Balance</p>
-                        <p className="font-extrabold text-slate-800 text-sm mt-0.5">{sub.flamingoBalance}s</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-5 gap-1.5 text-center">
-                      <div>
-                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide leading-tight">Partial Curl-up</p>
-                        <p className="font-extrabold text-slate-800 text-xs mt-0.5">{sub.partialCurlUp}</p>
-                      </div>
-                      <div className="border-l border-slate-200">
-                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide leading-tight">Pushups</p>
-                        <p className="font-extrabold text-slate-800 text-xs mt-0.5">{sub.pushups}</p>
-                      </div>
-                      <div className="border-l border-slate-200">
-                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide leading-tight">Sit & Reach</p>
-                        <p className="font-extrabold text-slate-800 text-xs mt-0.5">{sub.sitAndReach}cm</p>
-                      </div>
-                      <div className="border-l border-slate-200">
-                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide leading-tight">600m Run</p>
-                        <p className="font-extrabold text-slate-800 text-xs mt-0.5">{sub.runWalk600m}</p>
-                      </div>
-                      <div className="border-l border-slate-200">
-                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide leading-tight">50m Run</p>
-                        <p className="font-extrabold text-slate-800 text-xs mt-0.5">{sub.run50m}s</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Body Content */}
-              <div className="space-y-3">
-                
-                {/* Dynamic sport label */}
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Perfect Sport Selection</span>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg border shadow-sm ${
-                      sub.status === 'Absent' ? 'bg-slate-50 text-slate-400 border-slate-150' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                    }`}>
-                      <Award size={14} className={sub.status === 'Absent' ? 'text-slate-400' : 'text-emerald-500'} />
-                      {sub.recommendedSport}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Manual report data comments */}
-                <div className="text-xs font-medium text-slate-600 leading-relaxed border-l-2 border-slate-200 pl-3">
-                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Manual Health Report Notes</span>
-                  {sub.manualReportData}
-                </div>
-
-                {/* Report photo view link */}
-                {sub.reportHardCopyUrl && (
-                  <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Report Hard Copy Proof</span>
-                    
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setActiveCertificate(sub)}
-                        className="flex items-center gap-1 bg-slate-50 text-slate-600 hover:bg-slate-100 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border border-slate-150"
-                      >
-                        <Printer size={12} /> Certificate
-                      </button>
-                      <button
-                        onClick={() => setActiveImage(sub.reportHardCopyUrl)}
-                        className="flex items-center gap-1 bg-blue-50 text-secondary hover:bg-secondary hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all"
-                      >
-                        <Eye size={12} /> View Hard Copy
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-              </div>
-
-            </div>
-          ))}
-        </div>
-      </div>
+      
 
       {/* Reusable Toast Notifications */}
       {toast.show && (

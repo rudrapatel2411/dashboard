@@ -44,12 +44,16 @@ const InstituteLogin = () => {
         role: data.role,
         email: data.email,
         instituteId: data.instituteId,
-        instituteName: data.instituteName
+        instituteName: data.instituteName,
+        instituteType: data.instituteType,
+        sport: data.sport
       }));
-      triggerToast('Success!', 'Welcome! Opening Institute Dashboard...');
+      
+      const isAcademy = data.instituteType === 'academy';
+      triggerToast('Success!', isAcademy ? 'Welcome! Opening Academy Dashboard...' : 'Welcome! Opening Institute Dashboard...');
       setTimeout(() => {
         setIsLoading(false);
-        window.location.href = '/institute/dashboard';
+        window.location.href = isAcademy ? '/academy/dashboard' : '/institute/dashboard';
       }, 1500);
     } catch (error) {
       setIsLoading(false);
