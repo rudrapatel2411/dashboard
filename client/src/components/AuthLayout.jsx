@@ -1,5 +1,6 @@
 import React from 'react';
-import { Activity, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, CheckCircle2 } from 'lucide-react';
+import sportsPattern from '../assets/auth-sports-pattern.svg';
 
 const AuthLayout = ({ children, isLoading, toast, pageTitle, pageSubtitle }) => {
   return (
@@ -7,37 +8,24 @@ const AuthLayout = ({ children, isLoading, toast, pageTitle, pageSubtitle }) => 
 
       {/* Left decorative panel — mirrors sidebar style */}
       <div className="auth-panel">
-        <div className="auth-panel-glow auth-panel-glow-1" />
-        <div className="auth-panel-glow auth-panel-glow-2" />
+        <div
+          className="auth-sports-pattern"
+          style={{ backgroundImage: `url(${sportsPattern})` }}
+          aria-hidden="true"
+        />
+        <div className="auth-sports-vignette" aria-hidden="true" />
 
-        <div className="auth-panel-content">
-          {/* Brand */}
-          <div className="auth-panel-brand">
-            <div className="auth-panel-brand-icon">S</div>
-            <span className="auth-panel-brand-name">
-              Sport<span className="auth-panel-brand-accent">Sphere</span>
-            </span>
-          </div>
-
-          {/* Tagline */}
-          <div className="auth-panel-tagline relative">
-            <h2 className="auth-panel-headline">
-              Track. Analyze.<br />
-              <span className="auth-panel-headline-accent">Conquer.</span>
-            </h2>
-            <p className="auth-panel-desc">
-              The all-in-one platform for elite sports performance management, team analytics, and athlete progress tracking.
-            </p>
-          </div>
-
-          {/* Feature pills */}
-          <div className="auth-panel-pills">
-            {['Performance Metrics', 'Team Analytics', 'Test Scheduling', 'Progress Reports'].map(f => (
-              <span key={f} className="auth-pill">
-                <Activity size={11} />
-                {f}
+        <div className="auth-panel-content auth-panel-content-sports">
+          <div className="auth-brand-plate">
+            <div className="auth-panel-brand">
+              <div className="auth-panel-brand-icon">S</div>
+              <span className="auth-panel-brand-name">
+                Sport<span className="auth-panel-brand-accent">Sphere</span>
               </span>
-            ))}
+            </div>
+            <p className="auth-panel-desc">
+              Government-ready sports screening and performance management portal.
+            </p>
           </div>
         </div>
       </div>
@@ -49,8 +37,8 @@ const AuthLayout = ({ children, isLoading, toast, pageTitle, pageSubtitle }) => 
           {/* Mobile brand (hidden on desktop) */}
           <div className="auth-mobile-brand">
             <div className="auth-panel-brand-icon">S</div>
-            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F172A' }}>
-              Sport<span style={{ color: '#F97316' }}>Sphere</span>
+            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#24324A' }}>
+              Sport<span style={{ color: '#1F5F99' }}>Sphere</span>
             </span>
           </div>
 
