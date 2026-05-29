@@ -5,8 +5,17 @@ const Institute = require('../models/Institute');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
-const seedStudents = async () => {
+const seedStudents = async (force = false) => {
   try {
+    // Check if database already has data to prevent data loss on restart
+    if (!force) {
+      const userCount = await User.countDocuments();
+      if (userCount > 0) {
+        console.log("Database already contains data. Skipping seeding to prevent overwrite on restart.");
+        return;
+      }
+    }
+
     // Clear previous records to ensure clean seed
     await Student.deleteMany({});
     await Performance.deleteMany({});

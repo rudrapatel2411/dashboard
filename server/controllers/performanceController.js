@@ -40,34 +40,41 @@ exports.addPerformance = async (req, res) => {
     let bmi = 0;
     let recommendedSport = "N/A";
 
+    const heightNum = parseFloat(height) || 160;
+    const weightNum = parseFloat(weight) || 50;
+    const tap = parseFloat(plateTapping) || 0;
+    const flam = parseFloat(flamingoBalance) || 0;
+    const sprint = parseFloat(run50m) || 0;
+    const push = parseInt(pushups) || 0;
+    const curl = parseInt(partialCurlUp) || 0;
+    const sitReach = parseFloat(sitAndReach) || 0;
+
     if (!isAbsent) {
-      const heightNum = parseFloat(height) || 160;
-      const weightNum = parseFloat(weight) || 50;
       bmi = parseFloat((weightNum / ((heightNum / 100) * (heightNum / 100))).toFixed(1));
 
       if (ageGroup === 1) {
         // Group 1: Under 5-8 yrs
-        const tap = parseFloat(plateTapping) || 15;
-        const flam = parseFloat(flamingoBalance) || 10;
+        const scoringTap = tap || 15;
+        const scoringFlam = flam || 10;
 
-        speed = Math.min(100, Math.max(30, Math.round(150 - tap * 6)));
-        strength = Math.min(100, Math.max(30, Math.round(30 + flam * 3.5)));
-        stamina = Math.min(100, Math.max(30, Math.round(35 + flam * 3)));
-        agility = Math.min(100, Math.max(30, Math.round(140 - tap * 5.5)));
+        speed = Math.min(100, Math.max(30, Math.round(150 - scoringTap * 6)));
+        strength = Math.min(100, Math.max(30, Math.round(30 + scoringFlam * 3.5)));
+        stamina = Math.min(100, Math.max(30, Math.round(35 + scoringFlam * 3)));
+        agility = Math.min(100, Math.max(30, Math.round(140 - scoringTap * 5.5)));
         flexibility = 65;
         accuracy = 60;
-        endurance = Math.min(100, Math.max(30, Math.round(40 + flam * 2)));
-        reactionTime = Math.min(100, Math.max(30, Math.round(135 - tap * 5)));
+        endurance = Math.min(100, Math.max(30, Math.round(40 + scoringFlam * 2)));
+        reactionTime = Math.min(100, Math.max(30, Math.round(135 - scoringTap * 5)));
 
         recommendedSport = (tap < 12 && flam > 15) 
           ? "Gymnastics & Ballet (High Balance & Coordination)" 
           : "General Athletics & Coordination Drills";
       } else {
         // Group 2: Under 9-18 yrs
-        const sprint = parseFloat(run50m) || 9.5;
-        const push = parseInt(pushups) || 15;
-        const curl = parseInt(partialCurlUp) || 20;
-        const sitReach = parseFloat(sitAndReach) || 15;
+        const scoringSprint = sprint || 9.5;
+        const scoringPush = push || 15;
+        const scoringCurl = curl || 20;
+        const scoringSitReach = sitReach || 15;
 
         let runWalkSeconds = 150;
         if (runWalk600m && typeof runWalk600m === 'string' && runWalk600m.includes(':')) {
@@ -77,14 +84,14 @@ exports.addPerformance = async (req, res) => {
           runWalkSeconds = parseFloat(runWalk600m) || 150;
         }
 
-        speed = Math.min(100, Math.max(30, Math.round(160 - sprint * 10)));
-        strength = Math.min(100, Math.max(30, Math.round(35 + (push + curl) * 0.8)));
+        speed = Math.min(100, Math.max(30, Math.round(160 - scoringSprint * 10)));
+        strength = Math.min(100, Math.max(30, Math.round(35 + (scoringPush + scoringCurl) * 0.8)));
         stamina = Math.min(100, Math.max(30, Math.round(160 - runWalkSeconds * 0.45)));
-        agility = Math.min(100, Math.max(30, Math.round(145 - sprint * 8)));
-        flexibility = Math.min(100, Math.max(30, Math.round(40 + sitReach * 2)));
-        accuracy = Math.min(100, Math.max(30, Math.round(45 + push * 1.2)));
+        agility = Math.min(100, Math.max(30, Math.round(145 - scoringSprint * 8)));
+        flexibility = Math.min(100, Math.max(30, Math.round(40 + scoringSitReach * 2)));
+        accuracy = Math.min(100, Math.max(30, Math.round(45 + scoringPush * 1.2)));
         endurance = Math.min(100, Math.max(30, Math.round(155 - runWalkSeconds * 0.4)));
-        reactionTime = Math.min(100, Math.max(30, Math.round(150 - sprint * 9)));
+        reactionTime = Math.min(100, Math.max(30, Math.round(150 - scoringSprint * 9)));
 
         if (sprint < 8.0 && runWalkSeconds < 120) {
           recommendedSport = "Athletics (Track & Field)";
@@ -124,15 +131,15 @@ exports.addPerformance = async (req, res) => {
       studentId, term, speed, strength, stamina, agility, flexibility, accuracy, endurance, reactionTime,
       attendance: finalAttendance, discipline: finalDiscipline, matchPerformance: finalMatchPerf,
       overallScore: parseFloat(overallScore.toFixed(2)), fitnessLevel, aiInsight,
-      status, ageGroup, height: isAbsent ? 0 : parseFloat(height), weight: isAbsent ? 0 : parseFloat(weight), bmi,
-      plateTapping: isAbsent ? 0 : parseFloat(plateTapping),
-      flamingoBalance: isAbsent ? 0 : parseFloat(flamingoBalance),
-      partialCurlUp: isAbsent ? 0 : parseInt(partialCurlUp),
-      pushups: isAbsent ? 0 : parseInt(pushups),
-      sitAndReach: isAbsent ? 0 : parseFloat(sitAndReach),
-      runWalk600m: isAbsent ? '' : runWalk600m,
-      run50m: isAbsent ? 0 : parseFloat(run50m),
-      recommendedSport, manualReportData, reportHardCopyUrl
+      status, ageGroup, height: isAbsent ? 0 : heightNum, weight: isAbsent ? 0 : weightNum, bmi,
+      plateTapping: isAbsent || ageGroup !== 1 ? 0 : tap,
+      flamingoBalance: isAbsent || ageGroup !== 1 ? 0 : flam,
+      partialCurlUp: isAbsent || ageGroup !== 2 ? 0 : curl,
+      pushups: isAbsent || ageGroup !== 2 ? 0 : push,
+      sitAndReach: isAbsent || ageGroup !== 2 ? 0 : sitReach,
+      runWalk600m: isAbsent || ageGroup !== 2 ? '' : runWalk600m,
+      run50m: isAbsent || ageGroup !== 2 ? 0 : sprint,
+      recommendedSport, manualReportData: manualReportData || '', reportHardCopyUrl: reportHardCopyUrl || ''
     };
 
     if (performance) {

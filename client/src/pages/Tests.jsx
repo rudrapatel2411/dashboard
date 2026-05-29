@@ -15,6 +15,40 @@ const calculateAge = (dobString) => {
   return Math.abs(ageDate.getUTCFullYear() - 1970);
 };
 
+const getBMILabel = (bmi) => {
+  if (bmi === "—" || !bmi) return { label: "Pending", color: "bg-slate-100 text-slate-600 border-slate-200" };
+  const num = parseFloat(bmi);
+  if (isNaN(num)) return { label: "Pending", color: "bg-slate-100 text-slate-600 border-slate-200" };
+  if (num < 18.5) return { label: "Underweight", color: "bg-amber-50/80 text-amber-600 border-amber-200" };
+  if (num >= 18.5 && num < 25) return { label: "Normal Weight", color: "bg-emerald-50/80 text-emerald-600 border-emerald-200" };
+  if (num >= 25 && num < 30) return { label: "Overweight", color: "bg-orange-50/80 text-orange-600 border-orange-200" };
+  return { label: "Obese", color: "bg-red-50/80 text-red-600 border-red-200" };
+};
+
+const isFieldEmpty = (val) => {
+  return val === undefined || val === null || String(val).trim() === "";
+};
+
+const DRAFT_TEST_FIELDS = [
+  "height",
+  "weight",
+  "plateTapping",
+  "flamingoBalance",
+  "partialCurlUp",
+  "pushups",
+  "sitAndReach",
+  "runWalk600m",
+  "run50m",
+  "manualReportData"
+];
+
+const hasDraftTestData = (row) => {
+  if (!row) return false;
+  return row.status === "Absent" || DRAFT_TEST_FIELDS.some(field => !isFieldEmpty(row[field]));
+};
+
+const STANDARDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+
 const Tests = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const isAcademy = user.instituteType === 'academy';
@@ -25,6 +59,7 @@ const Tests = () => {
   const [selectedTerm, setSelectedTerm] = useState("TERM-2"); // Default evaluation term
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', title: '', isError: false });
+  const [classPhotos, setClassPhotos] = useState({});
 
   // Submissions list
   const [submissions, setSubmissions] = useState([
@@ -107,7 +142,7 @@ const Tests = () => {
       const loadedSubmissions = dbPerfs.map(p => {
         const student = p.studentId || {};
         return {
-          id: p._id,
+          id: `${p._id}_${student._id || ""}`,
           studentName: student.name || "Unknown Student",
           studentId: student.studentId || p.studentId?._id?.substring(0, 6).toUpperCase(),
           age: calculateAge(student.dob),
@@ -181,8 +216,7 @@ const Tests = () => {
           sitAndReach: "",
           runWalk600m: "",
           run50m: "",
-          manualReportData: "",
-          photoPreview: null
+          manualReportData: ""
         };
       }
     });
@@ -191,13 +225,24 @@ const Tests = () => {
 
   // Update a specific field for a student's input row
   const updateRowField = (studentId, field, value) => {
-    setRowInputs(prev => ({
-      ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        [field]: value
+    setRowInputs(prev => {
+      const activeDraftStudent = filteredStudents.find(student => {
+        const hasSavedRecord = submissions.some(sub => sub.id.includes(student._id));
+        return !hasSavedRecord && hasDraftTestData(prev[student._id]);
+      });
+
+      if (activeDraftStudent && activeDraftStudent._id !== studentId) {
+        return prev;
       }
-    }));
+
+      return {
+        ...prev,
+        [studentId]: {
+          ...prev[studentId],
+          [field]: value
+        }
+      };
+    });
   };
 
   // Reusable recommendation rule engine
@@ -242,8 +287,8 @@ const Tests = () => {
     }
   };
 
-  // Handle image upload with size & type constraints per row
-  const handleRowPhotoChange = (studentId, e) => {
+  // Handle class image upload with size & type constraints
+  const handleClassPhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -262,10 +307,20 @@ const Tests = () => {
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        updateRowField(studentId, "photoPreview", reader.result);
+        setClassPhotos(prev => ({
+          ...prev,
+          [selectedClass]: reader.result
+        }));
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const removeClassPhoto = () => {
+    setClassPhotos(prev => ({
+      ...prev,
+      [selectedClass]: null
+    }));
   };
 
   // Submit test for a single student row
@@ -280,21 +335,32 @@ const Tests = () => {
 
     const age = calculateAge(matchedStu.dob);
     const isGroup1 = age >= 5 && age <= 8;
+    const classPhoto = classPhotos[selectedClass] || "";
 
     let payload = {
       studentId: studentId,
       term: selectedTerm,
       status: row.status,
       manualReportData: row.manualReportData || "",
-      reportHardCopyUrl: row.photoPreview || ""
+      reportHardCopyUrl: classPhoto
     };
 
     if (row.status === "Absent") {
       // Mark as Absent
     } else {
       if (isGroup1) {
-        if (!row.height || !row.weight || !row.plateTapping || !row.flamingoBalance || !row.manualReportData || !row.photoPreview) {
-          triggerToast("Missing details", "Please fill height, weight, plate tapping, flamingo balance, observations, and photo proof.", true);
+        if (
+          isFieldEmpty(row.height) ||
+          isFieldEmpty(row.weight) ||
+          isFieldEmpty(row.plateTapping) ||
+          isFieldEmpty(row.flamingoBalance) ||
+          isFieldEmpty(row.manualReportData)
+        ) {
+          triggerToast(
+            "Missing details",
+            "Please fill height, weight, plate tapping, flamingo balance, and observations.",
+            true
+          );
           return;
         }
         payload.height = parseFloat(row.height);
@@ -302,8 +368,21 @@ const Tests = () => {
         payload.plateTapping = parseFloat(row.plateTapping);
         payload.flamingoBalance = parseFloat(row.flamingoBalance);
       } else {
-        if (!row.height || !row.weight || !row.partialCurlUp || !row.pushups || !row.sitAndReach || !row.runWalk600m || !row.run50m || !row.manualReportData || !row.photoPreview) {
-          triggerToast("Missing details", "Please fill height, weight, curl-up, pushups, sit & reach, 600m run, 50m sprint, observations, and photo proof.", true);
+        if (
+          isFieldEmpty(row.height) ||
+          isFieldEmpty(row.weight) ||
+          isFieldEmpty(row.partialCurlUp) ||
+          isFieldEmpty(row.pushups) ||
+          isFieldEmpty(row.sitAndReach) ||
+          isFieldEmpty(row.runWalk600m) ||
+          isFieldEmpty(row.run50m) ||
+          isFieldEmpty(row.manualReportData)
+        ) {
+          triggerToast(
+            "Missing details",
+            "Please fill height, weight, curl-up, pushups, sit & reach, 600m run, 50m sprint, and observations.",
+            true
+          );
           return;
         }
         payload.height = parseFloat(row.height);
@@ -322,7 +401,7 @@ const Tests = () => {
       const savedPerf = res.data;
 
       const newSub = {
-        id: savedPerf._id,
+        id: `${savedPerf._id}_${studentId}`,
         studentName: matchedStu.name,
         studentId: matchedStu.studentId || studentId.substring(0, 6).toUpperCase(),
         age,
@@ -346,7 +425,7 @@ const Tests = () => {
 
       setSubmissions(prev => {
         // Remove old submission for same student to avoid duplicates
-        const filtered = prev.filter(s => s.id !== savedPerf._id && !s.id.includes(studentId));
+        const filtered = prev.filter(s => !s.id.includes(savedPerf._id) && !s.id.includes(studentId));
         return [newSub, ...filtered];
       });
 
@@ -355,6 +434,145 @@ const Tests = () => {
       triggerToast("Save Error", error.response?.data?.message || "Failed to save physical test scores.", true);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Finalize and save/update all students in the class with hardcopy spreadsheet verification
+  const handleFinalSaveAll = async () => {
+    const classPhoto = classPhotos[selectedClass];
+    if (!classPhoto) {
+      triggerToast(
+        "Missing Hardcopy Proof",
+        `Please upload the Class Hardcopy Roster Proof at the top of the page before final submit.`,
+        true
+      );
+      return;
+    }
+
+    // Check if any active student has incomplete data
+    const incompleteStudents = [];
+    filteredStudents.forEach(student => {
+      const row = rowInputs[student._id];
+      if (!row || row.status === "Absent") return;
+      const age = calculateAge(student.dob);
+      const isGroup1 = age >= 5 && age <= 8;
+      
+      if (isGroup1) {
+        if (isFieldEmpty(row.height) || isFieldEmpty(row.weight) || isFieldEmpty(row.plateTapping) || isFieldEmpty(row.flamingoBalance) || isFieldEmpty(row.manualReportData)) {
+          incompleteStudents.push(student.name);
+        }
+      } else {
+        if (isFieldEmpty(row.height) || isFieldEmpty(row.weight) || isFieldEmpty(row.partialCurlUp) || isFieldEmpty(row.pushups) || isFieldEmpty(row.sitAndReach) || isFieldEmpty(row.runWalk600m) || isFieldEmpty(row.run50m) || isFieldEmpty(row.manualReportData)) {
+          incompleteStudents.push(student.name);
+        }
+      }
+    });
+
+    if (incompleteStudents.length > 0) {
+      triggerToast("Incomplete Data", `Please complete the screening data for: ${incompleteStudents.join(", ")} before final submit.`, true);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+      let successCount = 0;
+      let failedCount = 0;
+
+      const savePromises = filteredStudents.map(async (student) => {
+        const studentId = student._id;
+        const row = rowInputs[studentId] || {
+          status: "Present",
+          height: "",
+          weight: "",
+          plateTapping: "",
+          flamingoBalance: "",
+          partialCurlUp: "",
+          pushups: "",
+          sitAndReach: "",
+          runWalk600m: "",
+          run50m: "",
+          manualReportData: ""
+        };
+
+        const age = calculateAge(student.dob);
+        const isGroup1 = age >= 5 && age <= 8;
+
+        let payload = {
+          studentId: studentId,
+          term: selectedTerm,
+          status: row.status,
+          manualReportData: row.manualReportData || "",
+          reportHardCopyUrl: classPhoto
+        };
+
+        if (row.status === "Absent") {
+          // Mark as Absent
+        } else {
+          if (isGroup1) {
+            payload.height = parseFloat(row.height);
+            payload.weight = parseFloat(row.weight);
+            payload.plateTapping = parseFloat(row.plateTapping);
+            payload.flamingoBalance = parseFloat(row.flamingoBalance);
+          } else {
+            payload.height = parseFloat(row.height);
+            payload.weight = parseFloat(row.weight);
+            payload.partialCurlUp = parseInt(row.partialCurlUp);
+            payload.pushups = parseInt(row.pushups);
+            payload.sitAndReach = parseFloat(row.sitAndReach);
+            payload.runWalk600m = row.runWalk600m;
+            payload.run50m = parseFloat(row.run50m);
+          }
+        }
+
+        try {
+          const res = await axios.post(`${API_URL}/performance`, payload, { headers });
+          const savedPerf = res.data;
+          const newSub = {
+            id: `${savedPerf._id}_${studentId}`,
+            studentName: student.name,
+            studentId: student.studentId || studentId.substring(0, 6).toUpperCase(),
+            age,
+            class: student.class,
+            status: savedPerf.status,
+            ageGroup: savedPerf.ageGroup,
+            height: savedPerf.height || "-",
+            weight: savedPerf.weight || "-",
+            bmi: savedPerf.bmi || "-",
+            plateTapping: savedPerf.plateTapping || null,
+            flamingoBalance: savedPerf.flamingoBalance || null,
+            partialCurlUp: savedPerf.partialCurlUp || null,
+            pushups: savedPerf.pushups || null,
+            sitAndReach: savedPerf.sitAndReach || null,
+            runWalk600m: savedPerf.runWalk600m || null,
+            run50m: savedPerf.run50m || null,
+            recommendedSport: savedPerf.recommendedSport,
+            manualReportData: savedPerf.manualReportData,
+            reportHardCopyUrl: savedPerf.reportHardCopyUrl
+          };
+
+          setSubmissions(prev => {
+            const filtered = prev.filter(s => !s.id.includes(savedPerf._id) && !s.id.includes(studentId));
+            return [newSub, ...filtered];
+          });
+          successCount++;
+        } catch (error) {
+          failedCount++;
+        }
+      });
+
+      await Promise.all(savePromises);
+      setIsLoading(false);
+
+      if (successCount > 0) {
+        triggerToast("Finalized & Saved", `Successfully finalized and saved class evaluation with the spreadsheet proof!`, false);
+      } else if (failedCount > 0) {
+        triggerToast("Save Error", "Could not save class evaluations to the database.", true);
+      }
+    } catch (err) {
+      setIsLoading(false);
+      triggerToast("Submit Error", "An error occurred during final class save.", true);
     }
   };
 
@@ -377,6 +595,11 @@ const Tests = () => {
     }
     return b.id.localeCompare(a.id); // Newest first
   });
+
+  const activeDraftStudentId = filteredStudents.find(student => {
+    const hasSavedRecord = submissions.some(sub => sub.id.includes(student._id));
+    return !hasSavedRecord && hasDraftTestData(rowInputs[student._id]);
+  })?._id || null;
 
   return (
     <div className="space-y-8 animate-fade-in pb-12 font-sans">
@@ -450,10 +673,9 @@ const Tests = () => {
               onChange={(e) => setSelectedClass(e.target.value)}
               className="px-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/40 font-bold bg-slate-50 text-slate-700"
             >
-              <option value="8">Standard 8th</option>
-              <option value="9">Standard 9th</option>
-              <option value="10">Standard 10th</option>
-              <option value="11">Standard 11th</option>
+              {STANDARDS.map(s => (
+                <option key={s} value={s}>Standard {s}th</option>
+              ))}
             </select>
 
             <select
@@ -476,6 +698,56 @@ const Tests = () => {
         </div>
       </div>
 
+      {/* Class Document Upload Area */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h4 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+            <FileText size={18} className="text-secondary" />
+            Class {selectedClass}th Hardcopy Roster Proof
+          </h4>
+          <p className="text-xs text-slate-400 font-semibold">
+            Upload the physical screening spreadsheet for this entire class. Individual student records will link to this proof.
+          </p>
+        </div>
+        
+        <div className="w-full md:w-72 shrink-0">
+          {classPhotos[selectedClass] ? (
+            <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-xl h-11 shadow-sm">
+              <span className="text-xs text-emerald-700 font-black flex items-center gap-1.5">
+                <CheckCircle size={16} /> Proof Uploaded
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveImage(classPhotos[selectedClass])}
+                  className="text-indigo-600 hover:text-indigo-800 font-black text-xs px-2 py-1 rounded-lg hover:bg-indigo-50 transition-colors"
+                >
+                  View
+                </button>
+                <button
+                  type="button"
+                  onClick={removeClassPhoto}
+                  className="text-red-500 hover:text-red-700 font-black text-xs px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="relative overflow-hidden cursor-pointer bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl h-11 flex items-center justify-center gap-2 border-dashed transition-all hover:border-slate-300">
+              <Upload size={16} className="text-slate-400 animate-bounce" />
+              <span className="text-xs text-slate-600 font-black">Upload Class Spreadsheet</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                onChange={handleClassPhotoChange}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Bulk Table Roster View */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 bg-slate-900 text-white flex justify-between items-center">
@@ -490,12 +762,12 @@ const Tests = () => {
 
         {filteredStudents.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[1280px] text-left border-collapse table-fixed">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="py-4 px-6 w-1/4">{isAcademy ? 'Athlete Info' : 'Student Info'}</th>
-                  <th className="py-4 px-3 text-center w-[12%]">Status</th>
-                  <th className="py-4 px-4 w-1/2">Fitness Test Parameters & Evaluation</th>
+                  <th className="py-4 px-6 w-[20%]">{isAcademy ? 'Athlete Info' : 'Student Info'}</th>
+                  <th className="py-4 px-3 text-center w-[10%]">Status</th>
+                  <th className="py-4 px-4 w-[56%]">Fitness Test Parameters & Evaluation</th>
                   <th className="py-4 px-6 text-center w-[13%]">Action</th>
                 </tr>
               </thead>
@@ -519,37 +791,45 @@ const Tests = () => {
                   const isAlreadyLogged = submissions.some(sub => sub.id.includes(student._id));
                   const age = calculateAge(student.dob);
                   const ageGroup = (age >= 5 && age <= 8) ? 1 : 2;
+                  const isRowLocked = Boolean(activeDraftStudentId && activeDraftStudentId !== student._id && !isAlreadyLogged);
 
                   const heightNum = parseFloat(input.height);
                   const weightNum = parseFloat(input.weight);
                   const bmiVal = (heightNum && weightNum) ? (weightNum / ((heightNum / 100) * (heightNum / 100))).toFixed(1) : "—";
 
+                  const matchedSub = submissions.find(s => s.id.includes(student._id));
+                  const bmiInfo = getBMILabel(bmiVal);
+
                   return (
-                    <tr key={student._id} className={`hover:bg-slate-50/50 transition-colors ${input.status === 'Absent' ? 'bg-red-50/10' : ''}`}>
+                    <tr key={student._id} className={`hover:bg-slate-50/50 transition-colors ${input.status === 'Absent' ? 'bg-red-50/10' : ''} ${isRowLocked ? 'bg-slate-50/70 opacity-60' : ''}`}>
                       
                       {/* 1. Student Name and ID */}
-                      <td className="py-4 px-6">
-                        <p className="font-extrabold text-slate-800">{student.name}</p>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                          ID: {student.studentId || "PENDING"} • Age: {age} Yrs ({student.gender})
+                      <td className="py-5 px-6 align-middle">
+                        <p className="font-black text-slate-800 text-base leading-tight break-words">{student.name}</p>
+                        <p className="text-xs text-slate-400 font-extrabold uppercase tracking-wide mt-1 leading-tight break-words">
+                          ID: {student.studentId || "PENDING"}
+                        </p>
+                        <p className="text-xs text-slate-500 font-extrabold uppercase tracking-wide mt-0.5 leading-tight">
+                          Age: {age} Yrs • {student.gender}
                         </p>
                       </td>
 
                       {/* 2. Attendance Status Pill */}
-                      <td className="py-4 px-3 text-center">
+                      <td className="py-5 px-4 text-center align-middle">
                         {isAlreadyLogged ? (
-                          <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg font-black uppercase text-[9px] border border-emerald-100 shadow-sm inline-block">
+                          <span className="px-3.5 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-black uppercase text-xs border border-emerald-100 shadow-sm inline-block tracking-wider">
                             ✅ Logged
                           </span>
                         ) : (
                           <button
                             type="button"
                             onClick={() => updateRowField(student._id, "status", input.status === "Present" ? "Absent" : "Present")}
-                            className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all ${
+                            disabled={isRowLocked || isLoading}
+                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm transition-all border ${
                               input.status === "Present" 
-                                ? 'bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100' 
-                                : 'bg-red-50 text-red-500 border border-red-100 hover:bg-red-100'
-                            }`}
+                                ? 'bg-blue-50 text-secondary border-blue-100 hover:bg-blue-100/60' 
+                                : 'bg-red-50 text-red-500 border-red-100 hover:bg-red-100/60'
+                            } disabled:cursor-not-allowed disabled:hover:bg-slate-100`}
                           >
                             {input.status}
                           </button>
@@ -557,168 +837,202 @@ const Tests = () => {
                       </td>
 
                       {/* 3. Dynamic Test Parameter Form Column */}
-                      <td className="py-4 px-4">
+                      <td className="py-5 px-4 align-middle">
                         {input.status === "Absent" ? (
-                          <div className="text-center text-slate-400 text-xs italic font-semibold py-4">
+                          <div className="text-center text-slate-400 text-sm italic font-semibold py-6 bg-slate-50 border border-slate-100 rounded-2xl">
                             {isAcademy ? 'Athlete' : 'Student'} is marked ABSENT. No parameters needed.
                           </div>
                         ) : isAlreadyLogged ? (
                           // Render saved details
-                          <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl space-y-3">
-                            <div className="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">
-                                Saved Test Scores ({submissions.find(s => s.id.includes(student._id))?.ageGroup === 1 ? "Group 1: 5-8 yrs" : "Group 2: 9-18 yrs"})
+                          <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm space-y-5 min-w-0 max-w-full">
+                            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pb-3 border-b border-slate-100 min-w-0">
+                              <span className="inline-flex w-fit max-w-full px-3.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-2xl text-xs font-black uppercase tracking-wider border border-emerald-100/60 leading-tight whitespace-normal break-words">
+                                Saved Test Scores ({matchedSub?.ageGroup === 1 ? "Group 1: 5-8 yrs" : "Group 2: 9-18 yrs"})
                               </span>
-                              <span className="text-xs font-black text-slate-700">
-                                BMI: {submissions.find(s => s.id.includes(student._id))?.bmi}
-                              </span>
+                              <div className="flex flex-wrap items-center gap-2 min-w-0">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">BMI:</span>
+                                <span className={`inline-flex max-w-full px-3 py-1 text-sm font-black rounded-2xl border leading-tight whitespace-normal break-words ${getBMILabel(matchedSub?.bmi).color}`}>
+                                  {matchedSub?.bmi} • {getBMILabel(matchedSub?.bmi).label}
+                                </span>
+                              </div>
                             </div>
-                            {submissions.find(s => s.id.includes(student._id))?.ageGroup === 1 ? (
-                              <div className="grid grid-cols-3 gap-4 text-center">
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-400 uppercase">Height / Weight</p>
-                                  <p className="font-extrabold text-slate-700 mt-0.5">
-                                    {submissions.find(s => s.id.includes(student._id))?.height}cm / {submissions.find(s => s.id.includes(student._id))?.weight}kg
-                                  </p>
+
+                            {/* Scores Grid */}
+                            {matchedSub?.ageGroup === 1 ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div className="bg-slate-50/50 border border-slate-100 p-3.5 rounded-xl text-center min-w-0">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[26px] flex items-center justify-center">Height / Weight</p>
+                                  <p className="font-black text-base text-slate-700 mt-1 leading-tight break-words">{matchedSub?.height}cm / {matchedSub?.weight}kg</p>
                                 </div>
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-400 uppercase">Coordination (Plate Tap)</p>
-                                  <p className="font-extrabold text-slate-700 mt-0.5">{submissions.find(s => s.id.includes(student._id))?.plateTapping}s</p>
+                                <div className="bg-slate-50/50 border border-slate-100 p-3.5 rounded-xl text-center min-w-0">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[26px] flex items-center justify-center">Plate Tap</p>
+                                  <p className="font-black text-base text-slate-700 mt-1 leading-tight break-words">{matchedSub?.plateTapping}s</p>
                                 </div>
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-400 uppercase">Balancing (Flamingo)</p>
-                                  <p className="font-extrabold text-slate-700 mt-0.5">{submissions.find(s => s.id.includes(student._id))?.flamingoBalance}s</p>
+                                <div className="bg-slate-50/50 border border-slate-100 p-3.5 rounded-xl text-center min-w-0">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[26px] flex items-center justify-center">Flamingo Bal.</p>
+                                  <p className="font-black text-base text-slate-700 mt-1 leading-tight break-words">{matchedSub?.flamingoBalance}s</p>
                                 </div>
                               </div>
                             ) : (
-                              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-400 uppercase">Height/Weight</p>
-                                  <p className="font-extrabold text-slate-700 mt-0.5">
-                                    {submissions.find(s => s.id.includes(student._id))?.height}cm/{submissions.find(s => s.id.includes(student._id))?.weight}kg
+                              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2.5">
+                                <div className="bg-slate-50/50 border border-slate-100 px-2.5 py-3 rounded-xl text-center min-w-0">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[28px] flex items-center justify-center">Ht/Wt</p>
+                                  <p className="font-black text-[13px] text-slate-700 mt-1 leading-tight break-words tabular-nums">
+                                    <span className="block">{matchedSub?.height}cm</span>
+                                    <span className="block">{matchedSub?.weight}kg</span>
                                   </p>
                                 </div>
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-400 uppercase font-sans">Partial Curl-up</p>
-                                  <p className="font-extrabold text-slate-700 mt-0.5">{submissions.find(s => s.id.includes(student._id))?.partialCurlUp}</p>
+                                <div className="bg-slate-50/50 border border-slate-100 px-2.5 py-3 rounded-xl text-center min-w-0">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[28px] flex items-center justify-center">Curl-up</p>
+                                  <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words tabular-nums">{matchedSub?.partialCurlUp}</p>
                                 </div>
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-400 uppercase leading-none">
-                                    {student.gender === 'Female' ? 'Mod. Pushups' : 'Pushups'}
-                                  </p>
-                                  <p className="font-extrabold text-slate-700 mt-0.5">{submissions.find(s => s.id.includes(student._id))?.pushups}</p>
+                                <div className="bg-slate-50/50 border border-slate-100 px-2.5 py-3 rounded-xl text-center min-w-0">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[28px] flex items-center justify-center">Pushups</p>
+                                  <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words tabular-nums">{matchedSub?.pushups}</p>
                                 </div>
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-400 uppercase">Sit & Reach</p>
-                                  <p className="font-extrabold text-slate-700 mt-0.5">{submissions.find(s => s.id.includes(student._id))?.sitAndReach}cm</p>
+                                <div className="bg-slate-50/50 border border-slate-100 px-2.5 py-3 rounded-xl text-center min-w-0">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[28px] flex items-center justify-center">Sit & Reach</p>
+                                  <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words tabular-nums">{matchedSub?.sitAndReach}cm</p>
                                 </div>
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-400 uppercase">600m Run</p>
-                                  <p className="font-extrabold text-slate-700 mt-0.5">{submissions.find(s => s.id.includes(student._id))?.runWalk600m}</p>
+                                <div className="bg-slate-50/50 border border-slate-100 px-2.5 py-3 rounded-xl text-center min-w-0">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[28px] flex items-center justify-center">600m Run</p>
+                                  <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words tabular-nums">{matchedSub?.runWalk600m}</p>
                                 </div>
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-400 uppercase font-sans">50m Run</p>
-                                  <p className="font-extrabold text-slate-700 mt-0.5">{submissions.find(s => s.id.includes(student._id))?.run50m}s</p>
+                                <div className="bg-slate-50/50 border border-slate-100 px-2.5 py-3 rounded-xl text-center min-w-0">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[28px] flex items-center justify-center">50m Run</p>
+                                  <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words tabular-nums">{matchedSub?.run50m}s</p>
                                 </div>
                               </div>
                             )}
+
+                            {/* Additional Info: Sport & Observations & Proof */}
+                            <div className="flex flex-col sm:flex-row items-start gap-4 pt-3 border-t border-slate-100 text-sm font-semibold justify-between min-w-0">
+                              <div className="text-left space-y-1 min-w-0">
+                                <p className="text-xs text-slate-400 font-extrabold uppercase leading-tight">Observations & Insights</p>
+                                <p className="text-slate-600 italic leading-snug break-words">"{matchedSub?.manualReportData || 'No observations recorded.'}"</p>
+                                {matchedSub?.recommendedSport && (
+                                  <p className="text-indigo-600 font-extrabold text-xs uppercase flex items-start gap-1 mt-1 leading-snug break-words">
+                                    <Sparkles size={14} className="text-accent shrink-0 mt-0.5" />
+                                    <span className="min-w-0 break-words">Recommended Sport: {matchedSub?.recommendedSport}</span>
+                                  </p>
+                                )}
+                              </div>
+                              {matchedSub?.reportHardCopyUrl && (
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveImage(matchedSub.reportHardCopyUrl)}
+                                  className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs text-slate-600 font-black uppercase transition-all shadow-sm"
+                                >
+                                  <Eye size={14} /> View Class Proof
+                                </button>
+                              )}
+                            </div>
                           </div>
                         ) : (
                           // Render form inputs based on age
-                          <div className="bg-slate-50/50 border border-slate-100 p-4 rounded-xl space-y-4">
+                          <div className="bg-slate-50/50 border border-slate-200/80 p-5 rounded-2xl space-y-6 shadow-sm min-w-0 max-w-full">
+                            {isRowLocked && (
+                              <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-400">
+                                Finish or clear the current student row first
+                              </div>
+                            )}
+                            <fieldset disabled={isRowLocked || isLoading} className="space-y-6 disabled:opacity-60">
                             {/* Header showing age and group */}
-                            <div className="flex justify-between items-center">
-                              <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pb-3 border-b border-slate-200/40 min-w-0">
+                              <span className="inline-flex w-fit max-w-full px-3.5 py-1.5 bg-indigo-50 text-indigo-700 rounded-2xl text-xs font-black uppercase tracking-wider border border-indigo-100 leading-tight whitespace-normal break-words">
                                 {ageGroup === 1 ? "Group 1: 5-8 Years" : "Group 2: 9-18 Years"}
                               </span>
-                              <span className="text-[10px] font-black text-slate-500">
-                                Calculated BMI: <strong className="text-slate-800">{bmiVal}</strong>
-                              </span>
+                              <div className="flex flex-wrap items-center gap-2 min-w-0">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">Calculated BMI:</span>
+                                <span className={`inline-flex max-w-full px-3 py-1 text-xs font-black rounded-2xl border leading-tight whitespace-normal break-words ${bmiInfo.color}`}>
+                                  {bmiVal} • {bmiInfo.label}
+                                </span>
+                              </div>
                             </div>
 
                             {ageGroup === 1 ? (
                               /* Group 1 Fields */
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <div>
-                                  <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Height (cm) *</label>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                                <div className="min-w-0">
+                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Height (cm) *</label>
                                   <input 
                                     type="number" 
                                     placeholder="e.g. 115"
                                     value={input.height}
                                     onChange={(e) => updateRowField(student._id, "height", e.target.value)}
-                                    className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                   />
                                 </div>
-                                <div>
-                                  <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Weight (kg) *</label>
+                                <div className="min-w-0">
+                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Weight (kg) *</label>
                                   <input 
                                     type="number" 
                                     placeholder="e.g. 21"
                                     value={input.weight}
                                     onChange={(e) => updateRowField(student._id, "weight", e.target.value)}
-                                    className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                   />
                                 </div>
-                                <div>
-                                  <label className="text-[9px] font-black text-slate-400 uppercase block mb-1 leading-none">Plate Tapping (s) *</label>
+                                <div className="min-w-0">
+                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Plate Tapping (s) *</label>
                                   <input 
                                     type="number" 
                                     step="0.1"
                                     placeholder="e.g. 14.5"
                                     value={input.plateTapping}
                                     onChange={(e) => updateRowField(student._id, "plateTapping", e.target.value)}
-                                    className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                   />
                                 </div>
-                                <div>
-                                  <label className="text-[9px] font-black text-slate-400 uppercase block mb-1 leading-none">Flamingo Bal. (s) *</label>
+                                <div className="min-w-0">
+                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Flamingo Bal. (s) *</label>
                                   <input 
                                     type="number" 
                                     placeholder="e.g. 12"
                                     value={input.flamingoBalance}
                                     onChange={(e) => updateRowField(student._id, "flamingoBalance", e.target.value)}
-                                    className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                   />
                                 </div>
                               </div>
                             ) : (
                               /* Group 2 Fields */
-                              <div className="space-y-3">
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                  <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Height (cm) *</label>
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                  <div className="min-w-0">
+                                    <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Height (cm) *</label>
                                     <input 
                                       type="number" 
                                       placeholder="e.g. 165"
                                       value={input.height}
                                       onChange={(e) => updateRowField(student._id, "height", e.target.value)}
-                                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                      className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                     />
                                   </div>
-                                  <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Weight (kg) *</label>
+                                  <div className="min-w-0">
+                                    <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Weight (kg) *</label>
                                     <input 
                                       type="number" 
                                       placeholder="e.g. 52"
                                       value={input.weight}
                                       onChange={(e) => updateRowField(student._id, "weight", e.target.value)}
-                                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                      className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                     />
                                   </div>
-                                  <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1 leading-none">Partial Curl-up *</label>
+                                  <div className="min-w-0">
+                                    <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Partial Curl-up *</label>
                                     <input 
                                       type="number" 
                                       placeholder="e.g. 20"
                                       value={input.partialCurlUp}
                                       onChange={(e) => updateRowField(student._id, "partialCurlUp", e.target.value)}
-                                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                      className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                     />
                                   </div>
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                  <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1 leading-none">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                                  <div className="min-w-0">
+                                    <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">
                                       {student.gender === 'Female' ? 'Mod. Pushups *' : 'Pushups *'}
                                     </label>
                                     <input 
@@ -726,109 +1040,83 @@ const Tests = () => {
                                       placeholder="e.g. 25"
                                       value={input.pushups}
                                       onChange={(e) => updateRowField(student._id, "pushups", e.target.value)}
-                                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                      className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                     />
                                   </div>
-                                  <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1 leading-none">Sit & Reach (cm) *</label>
+                                  <div className="min-w-0">
+                                    <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Sit & Reach (cm) *</label>
                                     <input 
                                       type="number" 
                                       placeholder="e.g. 18"
                                       value={input.sitAndReach}
                                       onChange={(e) => updateRowField(student._id, "sitAndReach", e.target.value)}
-                                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                      className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                     />
                                   </div>
-                                  <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1 leading-none">600m Run/Walk *</label>
+                                  <div className="min-w-0">
+                                    <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">600m Run/Walk *</label>
                                     <input 
                                       type="text" 
                                       placeholder="e.g. 2:45"
                                       value={input.runWalk600m}
                                       onChange={(e) => updateRowField(student._id, "runWalk600m", e.target.value)}
-                                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                      className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                     />
                                   </div>
-                                  <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1 leading-none">50m Run (s) *</label>
+                                  <div className="min-w-0">
+                                    <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">50m Run (s) *</label>
                                     <input 
                                       type="number" 
                                       step="0.01"
                                       placeholder="e.g. 8.5"
                                       value={input.run50m}
                                       onChange={(e) => updateRowField(student._id, "run50m", e.target.value)}
-                                      className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                      className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                     />
                                   </div>
                                 </div>
                               </div>
                             )}
 
-                            {/* Medical Notes & Photo Proof */}
-                            <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-slate-200/40">
-                              <div className="flex-1">
-                                <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Observations *</label>
+                            {/* Observations / Notes Only */}
+                            <div className="pt-3 border-t border-slate-200/40">
+                              <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight">Observations / Notes *</label>
                                 <input 
                                   type="text"
                                   placeholder="Enter general health or posture observations..."
                                   value={input.manualReportData}
                                   onChange={(e) => updateRowField(student._id, "manualReportData", e.target.value)}
-                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
                                 />
                               </div>
-                              <div className="sm:w-56 flex flex-col justify-end">
-                                <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Hardcopy Photo *</label>
-                                {input.photoPreview ? (
-                                  <div className="flex items-center justify-between bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg h-9">
-                                    <span className="text-[10px] text-emerald-600 font-extrabold flex items-center gap-1">
-                                      ✓ Uploaded
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() => updateRowField(student._id, "photoPreview", null)}
-                                      className="text-red-500 hover:text-red-700 font-extrabold text-[10px]"
-                                    >
-                                      Remove
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="relative overflow-hidden cursor-pointer bg-white hover:bg-slate-50 border border-slate-200 rounded-lg h-9 flex items-center justify-center gap-1.5 border-dashed">
-                                    <Upload size={12} className="text-slate-400" />
-                                    <span className="text-[10px] text-slate-500 font-bold">Upload Report File</span>
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      className="absolute inset-0 opacity-0 cursor-pointer"
-                                      onChange={(e) => handleRowPhotoChange(student._id, e)}
-                                    />
-                                  </div>
-                                )}
-                              </div>
                             </div>
+                            </fieldset>
                           </div>
                         )}
                       </td>
 
                       {/* 4. Action */}
-                      <td className="py-4 px-6 text-center">
+                      <td className="py-5 px-6 text-center align-middle">
                         {isAlreadyLogged ? (
-                          <div>
-                            <span className="text-[10px] text-slate-400 font-bold block mb-1">Recorded</span>
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold ${
-                              submissions.find(s => s.id.includes(student._id))?.status === 'Absent' ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-700'
+                          <div className="space-y-1.5">
+                            <span className="text-xs text-slate-400 font-extrabold uppercase block tracking-wider">Recorded</span>
+                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider inline-block border ${
+                              matchedSub?.status === 'Absent' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
                             }`}>
-                              {submissions.find(s => s.id.includes(student._id))?.status === 'Absent' ? 'Absent' : 'Present'}
+                              {matchedSub?.status === 'Absent' ? 'Absent' : 'Present'}
                             </span>
                           </div>
                         ) : (
                           <button
                             type="button"
                             onClick={() => handleSubmitRow(student._id)}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm transition-all ${
+                            disabled={isRowLocked || isLoading}
+                            className={`px-4.5 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all active:scale-95 duration-150 ${
                               input.status === "Present" 
                                 ? 'bg-secondary hover:bg-blue-600 text-white shadow-blue-500/10' 
                                 : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/10'
-                            }`}
+                            } disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100`}
                           >
                             {input.status === "Present" ? "Save Test" : "Mark Absent"}
                           </button>
@@ -848,7 +1136,29 @@ const Tests = () => {
         )}
       </div>
 
-      
+      {/* Final Save / Class Submit Verification Card */}
+      {filteredStudents.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h4 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+              <CheckCircle size={18} className="text-emerald-500" />
+              Finalize Class {selectedClass}th Screening
+            </h4>
+            <p className="text-xs text-slate-400 font-semibold">
+              Before submitting the evaluation, make sure that the spreadsheet hardcopy is uploaded and all student scores are saved.
+            </p>
+          </div>
+          <div>
+            <button
+              onClick={handleFinalSaveAll}
+              disabled={isLoading}
+              className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md transition-all active:scale-95 disabled:opacity-50"
+            >
+              {isLoading ? "Finalizing..." : `Finalize & Save Class ${selectedClass}th`}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Reusable Toast Notifications */}
       {toast.show && (

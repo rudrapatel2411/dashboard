@@ -939,7 +939,7 @@ const Academies = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 bg-slate-50/50 max-h-[75vh] overflow-y-auto">
+            <div className="p-6 bg-slate-50/50 max-h-[75vh] overflow-y-auto no-scrollbar">
               
               {/* Profile Card Summary */}
               <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm flex flex-col sm:flex-row items-center gap-5">

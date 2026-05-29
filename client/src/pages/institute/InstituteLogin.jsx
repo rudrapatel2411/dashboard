@@ -69,13 +69,6 @@ const InstituteLogin = () => {
       pageTitle="Institute Portal"
       pageSubtitle="Sign in to manage your students and performance data"
     >
-      {/* Institute badge */}
-      <div className="flex items-center justify-center mb-2">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-white tracking-wider uppercase">
-          <Building2 size={12} />
-          Institute Access
-        </span>
-      </div>
 
       <form className="auth-form" onSubmit={handleLogin}>
         {/* Email */}

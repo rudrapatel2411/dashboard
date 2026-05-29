@@ -1,0 +1,55 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: S
+      - generic [ref=e8]: SportSphere
+    - generic [ref=e9]:
+      - heading "Track. Analyze. Conquer." [level=2] [ref=e10]:
+        - text: Track. Analyze.
+        - text: Conquer.
+      - paragraph [ref=e11]: The all-in-one platform for elite sports performance management, team analytics, and athlete progress tracking.
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - img [ref=e14]
+        - text: Performance Metrics
+      - generic [ref=e16]:
+        - img [ref=e17]
+        - text: Team Analytics
+      - generic [ref=e19]:
+        - img [ref=e20]
+        - text: Test Scheduling
+      - generic [ref=e22]:
+        - img [ref=e23]
+        - text: Progress Reports
+  - generic [ref=e26]:
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - heading "Institute Portal" [level=1] [ref=e31]
+        - paragraph [ref=e32]: Sign in to manage your students and performance data
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]: Email Address
+          - generic [ref=e37]:
+            - generic:
+              - img
+            - textbox "institute@example.com" [ref=e38]
+        - generic [ref=e39]:
+          - generic [ref=e40]: Password
+          - generic [ref=e41]:
+            - generic:
+              - img
+            - textbox "••••••••" [ref=e42]
+            - button [ref=e43] [cursor=pointer]:
+              - img [ref=e44]
+        - generic [ref=e47]:
+          - generic [ref=e48] [cursor=pointer]:
+            - checkbox "Remember me" [ref=e49]
+            - generic [ref=e50]: Remember me
+          - link "Forgot password?" [ref=e51] [cursor=pointer]:
+            - /url: /institute/forgot-password
+        - button "Sign In" [ref=e52] [cursor=pointer]
+        - paragraph [ref=e53]:
+          - text: New institute?
+          - link "Register here" [ref=e54] [cursor=pointer]:
+            - /url: /institute/register
+    - paragraph [ref=e55]: © 2026 SportSphere Inc. All rights reserved.

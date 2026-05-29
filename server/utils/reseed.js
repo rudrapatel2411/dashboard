@@ -13,7 +13,7 @@ const reseed = async () => {
     console.log("Collection cleared.");
 
     console.log("Running seeder...");
-    await seedStudents();
+    await seedStudents(true);
 
     console.log("Reseed sequence complete.");
     process.exit(0);

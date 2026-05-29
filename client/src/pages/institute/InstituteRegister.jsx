@@ -73,14 +73,6 @@ const InstituteRegister = () => {
       pageTitle="Institute Registration"
       pageSubtitle="Register your institute to join SportSphere"
     >
-      {/* Institute badge */}
-      <div className="flex items-center justify-center mb-2">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-white tracking-wider uppercase">
-          {accountType === 'academy' ? <Award size={12} /> : <Building2 size={12} />}
-          {accountType === 'academy' ? 'New Academy' : 'New Institute'}
-        </span>
-      </div>
-
       <form className="auth-form auth-form-wide" onSubmit={handleRegister}>
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           {/* Account Type */}

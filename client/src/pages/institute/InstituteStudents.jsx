@@ -322,7 +322,7 @@ const InstituteStudents = () => {
       {/* Add/Edit Student Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={() => { setShowModal(false); setEditingStudent(null); }}>
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto border border-slate-100" onClick={e => e.stopPropagation()}>
+          <div className="no-scrollbar bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto border border-slate-100 no-scrollbar" onClick={e => e.stopPropagation()}>
 
             {/* Modal Header */}
             <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 p-6 text-white relative overflow-hidden rounded-t-3xl">
