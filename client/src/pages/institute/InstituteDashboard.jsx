@@ -43,16 +43,15 @@ const InstituteDashboard = () => {
     <div className="space-y-8 animate-fade-in pb-16 font-sans">
 
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.15),transparent)] pointer-events-none"></div>
+      <div className="gov-card p-6 md:p-8 relative overflow-hidden">
         <div className="relative z-10">
-          <span className="px-3.5 py-1.5 bg-blue-500/10 text-blue-400 text-xs font-black rounded-lg border border-blue-400/20 uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
+          <span className="gov-eyebrow px-3.5 py-1.5 text-xs font-black uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
             <BookOpen size={12} /> Institute Portal
           </span>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight">
+          <h1 className="gov-page-heading text-3xl md:text-4xl font-black">
             Welcome, {user.instituteName || user.name || 'Institute'}
           </h1>
-          <p className="text-slate-400 text-sm mt-1.5 max-w-xl font-medium">
+          <p className="text-slate-600 text-sm mt-1.5 max-w-xl font-medium">
             Manage your students, record physical tests, and analyze athletic performance metrics.
           </p>
         </div>
@@ -64,7 +63,7 @@ const InstituteDashboard = () => {
           <div
             key={index}
             onClick={stat.action}
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-all duration-300 cursor-pointer group"
+            className="gov-card p-6 flex items-center justify-between hover:border-[#b8c9d8] transition-all duration-300 cursor-pointer group"
           >
             <div>
               <p className="text-text-light text-sm font-medium">{stat.title}</p>
@@ -72,7 +71,7 @@ const InstituteDashboard = () => {
                 {isLoading ? '...' : stat.value}
               </h3>
             </div>
-            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+            <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform`}>
               {stat.icon}
             </div>
           </div>
@@ -80,12 +79,12 @@ const InstituteDashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+      <div className="gov-card p-6">
         <h3 className="text-lg font-bold text-primary mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <button
             onClick={() => navigate('/institute/students')}
-            className="flex items-center gap-3 p-4 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 transition-all text-left group"
+            className="flex items-center gap-3 p-4 rounded-lg border border-[#e4dccf] bg-[#fbf7ee] hover:bg-[#eaf2f8] hover:border-[#cadeeb] transition-all text-left group"
           >
             <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-200 transition-colors">
               <Plus size={20} />
@@ -98,7 +97,7 @@ const InstituteDashboard = () => {
 
           <button
             onClick={() => navigate('/institute/physical-tests')}
-            className="flex items-center gap-3 p-4 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 transition-all text-left group"
+            className="flex items-center gap-3 p-4 rounded-lg border border-[#e4dccf] bg-[#fbf7ee] hover:bg-emerald-50 hover:border-emerald-200 transition-all text-left group"
           >
             <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-200 transition-colors">
               <ClipboardList size={20} />
@@ -111,7 +110,7 @@ const InstituteDashboard = () => {
 
           <button
             onClick={() => navigate('/institute/performance')}
-            className="flex items-center gap-3 p-4 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-amber-50 hover:border-amber-200 transition-all text-left group"
+            className="flex items-center gap-3 p-4 rounded-lg border border-[#e4dccf] bg-[#fbf7ee] hover:bg-amber-50 hover:border-amber-200 transition-all text-left group"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 group-hover:bg-amber-200 transition-colors">
               <TrendingUp size={20} />
@@ -126,7 +125,7 @@ const InstituteDashboard = () => {
 
       {/* Class-wise Breakdown */}
       {stats.classSummary && stats.classSummary.length > 0 && (
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+        <div className="gov-card p-6">
           <h3 className="text-lg font-bold text-primary mb-4">Class-wise Student Distribution</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {stats.classSummary.map((cls) => (

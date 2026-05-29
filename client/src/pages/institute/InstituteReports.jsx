@@ -202,22 +202,21 @@ const InstituteReports = () => {
     <div className="space-y-8 animate-fade-in pb-16 font-sans">
 
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-amber-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(245,158,11,0.15),transparent)] pointer-events-none"></div>
+      <div className="gov-card p-6 md:p-8 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <span className="px-3.5 py-1.5 bg-amber-500/10 text-amber-400 text-xs font-black rounded-lg border border-amber-400/20 uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
+            <span className="gov-eyebrow px-3.5 py-1.5 text-xs font-black uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
               <FileBarChart size={12} /> Reports
             </span>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight">Class-wise Reports</h1>
-            <p className="text-slate-400 text-sm mt-1.5 font-medium">
+            <h1 className="gov-page-heading text-3xl md:text-4xl font-black">Class-wise Reports</h1>
+            <p className="text-slate-600 text-sm mt-1.5 font-medium">
               View structured performance summaries and export professional PDF reports.
             </p>
           </div>
           {reportData && reportData.records && reportData.records.length > 0 && (
             <button
               onClick={exportPDF}
-              className="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 self-start"
+              className="bg-accent hover:bg-[#9b6412] text-white border border-[#8a520f] px-5 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 shadow-sm active:scale-95 self-start"
             >
               <Download size={16} /> Export PDF
             </button>

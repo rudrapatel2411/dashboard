@@ -694,34 +694,33 @@ const Performance = () => {
     <div className="space-y-8 animate-fade-in pb-16 font-sans">
       
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.15),transparent)] pointer-events-none"></div>
+      <div className="gov-card p-6 md:p-8 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <span className="px-3.5 py-1.5 bg-indigo-500/10 text-indigo-400 text-xs font-black rounded-lg border border-indigo-400/20 uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
+            <span className="gov-eyebrow px-3.5 py-1.5 text-xs font-black uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
               <Activity size={12} className="animate-pulse" /> Analytics Center
             </span>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight">Performance Evaluation</h1>
-            <p className="text-slate-400 text-sm mt-1.5 max-w-xl font-medium">
+            <h1 className="gov-page-heading text-3xl md:text-4xl font-black">Performance Evaluation</h1>
+            <p className="text-slate-600 text-sm mt-1.5 max-w-xl font-medium">
               Explore school and sports academy physical indicators, analyze interactive performance radars, and view coach diagnostics.
             </p>
           </div>
           
           <div className="flex gap-4">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center shrink-0">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Institutions</span>
-              <span className="text-2xl font-black text-white">{mockInstitutions.length}</span>
+            <div className="bg-[#fbf7ee] border border-[#e4dccf] rounded-lg p-4 text-center shrink-0">
+              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Institutions</span>
+              <span className="text-2xl font-black text-slate-900">{mockInstitutions.length}</span>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center shrink-0">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Academies</span>
-              <span className="text-2xl font-black text-indigo-400">{mockAcademies.length}</span>
+            <div className="bg-[#fbf7ee] border border-[#e4dccf] rounded-lg p-4 text-center shrink-0">
+              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Academies</span>
+              <span className="text-2xl font-black text-secondary">{mockAcademies.length}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Dynamic Breadcrumbs / Navigation Path */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-wrap items-center justify-between gap-4">
+      <div className="gov-card p-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
           {!isInstituteUser ? (
             <span 

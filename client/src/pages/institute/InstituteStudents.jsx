@@ -146,21 +146,20 @@ const InstituteStudents = () => {
     <div className="space-y-8 animate-fade-in pb-16 font-sans">
       
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.15),transparent)] pointer-events-none"></div>
+      <div className="gov-card p-6 md:p-8 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <span className="px-3.5 py-1.5 bg-blue-500/10 text-blue-400 text-xs font-black rounded-lg border border-blue-400/20 uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
+            <span className="gov-eyebrow px-3.5 py-1.5 text-xs font-black uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
               <Users size={12} /> Student Management
             </span>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight">Students</h1>
-            <p className="text-slate-400 text-sm mt-1.5 font-medium">
+            <h1 className="gov-page-heading text-3xl md:text-4xl font-black">Students</h1>
+            <p className="text-slate-600 text-sm mt-1.5 font-medium">
               Manage your students grouped by class/standard.
             </p>
           </div>
           <button
             onClick={openAddModal}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20 active:scale-95 self-start"
+            className="gov-btn-primary px-5 py-2.5 font-bold text-sm transition-all flex items-center gap-2 active:scale-95 self-start"
           >
             <Plus size={16} /> Add Student
           </button>
@@ -174,7 +173,7 @@ const InstituteStudents = () => {
           <select
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
-            className="appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer min-w-[160px]"
+            className="gov-field appearance-none px-4 py-2.5 pr-10 text-sm font-bold transition-all cursor-pointer min-w-[160px]"
           >
             <option value="">All Classes</option>
             {STANDARDS.map(s => (
@@ -192,7 +191,7 @@ const InstituteStudents = () => {
             placeholder="Search by name or ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all text-sm font-semibold text-slate-800"
+            className="gov-field w-full py-2.5 pl-10 pr-4 transition-all text-sm font-semibold"
           />
         </div>
 
@@ -202,7 +201,7 @@ const InstituteStudents = () => {
       </div>
 
       {/* Students Table */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className="gov-card overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
@@ -218,7 +217,7 @@ const InstituteStudents = () => {
                 {selectedClass ? `No students in Class ${selectedClass}.` : 'Add your first student to get started.'}
               </p>
             </div>
-            <button onClick={openAddModal} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-all flex items-center gap-1.5">
+            <button onClick={openAddModal} className="gov-btn-primary mt-2 px-4 py-2 text-xs font-bold transition-all flex items-center gap-1.5">
               <Plus size={14} /> Add Student
             </button>
           </div>
@@ -226,7 +225,7 @@ const InstituteStudents = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-wider border-b border-slate-100">
+                <tr className="gov-table-head text-[10px] uppercase font-black tracking-wider">
                   <th className="py-4 px-6 font-bold">Student</th>
                   <th className="py-4 px-6 font-bold">Student ID</th>
                   <th className="py-4 px-6 font-bold">Class & Gender</th>
@@ -237,10 +236,10 @@ const InstituteStudents = () => {
               </thead>
               <tbody className="text-xs divide-y divide-slate-100 font-semibold text-slate-700">
                 {students.map((student) => (
-                  <tr key={student._id} className="hover:bg-blue-50/30 transition-colors">
+                  <tr key={student._id} className="hover:bg-[#f8fbfd] transition-colors">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-500/10">
+                        <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center text-white font-black text-sm shadow-sm">
                           {student.name?.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -303,8 +302,8 @@ const InstituteStudents = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={() => setDeleteConfirm(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => setDeleteConfirm(null)}>
+          <div className="gov-card p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-black text-slate-800 mb-2">Delete Student?</h3>
             <p className="text-sm text-slate-500 mb-6">This action cannot be undone. The student and their data will be permanently removed.</p>
             <div className="flex justify-end gap-3">
@@ -321,20 +320,19 @@ const InstituteStudents = () => {
 
       {/* Add/Edit Student Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={() => { setShowModal(false); setEditingStudent(null); }}>
-          <div className="no-scrollbar bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto border border-slate-100 no-scrollbar" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => { setShowModal(false); setEditingStudent(null); }}>
+          <div className="no-scrollbar gov-card w-full max-w-2xl max-h-[92vh] overflow-y-auto no-scrollbar" onClick={e => e.stopPropagation()}>
 
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 p-6 text-white relative overflow-hidden rounded-t-3xl">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.15),transparent)] pointer-events-none"></div>
+            <div className="gov-panel-title p-6 relative overflow-hidden">
               <div className="relative z-10 flex items-center justify-between">
                 <div>
-                  <span className="px-2.5 py-0.5 bg-blue-500/10 text-blue-400 text-[9px] font-black rounded border border-blue-400/20 uppercase tracking-widest">
+                  <span className="gov-eyebrow px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest">
                     {editingStudent ? 'Edit Student' : 'New Student'}
                   </span>
                   <h3 className="text-lg font-black mt-1">{editingStudent ? 'Update Student Details' : 'Register New Student'}</h3>
                 </div>
-                <button onClick={() => { setShowModal(false); setEditingStudent(null); }} className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl transition-all text-slate-300">
+                <button onClick={() => { setShowModal(false); setEditingStudent(null); }} className="p-2 bg-white border border-[#d8cfc0] hover:bg-[#f3eadc] rounded-lg transition-all text-slate-600">
                   <X size={16} />
                 </button>
               </div>
@@ -416,7 +414,7 @@ const InstituteStudents = () => {
                 <button type="button" onClick={() => { setShowModal(false); setEditingStudent(null); }} className="px-5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
                   Cancel
                 </button>
-                <button type="submit" disabled={formLoading} className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-black hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-md shadow-blue-200">
+                <button type="submit" disabled={formLoading} className="gov-btn-primary px-6 py-2.5 text-xs font-black transition-all disabled:opacity-50 flex items-center gap-1.5">
                   {formLoading ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
                   {formLoading ? 'Saving...' : (editingStudent ? 'Update Student' : 'Register Student')}
                 </button>

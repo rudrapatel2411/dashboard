@@ -648,7 +648,7 @@ const Tests = () => {
       </div>
 
       {/* Select Standard / Class Toolbar */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="gov-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider mb-1">{isAcademy ? 'Standard / Age Level' : 'Class / Standard'} Roster</h3>
           <p className="text-xs text-slate-400 font-semibold">Select a {isAcademy ? 'standard / age level' : 'school grade standard'} to load all registered {isAcademy ? 'athletes' : 'students'}.</p>
@@ -663,7 +663,7 @@ const Tests = () => {
               placeholder={`Search ${isAcademy ? 'athlete' : 'student'} by name...`} 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/40 font-semibold bg-slate-50 text-slate-700"
+              className="gov-field w-full pl-9 pr-4 py-2 text-xs font-semibold"
             />
           </div>
 
@@ -671,7 +671,7 @@ const Tests = () => {
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="px-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/40 font-bold bg-slate-50 text-slate-700"
+              className="gov-field px-4 py-2.5 text-xs font-bold"
             >
               {STANDARDS.map(s => (
                 <option key={s} value={s}>Standard {s}th</option>
@@ -681,7 +681,7 @@ const Tests = () => {
             <select
               value={selectedTerm}
               onChange={(e) => setSelectedTerm(e.target.value)}
-              className="px-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/40 font-bold bg-slate-50 text-slate-700"
+              className="gov-field px-4 py-2.5 text-xs font-bold"
             >
               <option value="TERM-1">Term 1</option>
               <option value="TERM-2">Term 2</option>
@@ -689,7 +689,7 @@ const Tests = () => {
 
             <button 
               onClick={fetchStudentsAndSubmissions}
-              className="p-2.5 text-slate-500 hover:text-secondary bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100"
+              className="p-2.5 text-slate-600 hover:text-secondary bg-[#fbf7ee] hover:bg-[#f3eadc] rounded-lg transition-all border border-[#d8cfc0]"
               title="Refresh Student Database"
             >
               <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
@@ -699,7 +699,7 @@ const Tests = () => {
       </div>
 
       {/* Class Document Upload Area */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="gov-card p-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="space-y-1">
           <h4 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
             <FileText size={18} className="text-secondary" />
@@ -749,26 +749,26 @@ const Tests = () => {
       </div>
 
       {/* Bulk Table Roster View */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-900 text-white flex justify-between items-center">
+      <div className="gov-card overflow-hidden">
+        <div className="px-6 py-4 gov-panel-title flex justify-between items-center">
           <span className="font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
             <User size={16} className="text-accent" />
             Class {selectedClass}th Active {isAcademy ? 'Athlete' : 'Student'} Screening Sheet
           </span>
-          <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-black">
+          <span className="text-[10px] bg-white px-2 py-0.5 rounded border border-[#d8cfc0] text-secondary font-black">
             {filteredStudents.length} ROSTER
           </span>
         </div>
 
         {filteredStudents.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1280px] text-left border-collapse table-fixed">
+            <table className="w-full min-w-[1160px] text-left border-collapse table-fixed">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="py-4 px-6 w-[20%]">{isAcademy ? 'Athlete Info' : 'Student Info'}</th>
+                <tr className="gov-table-head text-[10px] font-bold uppercase tracking-wider">
+                  <th className="py-4 px-5 w-[16%]">{isAcademy ? 'Athlete Info' : 'Student Info'}</th>
                   <th className="py-4 px-3 text-center w-[10%]">Status</th>
-                  <th className="py-4 px-4 w-[56%]">Fitness Test Parameters & Evaluation</th>
-                  <th className="py-4 px-6 text-center w-[13%]">Action</th>
+                  <th className="py-4 px-4 w-[60%]">Fitness Test Parameters & Evaluation</th>
+                  <th className="py-4 px-4 text-center w-[14%]">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
@@ -804,7 +804,7 @@ const Tests = () => {
                     <tr key={student._id} className={`hover:bg-slate-50/50 transition-colors ${input.status === 'Absent' ? 'bg-red-50/10' : ''} ${isRowLocked ? 'bg-slate-50/70 opacity-60' : ''}`}>
                       
                       {/* 1. Student Name and ID */}
-                      <td className="py-5 px-6 align-middle">
+                      <td className="py-5 px-5 align-middle">
                         <p className="font-black text-slate-800 text-base leading-tight break-words">{student.name}</p>
                         <p className="text-xs text-slate-400 font-extrabold uppercase tracking-wide mt-1 leading-tight break-words">
                           ID: {student.studentId || "PENDING"}
@@ -844,7 +844,7 @@ const Tests = () => {
                           </div>
                         ) : isAlreadyLogged ? (
                           // Render saved details
-                          <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm space-y-5 min-w-0 max-w-full">
+                          <div className="bg-bg-card border border-[#d8cfc0] p-5 rounded-lg shadow-sm space-y-5 min-w-0 max-w-full">
                             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pb-3 border-b border-slate-100 min-w-0">
                               <span className="inline-flex w-fit max-w-full px-3.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-2xl text-xs font-black uppercase tracking-wider border border-emerald-100/60 leading-tight whitespace-normal break-words">
                                 Saved Test Scores ({matchedSub?.ageGroup === 1 ? "Group 1: 5-8 yrs" : "Group 2: 9-18 yrs"})
@@ -930,7 +930,7 @@ const Tests = () => {
                           </div>
                         ) : (
                           // Render form inputs based on age
-                          <div className="bg-slate-50/50 border border-slate-200/80 p-5 rounded-2xl space-y-6 shadow-sm min-w-0 max-w-full">
+                          <div className="bg-[#fbf7ee] border border-[#d8cfc0] p-5 rounded-lg space-y-6 shadow-sm min-w-0 max-w-full">
                             {isRowLocked && (
                               <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-400">
                                 Finish or clear the current student row first
@@ -1097,7 +1097,7 @@ const Tests = () => {
                       </td>
 
                       {/* 4. Action */}
-                      <td className="py-5 px-6 text-center align-middle">
+                      <td className="py-5 px-4 text-center align-middle">
                         {isAlreadyLogged ? (
                           <div className="space-y-1.5">
                             <span className="text-xs text-slate-400 font-extrabold uppercase block tracking-wider">Recorded</span>
@@ -1112,7 +1112,7 @@ const Tests = () => {
                             type="button"
                             onClick={() => handleSubmitRow(student._id)}
                             disabled={isRowLocked || isLoading}
-                            className={`px-4.5 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all active:scale-95 duration-150 ${
+                            className={`min-w-[118px] px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap shadow-md transition-all active:scale-95 duration-150 ${
                               input.status === "Present" 
                                 ? 'bg-secondary hover:bg-blue-600 text-white shadow-blue-500/10' 
                                 : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/10'
@@ -1138,7 +1138,7 @@ const Tests = () => {
 
       {/* Final Save / Class Submit Verification Card */}
       {filteredStudents.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="gov-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1">
             <h4 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <CheckCircle size={18} className="text-emerald-500" />
@@ -1152,7 +1152,7 @@ const Tests = () => {
             <button
               onClick={handleFinalSaveAll}
               disabled={isLoading}
-              className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md transition-all active:scale-95 disabled:opacity-50"
+              className="gov-btn-primary w-full sm:w-auto px-6 py-3 text-xs font-black uppercase tracking-wider transition-all active:scale-95 disabled:opacity-50"
             >
               {isLoading ? "Finalizing..." : `Finalize & Save Class ${selectedClass}th`}
             </button>
@@ -1162,7 +1162,7 @@ const Tests = () => {
 
       {/* Reusable Toast Notifications */}
       {toast.show && (
-        <div className={`fixed top-6 right-6 z-50 flex items-center gap-4 bg-slate-900 text-white px-5 py-4 rounded-xl shadow-2xl animate-fade-in-up max-w-sm border border-slate-800 border-l-4 ${toast.isError ? 'border-red-500' : 'border-emerald-500'}`}>
+        <div className={`fixed top-6 right-6 z-50 flex items-center gap-4 bg-bg-card text-slate-800 px-5 py-4 rounded-lg shadow-xl animate-fade-in-up max-w-sm border border-[#d8cfc0] border-l-4 ${toast.isError ? 'border-red-500' : 'border-emerald-500'}`}>
           <div className={`flex items-center justify-center rounded-full p-2.5 ${toast.isError ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
             {toast.isError ? (
               <ShieldAlert size={20} className="animate-bounce" />
@@ -1174,8 +1174,8 @@ const Tests = () => {
             )}
           </div>
           <div>
-            <h4 className="font-bold text-sm text-slate-100 tracking-wide">{toast.title}</h4>
-            <p className="text-xs text-slate-400 font-semibold mt-0.5">{toast.message}</p>
+            <h4 className="font-bold text-sm text-slate-900 tracking-wide">{toast.title}</h4>
+            <p className="text-xs text-slate-600 font-semibold mt-0.5">{toast.message}</p>
           </div>
         </div>
       )}
@@ -1187,16 +1187,16 @@ const Tests = () => {
           onClick={() => setActiveImage(null)}
         >
           <div 
-            className="bg-white rounded-3xl overflow-hidden max-w-2xl w-full border border-white/20 shadow-2xl relative"
+            className="gov-card overflow-hidden max-w-2xl w-full relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-4 bg-slate-900 text-white flex justify-between items-center">
+            <div className="px-6 py-4 gov-panel-title flex justify-between items-center">
               <span className="font-extrabold text-sm tracking-wide uppercase flex items-center gap-2">
                 <ImageIcon size={18} className="text-accent" /> Hard Copy Document Proof
               </span>
               <button 
                 onClick={() => setActiveImage(null)}
-                className="text-slate-400 hover:text-white font-black text-sm uppercase bg-white/10 hover:bg-white/25 px-2.5 py-1.5 rounded-xl transition-all"
+                className="text-slate-600 hover:text-slate-900 font-black text-sm uppercase bg-white hover:bg-[#f3eadc] border border-[#d8cfc0] px-2.5 py-1.5 rounded-lg transition-all"
               >
                 ✕ Close
               </button>
@@ -1220,23 +1220,23 @@ const Tests = () => {
           onClick={() => setActiveCertificate(null)}
         >
           <div 
-            className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl relative border border-white/10 flex flex-col justify-between overflow-hidden"
+            className="gov-card max-w-2xl w-full relative flex flex-col justify-between overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-4 bg-slate-900 text-white flex justify-between items-center">
+            <div className="px-6 py-4 gov-panel-title flex justify-between items-center">
               <span className="font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
                 <Award size={18} className="text-accent animate-pulse" /> Official Endorsement Certificate
               </span>
               <div className="flex gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="bg-accent hover:bg-orange-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-orange-500/10"
+                  className="bg-accent hover:bg-[#9b6412] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
                 >
                   <Printer size={14} /> Print / Save PDF
                 </button>
                 <button 
                   onClick={() => setActiveCertificate(null)}
-                  className="text-slate-400 hover:text-white text-xs font-bold uppercase bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-all"
+                  className="text-slate-600 hover:text-slate-900 text-xs font-bold uppercase bg-white hover:bg-[#f3eadc] border border-[#d8cfc0] px-3 py-1.5 rounded-lg transition-all"
                 >
                   ✕ Close
                 </button>

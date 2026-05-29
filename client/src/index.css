@@ -2,21 +2,21 @@
 
 /* stylelint-disable-next-line at-rule-no-unknown */
 @theme {
-  --color-primary: #0F172A;
-  --color-secondary: #2563EB;
-  --color-accent: #F97316;
-  --color-saffron: #EA580C;
-  --color-gov-green: #16A34A;
+  --color-primary: #24324A;
+  --color-secondary: #1F5F99;
+  --color-accent: #B97716;
+  --color-saffron: #C7661D;
+  --color-gov-green: #147A55;
   
-  --color-bg-main: #F8FAFC;
-  --color-bg-card: #FFFFFF;
+  --color-bg-main: #F6F1E7;
+  --color-bg-card: #FFFDF8;
   
-  --color-success: #22C55E;
-  --color-warning: #EAB308;
-  --color-danger: #EF4444;
+  --color-success: #16805A;
+  --color-warning: #B7791F;
+  --color-danger: #B42318;
   
-  --color-text-dark: #1E293B;
-  --color-text-light: #64748B;
+  --color-text-dark: #263247;
+  --color-text-light: #617089;
 
   --color-level-excellent: #22C55E;
   --color-level-good: #2563EB;
@@ -30,6 +30,36 @@ body {
   background-color: var(--color-bg-main);
   color: var(--color-text-dark);
   font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root {
+  color-scheme: light;
+}
+
+::selection {
+  background: rgba(31, 95, 153, 0.18);
+  color: #182235;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(185, 119, 22, 0.42);
+  outline-offset: 2px;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  color: var(--color-text-dark);
 }
 
 .glass-panel {
@@ -45,14 +75,14 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: #ede4d6; 
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-secondary); 
+  background: #9aa8ba; 
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary); 
+  background: var(--color-secondary); 
 }
 
 /* Animations */
@@ -754,4 +784,196 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Calm government dashboard primitives */
+.gov-card {
+  background: var(--color-bg-card);
+  border: 1px solid #ded6ca;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(36, 50, 74, 0.06);
+}
+
+.gov-card-soft {
+  background: #fbf7ee;
+  border: 1px solid #e4dccf;
+  border-radius: 8px;
+}
+
+.gov-page-heading {
+  color: var(--color-text-dark);
+  letter-spacing: 0;
+}
+
+.gov-eyebrow {
+  color: var(--color-secondary);
+  background: #eaf2f8;
+  border: 1px solid #cadeeb;
+  border-radius: 6px;
+}
+
+.gov-btn-primary {
+  background: var(--color-secondary);
+  color: #ffffff;
+  border: 1px solid #174b7d;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(31, 95, 153, 0.18);
+}
+
+.gov-btn-primary:hover {
+  background: #184f83;
+}
+
+.gov-btn-secondary {
+  background: #fffdf8;
+  color: var(--color-text-dark);
+  border: 1px solid #d8cfc0;
+  border-radius: 8px;
+}
+
+.gov-btn-secondary:hover {
+  background: #f3eadc;
+}
+
+.gov-field {
+  background: #fffdf8;
+  border: 1px solid #d8cfc0;
+  border-radius: 8px;
+  color: var(--color-text-dark);
+}
+
+.gov-field:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(31, 95, 153, 0.15);
+  outline: none;
+}
+
+.gov-table-head {
+  background: #efe7d9;
+  color: #55637a;
+  border-bottom: 1px solid #d8cfc0;
+}
+
+.gov-panel-title {
+  background: #ecf3f8;
+  color: var(--color-primary);
+  border-bottom: 1px solid #d7e3ed;
+}
+
+/* Normalize older Tailwind-heavy screens into the same calm system. */
+.bg-white {
+  background-color: var(--color-bg-card);
+}
+
+.bg-slate-50 {
+  background-color: #fbf7ee;
+}
+
+.border-slate-100,
+.border-gray-100 {
+  border-color: #e4dccf;
+}
+
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: 8px;
+}
+
+.shadow-xl,
+.shadow-2xl {
+  box-shadow: 0 8px 24px rgba(36, 50, 74, 0.12);
+}
+
+.bg-slate-900.text-white {
+  background-color: #ecf3f8;
+  color: var(--color-primary);
+  border-color: #d7e3ed;
+}
+
+.bg-slate-900.text-white .text-slate-400,
+.bg-slate-900.text-white .text-slate-300 {
+  color: #617089;
+}
+
+/* Auth screens: official, quiet, and readable. */
+.auth-root,
+.auth-form-panel {
+  background-color: var(--color-bg-main);
+}
+
+.auth-panel {
+  background-color: var(--color-bg-card);
+  border-right: 1px solid #d8cfc0;
+}
+
+.auth-panel-glow {
+  display: none;
+}
+
+.auth-panel-brand-icon {
+  background: var(--color-secondary);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.auth-panel-brand-name,
+.auth-panel-headline {
+  color: var(--color-primary);
+}
+
+.auth-panel-headline-accent {
+  color: var(--color-secondary);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.auth-panel-desc {
+  color: var(--color-text-light);
+}
+
+.auth-pill {
+  background: #eaf2f8;
+  border-color: #cadeeb;
+  color: var(--color-secondary);
+}
+
+.auth-card {
+  background: var(--color-bg-card);
+  border-color: #d8cfc0;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(36, 50, 74, 0.08);
+}
+
+.auth-card-bar,
+.auth-progress-fill {
+  background: var(--color-secondary);
+}
+
+.auth-input {
+  background: #fbf7ee;
+  border-color: #d8cfc0;
+  border-radius: 8px;
+}
+
+.auth-input:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(31, 95, 153, 0.15);
+}
+
+.auth-btn {
+  background: var(--color-secondary);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(31, 95, 153, 0.18);
+}
+
+.auth-btn:hover:not(:disabled) {
+  background: #184f83;
+  box-shadow: 0 2px 8px rgba(31, 95, 153, 0.18);
+}
+
+.auth-toast {
+  background: var(--color-bg-card);
+  border-color: #d8cfc0;
+  border-radius: 8px;
 }

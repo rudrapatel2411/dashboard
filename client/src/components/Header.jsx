@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, User, ShieldAlert, Sparkles, Check, X } from 'lucide-react';
+import { Bell, Menu, Search, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) => {
@@ -146,46 +146,42 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
   };
 
   return (
-    <header className="h-20 bg-white shadow-sm border-b border-slate-100 flex items-center justify-between px-4 md:px-8 z-30 relative shrink-0">
+    <header className="h-[72px] bg-bg-card shadow-sm border-b border-[#d8cfc0] flex items-center justify-between px-4 md:px-7 z-30 relative shrink-0">
       
       {/* Left Search Bar + Hamburger Trigger */}
       <div className="flex items-center gap-2 w-full md:w-96 relative">
         <button 
           onClick={toggleSidebar}
-          className="md:hidden text-slate-500 hover:text-slate-800 p-2 hover:bg-slate-50 rounded-xl transition-all mr-1 shrink-0"
+          className="md:hidden text-slate-500 hover:text-slate-900 p-2 hover:bg-[#f3eadc] rounded-lg transition-all mr-1 shrink-0"
         >
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" y1="12" x2="20" y2="12" />
-            <line x1="4" y1="6" x2="20" y2="6" />
-            <line x1="4" y1="18" x2="20" y2="18" />
-          </svg>
+          <Menu size={22} strokeWidth={2.4} />
         </button>
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-2.5 text-slate-400 w-4 h-4" />
+          <Search className="absolute left-3.5 top-2.5 text-slate-500 w-4 h-4" />
           <input 
             type="text" 
             placeholder="Search..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary transition-all text-xs font-semibold text-slate-800"
+            className="w-full bg-[#fbf7ee] border border-[#d8cfc0] rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all text-xs font-semibold text-slate-800"
           />
         </div>
       </div>
 
       {/* Right User Bar */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 md:gap-5">
         
         {/* Bell Notification Trigger */}
         <div className="relative" ref={dropdownRef}>
           <button 
             onClick={handleToggleDropdown}
-            className={`relative p-2.5 rounded-xl transition-all duration-200 text-slate-500 hover:text-secondary hover:bg-slate-50 border ${
-              showDropdown ? 'border-secondary bg-blue-50/50 text-secondary' : 'border-slate-100'
+            className={`relative p-2.5 rounded-lg transition-all duration-200 text-slate-600 hover:text-secondary hover:bg-[#f3eadc] border ${
+              showDropdown ? 'border-secondary bg-[#eaf2f8] text-secondary' : 'border-[#d8cfc0]'
             }`}
           >
             <Bell size={20} />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-red-500 text-white rounded-full border-2 border-white text-[9px] font-black flex items-center justify-center animate-bounce">
+              <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-danger text-white rounded-full border-2 border-bg-card text-[9px] font-black flex items-center justify-center">
                 {unreadCount}
               </span>
             )}
@@ -193,26 +189,26 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
 
           {/* Glowing Dropdown Menu */}
           {showDropdown && (
-            <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl border border-slate-100 shadow-2xl overflow-hidden z-50 animate-fade-in divide-y divide-slate-100">
+            <div className="absolute right-0 mt-3 w-80 bg-bg-card rounded-lg border border-[#d8cfc0] shadow-xl overflow-hidden z-50 animate-fade-in divide-y divide-[#e4dccf]">
               
               {/* Dropdown Header */}
-              <div className="px-5 py-4 bg-slate-900 text-white flex justify-between items-center">
+              <div className="px-5 py-4 bg-[#ecf3f8] text-primary flex justify-between items-center">
                 <span className="font-extrabold text-xs tracking-wider uppercase flex items-center gap-1.5">
-                  <Sparkles size={14} className="text-accent animate-spin-slow" />
+                  <Bell size={14} className="text-secondary" />
                   System Notifications
                 </span>
-                <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-black">
+                <span className="text-[10px] bg-white px-2 py-0.5 rounded border border-[#cadeeb] text-secondary font-black">
                   REALTIME
                 </span>
               </div>
 
               {/* Notification Roster */}
-              <div className="max-h-[300px] overflow-y-auto divide-y divide-slate-50">
+              <div className="max-h-[300px] overflow-y-auto divide-y divide-[#efe7d9]">
                 {notifications.length > 0 ? (
                   notifications.map((notif) => (
                     <div 
                       key={notif.id} 
-                      className={`p-4 flex gap-3 hover:bg-slate-50/50 transition-colors ${
+                      className={`p-4 flex gap-3 hover:bg-[#fbf7ee] transition-colors ${
                         notif.type === 'warning' ? 'border-l-4 border-amber-500' :
                         notif.type === 'success' ? 'border-l-4 border-emerald-500' :
                         'border-l-4 border-secondary'
@@ -235,7 +231,7 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
               </div>
 
               {/* Dropdown Footer */}
-              <div className="px-4 py-2.5 bg-slate-50 text-center text-[10px] text-slate-500 font-semibold select-none">
+              <div className="px-4 py-2.5 bg-[#fbf7ee] text-center text-[10px] text-slate-500 font-semibold select-none">
                 Listening to native SSE stream port...
               </div>
 
@@ -246,14 +242,14 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
         {/* User Badge */}
         <div 
           onClick={handleProfileRedirect}
-          className="flex items-center gap-3 border-l pl-6 border-slate-100 select-none cursor-pointer hover:bg-slate-50/80 p-1.5 rounded-2xl transition-all"
+          className="flex items-center gap-3 border-l pl-3 md:pl-5 border-[#e2d8c9] select-none cursor-pointer hover:bg-[#f3eadc] p-1.5 rounded-lg transition-all"
           title="View Profile"
         >
           {currentUser.avatar ? (
             <img 
               src={`http://localhost:5000${currentUser.avatar}`} 
               alt={currentUser.name} 
-              className="w-10 h-10 rounded-full object-cover border-2 border-secondary shadow-md shadow-blue-500/10"
+              className="w-10 h-10 rounded-full object-cover border-2 border-secondary shadow-sm"
               onError={(e) => {
                 e.target.onerror = null;
                 // clear to fallback
@@ -261,7 +257,7 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
               }}
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-black shadow-md shadow-blue-500/25">
+            <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-black shadow-sm">
               {initial}
             </div>
           )}
@@ -277,7 +273,7 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
 
       {/* Modern, High-End Slide-In Toast Notification Alert */}
       {activeToast && (
-        <div className="fixed top-6 right-6 z-50 max-w-sm w-full bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-800 p-4 border-l-4 border-l-secondary flex items-start gap-3.5 animate-slide-in shadow-blue-500/10">
+        <div className="fixed top-6 right-6 z-50 max-w-sm w-full bg-bg-card text-slate-800 rounded-lg shadow-xl border border-[#d8cfc0] p-4 border-l-4 border-l-secondary flex items-start gap-3.5 animate-slide-in">
           <div className={`p-2 rounded-xl shrink-0 ${
             activeToast.type === 'warning' ? 'bg-amber-500/10 text-amber-500' :
             activeToast.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' :
@@ -287,13 +283,13 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
           </div>
           
           <div className="flex-1">
-            <h4 className="font-extrabold text-sm text-slate-100">{activeToast.title}</h4>
-            <p className="text-xs text-slate-400 font-semibold mt-0.5 leading-snug">{activeToast.message}</p>
+            <h4 className="font-extrabold text-sm text-slate-900">{activeToast.title}</h4>
+            <p className="text-xs text-slate-600 font-semibold mt-0.5 leading-snug">{activeToast.message}</p>
           </div>
 
           <button 
             onClick={() => setActiveToast(null)}
-            className="text-slate-500 hover:text-slate-300 transition-colors p-1"
+            className="text-slate-500 hover:text-slate-800 transition-colors p-1"
           >
             <X size={14} />
           </button>

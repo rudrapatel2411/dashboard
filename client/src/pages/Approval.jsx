@@ -99,21 +99,20 @@ const Approval = () => {
     <div className="space-y-8 animate-fade-in pb-16 font-sans">
       
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.15),transparent)] pointer-events-none"></div>
+      <div className="gov-card p-6 md:p-8 relative overflow-hidden">
         <div className="relative z-10">
-          <span className="px-3.5 py-1.5 bg-indigo-500/10 text-indigo-400 text-xs font-black rounded-lg border border-indigo-400/20 uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
+          <span className="gov-eyebrow px-3.5 py-1.5 text-xs font-black uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
             <UserCheck size={12} /> Review Center
           </span>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight">Pending Approvals</h1>
-          <p className="text-slate-400 text-sm mt-1.5 max-w-xl font-medium">
+          <h1 className="gov-page-heading text-3xl md:text-4xl font-black">Pending Approvals</h1>
+          <p className="text-slate-600 text-sm mt-1.5 max-w-xl font-medium">
             Review registration applications, check representative credentials, and approve or reject hub access.
           </p>
         </div>
       </div>
 
       {/* Pending list container */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className="gov-card overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
             <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
@@ -219,31 +218,29 @@ const Approval = () => {
       {/* Premium Detail Modal */}
       {selectedInstitute && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in"
           onClick={() => setSelectedInstitute(null)}
         >
           <div
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100"
+            className="gov-card w-full max-w-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Gradient Header */}
-            <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 p-6 text-white relative overflow-hidden">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.15),transparent)] pointer-events-none"></div>
-              
+            {/* Modal Header */}
+            <div className="gov-panel-title p-6 relative overflow-hidden">
               <div className="relative z-10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center ${
+                  <div className={`w-12 h-12 rounded-lg border flex items-center justify-center ${
                     selectedInstitute.type === 'academy' 
-                      ? 'bg-amber-500/10 border-amber-400/20 text-amber-400' 
-                      : 'bg-indigo-500/10 border-indigo-400/20 text-indigo-400'
+                      ? 'bg-[#fff1d6] border-[#e7c98e] text-[#8a520f]' 
+                      : 'bg-[#eaf2f8] border-[#cadeeb] text-secondary'
                   }`}>
                     {selectedInstitute.type === 'academy' ? <Trophy size={24} /> : <Building2 size={24} />}
                   </div>
                   <div>
                     <span className={`px-2.5 py-0.5 text-[9px] font-black rounded border uppercase tracking-widest block w-max ${
                       selectedInstitute.type === 'academy'
-                        ? 'bg-amber-500/10 border-amber-400/20 text-amber-400'
-                        : 'bg-indigo-500/10 border-indigo-400/20 text-indigo-400'
+                        ? 'bg-[#fff1d6] border-[#e7c98e] text-[#8a520f]'
+                        : 'bg-[#eaf2f8] border-[#cadeeb] text-secondary'
                     }`}>
                       Pending {selectedInstitute.type === 'academy' ? 'Academy' : 'Institute'}
                     </span>
@@ -252,7 +249,7 @@ const Approval = () => {
                 </div>
                 <button
                   onClick={() => setSelectedInstitute(null)}
-                  className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 rounded-xl transition-all text-slate-300"
+                  className="p-2 bg-white border border-[#d8cfc0] hover:bg-[#f3eadc] rounded-lg transition-all text-slate-600"
                 >
                   <X size={16} />
                 </button>

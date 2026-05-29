@@ -146,21 +146,20 @@ const AcademyStudents = () => {
     <div className="space-y-8 animate-fade-in pb-16 font-sans">
       
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-amber-955 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(245,158,11,0.15),transparent)] pointer-events-none"></div>
+      <div className="gov-card p-6 md:p-8 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <span className="px-3.5 py-1.5 bg-amber-500/10 text-amber-400 text-xs font-black rounded-lg border border-amber-400/20 uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
+            <span className="px-3.5 py-1.5 bg-[#fff1d6] text-[#8a520f] text-xs font-black rounded-lg border border-[#e7c98e] uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
               <Users size={12} /> Athlete Management
             </span>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight">Athletes</h1>
-            <p className="text-slate-400 text-sm mt-1.5 font-medium">
+            <h1 className="gov-page-heading text-3xl md:text-4xl font-black">Athletes</h1>
+            <p className="text-slate-600 text-sm mt-1.5 font-medium">
               Manage your athletes grouped by standard/age level.
             </p>
           </div>
           <button
             onClick={openAddModal}
-            className="bg-amber-550 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 self-start"
+            className="bg-accent hover:bg-[#9b6412] text-white border border-[#8a520f] px-5 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 shadow-sm active:scale-95 self-start"
           >
             <Plus size={16} /> Add Athlete
           </button>
@@ -174,7 +173,7 @@ const AcademyStudents = () => {
           <select
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
-            className="appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all cursor-pointer min-w-[160px]"
+            className="gov-field appearance-none px-4 py-2.5 pr-10 text-sm font-bold transition-all cursor-pointer min-w-[160px]"
           >
             <option value="">All Standards</option>
             {STANDARDS.map(s => (
@@ -192,7 +191,7 @@ const AcademyStudents = () => {
             placeholder="Search by name or ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all text-sm font-semibold text-slate-800"
+            className="gov-field w-full py-2.5 pl-10 pr-4 transition-all text-sm font-semibold"
           />
         </div>
 
@@ -202,7 +201,7 @@ const AcademyStudents = () => {
       </div>
 
       {/* Athletes Table */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className="gov-card overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
             <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
@@ -218,7 +217,7 @@ const AcademyStudents = () => {
                 {selectedClass ? `No athletes in Class ${selectedClass}th.` : 'Add your first athlete to get started.'}
               </p>
             </div>
-            <button onClick={openAddModal} className="mt-2 px-4 py-2 bg-amber-550 text-white rounded-xl text-xs font-bold hover:bg-amber-600 transition-all flex items-center gap-1.5">
+            <button onClick={openAddModal} className="mt-2 px-4 py-2 bg-accent text-white border border-[#8a520f] rounded-lg text-xs font-bold hover:bg-[#9b6412] transition-all flex items-center gap-1.5">
               <Plus size={14} /> Add Athlete
             </button>
           </div>
@@ -226,7 +225,7 @@ const AcademyStudents = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-wider border-b border-slate-100">
+                <tr className="gov-table-head text-[10px] uppercase font-black tracking-wider">
                   <th className="py-4 px-6 font-bold">Athlete</th>
                   <th className="py-4 px-6 font-bold">Athlete ID</th>
                   <th className="py-4 px-6 font-bold">Class & Gender</th>
@@ -237,10 +236,10 @@ const AcademyStudents = () => {
               </thead>
               <tbody className="text-xs divide-y divide-slate-100 font-semibold text-slate-700">
                 {students.map((student) => (
-                  <tr key={student._id} className="hover:bg-amber-50/10 transition-colors">
+                  <tr key={student._id} className="hover:bg-[#fffaf0] transition-colors">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-amber-500/10">
+                        <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-white font-black text-sm shadow-sm">
                           {student.name?.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -303,8 +302,8 @@ const AcademyStudents = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={() => setDeleteConfirm(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => setDeleteConfirm(null)}>
+          <div className="gov-card p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-black text-slate-800 mb-2">Delete Athlete?</h3>
             <p className="text-sm text-slate-500 mb-6">This action cannot be undone. The athlete and their data will be permanently removed.</p>
             <div className="flex justify-end gap-3">
@@ -321,20 +320,19 @@ const AcademyStudents = () => {
 
       {/* Add/Edit Athlete Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={() => { setShowModal(false); setEditingStudent(null); }}>
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto border border-slate-100" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => { setShowModal(false); setEditingStudent(null); }}>
+          <div className="gov-card w-full max-w-2xl max-h-[92vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
 
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-amber-955 p-6 text-white relative overflow-hidden rounded-t-3xl">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(245,158,11,0.15),transparent)] pointer-events-none"></div>
+            <div className="gov-panel-title p-6 relative overflow-hidden">
               <div className="relative z-10 flex items-center justify-between">
                 <div>
-                  <span className="px-2.5 py-0.5 bg-amber-500/10 text-amber-400 text-[9px] font-black rounded border border-amber-400/20 uppercase tracking-widest">
+                  <span className="px-2.5 py-0.5 bg-[#fff1d6] text-[#8a520f] text-[9px] font-black rounded border border-[#e7c98e] uppercase tracking-widest">
                     {editingStudent ? 'Edit Athlete' : 'New Athlete'}
                   </span>
                   <h3 className="text-lg font-black mt-1">{editingStudent ? 'Update Athlete Details' : 'Register New Athlete'}</h3>
                 </div>
-                <button onClick={() => { setShowModal(false); setEditingStudent(null); }} className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl transition-all text-slate-300">
+                <button onClick={() => { setShowModal(false); setEditingStudent(null); }} className="p-2 bg-white border border-[#d8cfc0] hover:bg-[#f3eadc] rounded-lg transition-all text-slate-600">
                   <X size={16} />
                 </button>
               </div>
@@ -416,7 +414,7 @@ const AcademyStudents = () => {
                 <button type="button" onClick={() => { setShowModal(false); setEditingStudent(null); }} className="px-5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
                   Cancel
                 </button>
-                <button type="submit" disabled={formLoading} className="px-6 py-2.5 bg-amber-550 text-white rounded-xl text-xs font-black hover:bg-amber-600 transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-md shadow-amber-200">
+                <button type="submit" disabled={formLoading} className="px-6 py-2.5 bg-accent text-white border border-[#8a520f] rounded-lg text-xs font-black hover:bg-[#9b6412] transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm">
                   {formLoading ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
                   {formLoading ? 'Saving...' : (editingStudent ? 'Update Athlete' : 'Register Athlete')}
                 </button>

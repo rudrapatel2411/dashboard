@@ -34,7 +34,7 @@ const AcademyDashboard = () => {
 
   const statCards = [
     { title: 'Total Athletes', value: stats.totalStudents, icon: <Users size={24} />, color: 'from-amber-500 to-amber-700', action: () => navigate('/academy/students') },
-    { title: 'Age Groups', value: stats.totalClasses, icon: <BookOpen size={24} />, color: 'from-orange-550 to-orange-700', action: () => navigate('/academy/students') },
+    { title: 'Age Groups', value: stats.totalClasses, icon: <BookOpen size={24} />, color: 'from-orange-500 to-orange-700', action: () => navigate('/academy/students') },
     { title: 'Tests Recorded', value: stats.totalTests, icon: <ClipboardList size={24} />, color: 'from-emerald-500 to-emerald-700', action: () => navigate('/academy/physical-tests') },
     { title: 'Physical Perf.', value: '—', icon: <TrendingUp size={24} />, color: 'from-blue-500 to-blue-700', action: () => navigate('/academy/performance') },
   ];
@@ -43,21 +43,20 @@ const AcademyDashboard = () => {
     <div className="space-y-8 animate-fade-in pb-16 font-sans">
 
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-amber-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(245,158,11,0.15),transparent)] pointer-events-none"></div>
+      <div className="gov-card p-6 md:p-8 relative overflow-hidden">
         <div className="relative z-10">
-          <span className="px-3.5 py-1.5 bg-amber-500/10 text-amber-400 text-xs font-black rounded-lg border border-amber-400/20 uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
+          <span className="px-3.5 py-1.5 bg-[#fff1d6] text-[#8a520f] text-xs font-black rounded-lg border border-[#e7c98e] uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
             <Trophy size={12} /> Academy Portal
           </span>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight">
+          <h1 className="gov-page-heading text-3xl md:text-4xl font-black">
             Welcome, {user.instituteName || user.name || 'Academy'}
           </h1>
           {user.sport && (
-            <p className="text-amber-400 text-xs font-extrabold uppercase tracking-wider mt-1">
+            <p className="text-[#8a520f] text-xs font-extrabold uppercase tracking-wider mt-1">
               Specialized Sport: {user.sport}
             </p>
           )}
-          <p className="text-slate-400 text-sm mt-2 max-w-xl font-medium">
+          <p className="text-slate-600 text-sm mt-2 max-w-xl font-medium">
             Manage your athletes, record physical tests, and analyze athletic performance metrics.
           </p>
         </div>
@@ -69,7 +68,7 @@ const AcademyDashboard = () => {
           <div
             key={index}
             onClick={stat.action}
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-all duration-300 cursor-pointer group"
+            className="gov-card p-6 flex items-center justify-between hover:border-[#d3bb88] transition-all duration-300 cursor-pointer group"
           >
             <div>
               <p className="text-text-light text-sm font-medium">{stat.title}</p>
@@ -77,7 +76,7 @@ const AcademyDashboard = () => {
                 {isLoading ? '...' : stat.value}
               </h3>
             </div>
-            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+            <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform`}>
               {stat.icon}
             </div>
           </div>
@@ -85,12 +84,12 @@ const AcademyDashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+      <div className="gov-card p-6">
         <h3 className="text-lg font-bold text-primary mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <button
             onClick={() => navigate('/academy/students')}
-            className="flex items-center gap-3 p-4 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-amber-50 hover:border-amber-200 transition-all text-left group"
+            className="flex items-center gap-3 p-4 rounded-lg border border-[#e4dccf] bg-[#fbf7ee] hover:bg-amber-50 hover:border-amber-200 transition-all text-left group"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 group-hover:bg-amber-200 transition-colors">
               <Plus size={20} />
@@ -103,7 +102,7 @@ const AcademyDashboard = () => {
 
           <button
             onClick={() => navigate('/academy/physical-tests')}
-            className="flex items-center gap-3 p-4 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 transition-all text-left group"
+            className="flex items-center gap-3 p-4 rounded-lg border border-[#e4dccf] bg-[#fbf7ee] hover:bg-emerald-50 hover:border-emerald-200 transition-all text-left group"
           >
             <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-200 transition-colors">
               <ClipboardList size={20} />
@@ -116,7 +115,7 @@ const AcademyDashboard = () => {
 
           <button
             onClick={() => navigate('/academy/performance')}
-            className="flex items-center gap-3 p-4 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 transition-all text-left group"
+            className="flex items-center gap-3 p-4 rounded-lg border border-[#e4dccf] bg-[#fbf7ee] hover:bg-[#eaf2f8] hover:border-[#cadeeb] transition-all text-left group"
           >
             <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-200 transition-colors">
               <TrendingUp size={20} />
@@ -131,7 +130,7 @@ const AcademyDashboard = () => {
 
       {/* Class-wise Breakdown */}
       {stats.classSummary && stats.classSummary.length > 0 && (
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+        <div className="gov-card p-6">
           <h3 className="text-lg font-bold text-primary mb-4">Standard-wise Athlete Distribution</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {stats.classSummary.map((cls) => (
