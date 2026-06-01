@@ -37,8 +37,8 @@ const AuthLayout = ({ children, isLoading, toast, pageTitle, pageSubtitle }) => 
           {/* Mobile brand (hidden on desktop) */}
           <div className="auth-mobile-brand">
             <div className="auth-panel-brand-icon">S</div>
-            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#24324A' }}>
-              Sport<span style={{ color: '#1F5F99' }}>Sphere</span>
+            <span className="auth-mobile-brand-name">
+              Sport<span className="auth-mobile-brand-accent">Sphere</span>
             </span>
           </div>
 
