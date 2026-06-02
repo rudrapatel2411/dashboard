@@ -450,6 +450,16 @@ textarea {
   gap: 10px;
 }
 
+.auth-mobile-brand-name {
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.auth-mobile-brand-accent {
+  color: var(--color-secondary);
+}
+
 @media (min-width: 900px) {
   .auth-mobile-brand { display: none; }
 }
@@ -1065,4 +1075,286 @@ textarea {
   background: var(--color-bg-card);
   border-color: #d8cfc0;
   border-radius: 8px;
+}
+
+/* Dashboard dark mode: scoped so the current light UI remains unchanged. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-primary: #f3f6fb;
+  --color-secondary: #48d597;
+  --color-accent: #d39a2d;
+  --color-saffron: #d7792c;
+  --color-gov-green: #42d88f;
+
+  --color-bg-main: #0d0f12;
+  --color-bg-card: #15181d;
+  --color-success: #48d597;
+  --color-warning: #d6a13a;
+  --color-danger: #ef5a4f;
+  --color-text-dark: #f1f5f9;
+  --color-text-light: #9aa7b6;
+
+  --surface-soft: #101318;
+  --surface-hover: #1b2027;
+  --surface-panel: #182027;
+  --surface-active: #10241b;
+  --border-muted: #2a3038;
+  --border-strong: #38424f;
+}
+
+[data-theme="dark"] body,
+[data-theme="dark"] #root {
+  background: var(--color-bg-main);
+  color: var(--color-text-dark);
+}
+
+[data-theme="dark"] ::selection {
+  background: rgba(72, 213, 151, 0.22);
+  color: #ffffff;
+}
+
+[data-theme="dark"] :focus-visible {
+  outline-color: rgba(72, 213, 151, 0.5);
+}
+
+[data-theme="dark"] :where(.bg-bg-main) {
+  background-color: var(--color-bg-main);
+}
+
+[data-theme="dark"] :where(.bg-bg-card, .bg-white, .auth-card, .auth-toast) {
+  background-color: var(--color-bg-card);
+}
+
+[data-theme="dark"] :where(
+  .bg-slate-50,
+  .bg-slate-50\/50,
+  .bg-slate-50\/70,
+  .bg-slate-100,
+  .bg-slate-100\/70,
+  .bg-gray-50,
+  .bg-gray-100,
+  .bg-\[\#fbf7ee\],
+  .bg-\[\#f8fbfd\],
+  .bg-\[\#fffdf8\]
+) {
+  background-color: var(--surface-soft);
+}
+
+[data-theme="dark"] :where(
+  .bg-\[\#ecf3f8\],
+  .bg-\[\#eaf2f8\],
+  .bg-\[\#fff1d6\],
+  .bg-blue-50,
+  .bg-blue-100,
+  .bg-indigo-50,
+  .bg-amber-50
+) {
+  background-color: var(--surface-active);
+}
+
+[data-theme="dark"] :where(.hover\:bg-\[\#f3eadc\]:hover, .hover\:bg-\[\#fbf7ee\]:hover, .hover\:bg-\[\#f8fbfd\]:hover, .hover\:bg-gray-50:hover, .hover\:bg-slate-50:hover, .hover\:bg-slate-50\/50:hover, .hover\:bg-slate-100:hover, .hover\:bg-slate-100\/70:hover) {
+  background-color: var(--surface-hover);
+}
+
+[data-theme="dark"] :where(.hover\:bg-red-50:hover, .hover\:bg-red-100\/60:hover) {
+  background-color: rgba(239, 90, 79, 0.12);
+}
+
+[data-theme="dark"] :where(.hover\:bg-blue-50:hover, .hover\:bg-blue-100\/60:hover, .hover\:bg-indigo-50:hover, .hover\:bg-amber-50\/30:hover) {
+  background-color: rgba(72, 213, 151, 0.12);
+}
+
+[data-theme="dark"] :where(.text-primary, .text-text-dark, .text-slate-900, .text-slate-800, .text-slate-700) {
+  color: var(--color-text-dark);
+}
+
+[data-theme="dark"] :where(.text-text-light, .text-slate-600, .text-slate-500, .text-slate-400, .text-slate-300) {
+  color: var(--color-text-light);
+}
+
+[data-theme="dark"] :where(.hover\:text-slate-900:hover, .hover\:text-slate-800:hover) {
+  color: #ffffff;
+}
+
+[data-theme="dark"] :where(.hover\:text-secondary:hover) {
+  color: var(--color-secondary);
+}
+
+[data-theme="dark"] :where(
+  .border-slate-100,
+  .border-slate-200,
+  .border-gray-100,
+  .border-gray-200,
+  .border-\[\#d8cfc0\],
+  .border-\[\#e2d8c9\],
+  .border-\[\#e4dccf\],
+  .border-\[\#cadeeb\],
+  .border-\[\#d7e3ed\],
+  .border-\[\#e7c98e\]
+) {
+  border-color: var(--border-muted);
+}
+
+[data-theme="dark"] :where(.divide-slate-100, .divide-\[\#e4dccf\], .divide-\[\#efe7d9\]) > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border-muted);
+}
+
+[data-theme="dark"] :where(.shadow-sm, .shadow-md) {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] :where(.shadow-lg, .shadow-xl, .shadow-2xl) {
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] :where(input, select, textarea) {
+  background-color: var(--surface-soft);
+  border-color: var(--border-muted);
+  color: var(--color-text-dark);
+}
+
+[data-theme="dark"] :where(input, select, textarea)::placeholder {
+  color: #667383;
+}
+
+[data-theme="dark"] :where(input:focus, select:focus, textarea:focus) {
+  background-color: #11161c;
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(72, 213, 151, 0.14);
+}
+
+[data-theme="dark"] .glass-panel {
+  background: rgba(21, 24, 29, 0.78);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .gov-card,
+[data-theme="dark"] .auth-card {
+  background: var(--color-bg-card);
+  border-color: var(--border-muted);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 14px 32px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="dark"] .gov-card-soft {
+  background: var(--surface-soft);
+  border-color: var(--border-muted);
+}
+
+[data-theme="dark"] .gov-eyebrow,
+[data-theme="dark"] .gov-panel-title,
+[data-theme="dark"] .gov-table-head {
+  background: var(--surface-panel);
+  border-color: var(--border-muted);
+  color: var(--color-text-dark);
+}
+
+[data-theme="dark"] .gov-field,
+[data-theme="dark"] .sports-input,
+[data-theme="dark"] .auth-input {
+  background: var(--surface-soft);
+  border-color: var(--border-muted);
+  color: var(--color-text-dark);
+}
+
+[data-theme="dark"] .gov-btn-secondary {
+  background: var(--surface-soft);
+  border-color: var(--border-muted);
+  color: var(--color-text-dark);
+}
+
+[data-theme="dark"] .gov-btn-secondary:hover {
+  background: var(--surface-hover);
+}
+
+[data-theme="dark"] .auth-root,
+[data-theme="dark"] .auth-form-panel,
+[data-theme="dark"] .auth-panel {
+  background-color: var(--color-bg-main);
+}
+
+[data-theme="dark"] .auth-brand-plate {
+  background: rgba(21, 24, 29, 0.9);
+  border-color: var(--border-muted);
+}
+
+[data-theme="dark"] .auth-title,
+[data-theme="dark"] .auth-label,
+[data-theme="dark"] .auth-toast-title {
+  color: var(--color-text-dark);
+}
+
+[data-theme="dark"] .auth-subtitle,
+[data-theme="dark"] .auth-check-label,
+[data-theme="dark"] .auth-redirect,
+[data-theme="dark"] .auth-footer,
+[data-theme="dark"] .auth-hint,
+[data-theme="dark"] .auth-toast-msg {
+  color: var(--color-text-light);
+}
+
+[data-theme="dark"] .auth-input-icon,
+[data-theme="dark"] .auth-eye-btn {
+  color: #8c99aa;
+}
+
+[data-theme="dark"] .auth-eye-btn:hover {
+  color: var(--color-text-dark);
+}
+
+[data-theme="dark"] .auth-link {
+  color: var(--color-secondary);
+}
+
+[data-theme="dark"] .auth-link:hover {
+  color: #7ff0b8;
+}
+
+[data-theme="dark"] .auth-step {
+  background: var(--surface-soft);
+  border-color: var(--border-muted);
+  color: var(--color-text-light);
+}
+
+[data-theme="dark"] .auth-step-line,
+[data-theme="dark"] .auth-progress-bar {
+  background: var(--border-muted);
+}
+
+[data-theme="dark"] .bg-slate-900.text-white {
+  background-color: #0f241b;
+  border-color: #245f42;
+  color: #c5f7dc;
+}
+
+[data-theme="dark"] .bg-slate-900.text-white .text-slate-400,
+[data-theme="dark"] .bg-slate-900.text-white .text-slate-300 {
+  color: #9ee8c0;
+}
+
+[data-theme="dark"] .auth-sports-vignette {
+  background:
+    radial-gradient(circle at 50% 48%, rgba(72, 213, 151, 0.08) 0%, rgba(13, 15, 18, 0.34) 38%, rgba(13, 15, 18, 0.78) 100%),
+    linear-gradient(90deg, rgba(13, 15, 18, 0.86), rgba(21, 24, 29, 0.7));
+}
+
+[data-theme="dark"] .recharts-cartesian-grid line {
+  stroke: #27303a;
+}
+
+[data-theme="dark"] .recharts-text,
+[data-theme="dark"] .recharts-legend-item-text {
+  fill: var(--color-text-light);
+  color: var(--color-text-light) !important;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #0b0d10;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #343d49;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
 }

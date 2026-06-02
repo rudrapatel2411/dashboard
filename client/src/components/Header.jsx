@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Menu, Search, X } from 'lucide-react';
+import { Bell, Menu, Moon, Search, Sun, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) => {
@@ -53,7 +53,16 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
   const [showDropdown, setShowDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(2);
   const [activeToast, setActiveToast] = useState(null);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('dashboard-theme') === 'dark' ? 'dark' : 'light';
+  });
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem('dashboard-theme', theme);
+  }, [theme]);
 
   // Initialize SSE event source connection with resilient auto-reconnection
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -139,6 +148,12 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
     setUnreadCount(0); // Mark all as read
   };
 
+  const handleThemeToggle = () => {
+    setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark');
+  };
+
+  const isDarkTheme = theme === 'dark';
+
   const getHumanTime = (dateObj) => {
     const diffMs = Date.now() - new Date(dateObj).getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -153,7 +168,7 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
     <header className="h-[72px] bg-bg-card shadow-sm border-b border-[#d8cfc0] flex items-center justify-between px-4 md:px-7 z-30 relative shrink-0">
       
       {/* Left Search Bar + Hamburger Trigger */}
-      <div className="flex items-center gap-2 w-full md:w-96 relative">
+      <div className="flex items-center gap-2 flex-1 min-w-0 md:max-w-96 relative">
         <button 
           onClick={toggleSidebar}
           className="md:hidden text-slate-500 hover:text-slate-900 p-2 hover:bg-[#f3eadc] rounded-lg transition-all mr-1 shrink-0"
@@ -173,7 +188,39 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
       </div>
 
       {/* Right User Bar */}
-      <div className="flex items-center gap-3 md:gap-5">
+      <div className="flex items-center gap-2 sm:gap-3 md:gap-5 shrink-0">
+        {/* Black / White Theme Toggle */}
+        <button
+          type="button"
+          onClick={handleThemeToggle}
+          className={`relative h-10 w-16 shrink-0 overflow-hidden rounded-lg border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-secondary/25 ${
+            isDarkTheme
+              ? 'bg-[#05070a] border-[#313943] shadow-[0_0_0_1px_rgba(85,255,170,0.08)]'
+              : 'bg-white border-[#d8cfc0] shadow-sm hover:bg-[#fbf7ee]'
+          }`}
+          aria-label={isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          <span
+            className={`absolute inset-y-0 flex w-full items-center justify-between px-2 transition-colors ${
+              isDarkTheme ? 'text-white/55' : 'text-slate-400'
+            }`}
+            aria-hidden="true"
+          >
+            <Sun size={14} />
+            <Moon size={14} />
+          </span>
+          <span
+            className={`absolute left-1 top-1 flex h-8 w-8 items-center justify-center rounded-md transition-all duration-300 ${
+              isDarkTheme
+                ? 'translate-x-6 bg-white text-black shadow-[0_0_18px_rgba(125,255,190,0.18)]'
+                : 'translate-x-0 bg-black text-white shadow-sm'
+            }`}
+            aria-hidden="true"
+          >
+            {isDarkTheme ? <Moon size={15} /> : <Sun size={15} />}
+          </span>
+        </button>
         
         {/* Bell Notification Trigger */}
         <div className="relative" ref={dropdownRef}>
@@ -193,7 +240,7 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
 
           {/* Glowing Dropdown Menu */}
           {showDropdown && (
-            <div className="absolute right-0 mt-3 w-80 bg-bg-card rounded-lg border border-[#d8cfc0] shadow-xl overflow-hidden z-50 animate-fade-in divide-y divide-[#e4dccf]">
+            <div className="absolute right-[-59px] sm:right-0 mt-3 w-[calc(100vw-2rem)] max-w-80 bg-bg-card rounded-lg border border-[#d8cfc0] shadow-xl overflow-hidden z-50 animate-fade-in divide-y divide-[#e4dccf]">
               
               {/* Dropdown Header */}
               <div className="px-5 py-4 bg-[#ecf3f8] text-primary flex justify-between items-center">
@@ -246,14 +293,14 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
         {/* User Badge */}
         <div 
           onClick={handleProfileRedirect}
-          className="flex items-center gap-3 border-l pl-3 md:pl-5 border-[#e2d8c9] select-none cursor-pointer hover:bg-[#f3eadc] p-1.5 rounded-lg transition-all"
+          className="flex items-center gap-2 sm:gap-3 border-l pl-2 sm:pl-3 md:pl-5 border-[#e2d8c9] select-none cursor-pointer hover:bg-[#f3eadc] p-1.5 rounded-lg transition-all"
           title="View Profile"
         >
           {currentUser.avatar ? (
             <img 
               src={`${SERVER_BASE}${currentUser.avatar}`} 
               alt={currentUser.name} 
-              className="w-10 h-10 rounded-full object-cover border-2 border-secondary shadow-sm"
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover border-2 border-secondary shadow-sm"
               onError={(e) => {
                 e.target.onerror = null;
                 // clear to fallback
@@ -261,7 +308,7 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
               }}
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-black shadow-sm">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-secondary text-white flex items-center justify-center font-black shadow-sm">
               {initial}
             </div>
           )}
@@ -277,7 +324,7 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
 
       {/* Modern, High-End Slide-In Toast Notification Alert */}
       {activeToast && (
-        <div className="fixed top-6 right-6 z-50 max-w-sm w-full bg-bg-card text-slate-800 rounded-lg shadow-xl border border-[#d8cfc0] p-4 border-l-4 border-l-secondary flex items-start gap-3.5 animate-slide-in">
+        <div className="fixed top-4 left-4 right-4 sm:left-auto sm:top-6 sm:right-6 sm:w-full sm:max-w-sm z-50 bg-bg-card text-slate-800 rounded-lg shadow-xl border border-[#d8cfc0] p-4 border-l-4 border-l-secondary flex items-start gap-3.5 animate-slide-in">
           <div className={`p-2 rounded-xl shrink-0 ${
             activeToast.type === 'warning' ? 'bg-amber-500/10 text-amber-500' :
             activeToast.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' :
