@@ -56,6 +56,9 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
   const dropdownRef = useRef(null);
 
   // Initialize SSE event source connection with resilient auto-reconnection
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const SERVER_BASE = API_BASE.replace('/api', '');
+
   useEffect(() => {
     let eventSource;
     let reconnectTimeout;
@@ -66,7 +69,8 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
         eventSource.close();
       }
 
-      eventSource = new EventSource('http://localhost:5000/api/notifications/stream');
+      // Fix #15: Use VITE_API_URL env var — no hardcoded localhost
+      eventSource = new EventSource(`${SERVER_BASE}/api/notifications/stream`);
 
       eventSource.onmessage = (event) => {
         try {
@@ -247,7 +251,7 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
         >
           {currentUser.avatar ? (
             <img 
-              src={`http://localhost:5000${currentUser.avatar}`} 
+              src={`${SERVER_BASE}${currentUser.avatar}`} 
               alt={currentUser.name} 
               className="w-10 h-10 rounded-full object-cover border-2 border-secondary shadow-sm"
               onError={(e) => {

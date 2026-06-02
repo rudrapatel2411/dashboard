@@ -16,7 +16,7 @@ router.get('/stream', (req, res) => {
 
   clients.push(res);
 
-  // Clear connection on disconnect
+  // Clear connection on disconnect (clean close)
   req.on('close', () => {
     clients = clients.filter(client => client !== res);
   });
@@ -32,13 +32,20 @@ const sendNotification = (title, message, type = 'info') => {
     timestamp: new Date()
   });
 
+  // Fix #20: Remove stale clients immediately on write failure instead of accumulating them.
+  // This prevents an ever-growing array of dead response objects (memory leak).
+  const deadClients = [];
   clients.forEach(client => {
     try {
       client.write(`data: ${payload}\n\n`);
     } catch (err) {
-      // Clean up orphaned connections silently
+      deadClients.push(client);
     }
   });
+
+  if (deadClients.length > 0) {
+    clients = clients.filter(c => !deadClients.includes(c));
+  }
 };
 
 module.exports = { 

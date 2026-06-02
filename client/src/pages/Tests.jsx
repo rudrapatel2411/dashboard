@@ -47,6 +47,20 @@ const hasDraftTestData = (row) => {
   return row.status === "Absent" || DRAFT_TEST_FIELDS.some(field => !isFieldEmpty(row[field]));
 };
 
+const createEmptyRowInput = (status = "Present") => ({
+  status,
+  height: "",
+  weight: "",
+  plateTapping: "",
+  flamingoBalance: "",
+  partialCurlUp: "",
+  pushups: "",
+  sitAndReach: "",
+  runWalk600m: "",
+  run50m: "",
+  manualReportData: ""
+});
+
 const STANDARDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
 const Tests = () => {
@@ -205,19 +219,7 @@ const Tests = () => {
     const newInputs = { ...rowInputs };
     filteredStudents.forEach(student => {
       if (!newInputs[student._id]) {
-        newInputs[student._id] = {
-          status: "Present", // "Present" or "Absent"
-          height: "",
-          weight: "",
-          plateTapping: "",
-          flamingoBalance: "",
-          partialCurlUp: "",
-          pushups: "",
-          sitAndReach: "",
-          runWalk600m: "",
-          run50m: "",
-          manualReportData: ""
-        };
+        newInputs[student._id] = createEmptyRowInput();
       }
     });
     setRowInputs(newInputs);
@@ -241,6 +243,27 @@ const Tests = () => {
           ...prev[studentId],
           [field]: value
         }
+      };
+    });
+  };
+
+  const toggleRowStatus = (studentId) => {
+    setRowInputs(prev => {
+      const activeDraftStudent = filteredStudents.find(student => {
+        const hasSavedRecord = submissions.some(sub => sub.id.includes(student._id));
+        return !hasSavedRecord && hasDraftTestData(prev[student._id]);
+      });
+
+      if (activeDraftStudent && activeDraftStudent._id !== studentId) {
+        return prev;
+      }
+
+      const currentStatus = prev[studentId]?.status || "Present";
+      const nextStatus = currentStatus === "Present" ? "Absent" : "Present";
+
+      return {
+        ...prev,
+        [studentId]: createEmptyRowInput(nextStatus)
       };
     });
   };
@@ -335,19 +358,18 @@ const Tests = () => {
 
     const age = calculateAge(matchedStu.dob);
     const isGroup1 = age >= 5 && age <= 8;
-    const classPhoto = classPhotos[selectedClass] || "";
+    const isAbsent = row.status === "Absent";
+    const classPhoto = isAbsent ? "" : (classPhotos[selectedClass] || "");
 
     let payload = {
       studentId: studentId,
       term: selectedTerm,
       status: row.status,
-      manualReportData: row.manualReportData || "",
+      manualReportData: isAbsent ? "" : (row.manualReportData || ""),
       reportHardCopyUrl: classPhoto
     };
 
-    if (row.status === "Absent") {
-      // Mark as Absent
-    } else {
+    if (!isAbsent) {
       if (isGroup1) {
         if (
           isFieldEmpty(row.height) ||
@@ -440,7 +462,12 @@ const Tests = () => {
   // Finalize and save/update all students in the class with hardcopy spreadsheet verification
   const handleFinalSaveAll = async () => {
     const classPhoto = classPhotos[selectedClass];
-    if (!classPhoto) {
+    const hasPresentStudents = filteredStudents.some(student => {
+      const row = rowInputs[student._id] || createEmptyRowInput();
+      return row.status !== "Absent";
+    });
+
+    if (hasPresentStudents && !classPhoto) {
       triggerToast(
         "Missing Hardcopy Proof",
         `Please upload the Class Hardcopy Roster Proof at the top of the page before final submit.`,
@@ -482,34 +509,22 @@ const Tests = () => {
 
       const savePromises = filteredStudents.map(async (student) => {
         const studentId = student._id;
-        const row = rowInputs[studentId] || {
-          status: "Present",
-          height: "",
-          weight: "",
-          plateTapping: "",
-          flamingoBalance: "",
-          partialCurlUp: "",
-          pushups: "",
-          sitAndReach: "",
-          runWalk600m: "",
-          run50m: "",
-          manualReportData: ""
-        };
+        const row = rowInputs[studentId] || createEmptyRowInput();
 
         const age = calculateAge(student.dob);
         const isGroup1 = age >= 5 && age <= 8;
+
+        const isAbsent = row.status === "Absent";
 
         let payload = {
           studentId: studentId,
           term: selectedTerm,
           status: row.status,
-          manualReportData: row.manualReportData || "",
-          reportHardCopyUrl: classPhoto
+          manualReportData: isAbsent ? "" : (row.manualReportData || ""),
+          reportHardCopyUrl: isAbsent ? "" : classPhoto
         };
 
-        if (row.status === "Absent") {
-          // Mark as Absent
-        } else {
+        if (!isAbsent) {
           if (isGroup1) {
             payload.height = parseFloat(row.height);
             payload.weight = parseFloat(row.weight);
@@ -774,17 +789,7 @@ const Tests = () => {
               <tbody className="divide-y divide-slate-100 text-xs">
                 {filteredStudents.map((student) => {
                   const input = rowInputs[student._id] || {
-                    status: "Present",
-                    height: "",
-                    weight: "",
-                    plateTapping: "",
-                    flamingoBalance: "",
-                    partialCurlUp: "",
-                    pushups: "",
-                    sitAndReach: "",
-                    runWalk600m: "",
-                    run50m: "",
-                    manualReportData: "",
+                    ...createEmptyRowInput(),
                     photoPreview: null
                   };
 
@@ -823,7 +828,7 @@ const Tests = () => {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => updateRowField(student._id, "status", input.status === "Present" ? "Absent" : "Present")}
+                            onClick={() => toggleRowStatus(student._id)}
                             disabled={isRowLocked || isLoading}
                             className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm transition-all border ${
                               input.status === "Present" 
@@ -841,6 +846,15 @@ const Tests = () => {
                         {input.status === "Absent" ? (
                           <div className="text-center text-slate-400 text-sm italic font-semibold py-6 bg-slate-50 border border-slate-100 rounded-2xl">
                             {isAcademy ? 'Athlete' : 'Student'} is marked ABSENT. No parameters needed.
+                          </div>
+                        ) : isAlreadyLogged && matchedSub?.status === "Absent" ? (
+                          <div className="text-center py-8 px-5 bg-red-50/70 border border-red-100 rounded-lg">
+                            <span className="inline-flex px-3.5 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-black uppercase tracking-wider border border-red-100 mb-3">
+                              Absent Recorded
+                            </span>
+                            <p className="text-sm text-slate-500 font-semibold">
+                              {isAcademy ? 'Athlete' : 'Student'} was marked absent. No physical test parameters or observations were collected.
+                            </p>
                           </div>
                         ) : isAlreadyLogged ? (
                           // Render saved details

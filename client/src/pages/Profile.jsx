@@ -5,6 +5,8 @@ const Profile = () => {
   // Fetch current user and setup state
   const [token] = useState(localStorage.getItem('token'));
   const [localUser, setLocalUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const SERVER_BASE = API_URL.replace('/api', '');
   
   // Loading & UI status state
   const [loading, setLoading] = useState(true);
@@ -70,7 +72,7 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5000/api/auth/profile', {
+      const res = await fetch(`${API_URL}/auth/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -96,7 +98,7 @@ const Profile = () => {
         });
 
         if (u.avatar) {
-          setAvatarPreview(`http://localhost:5000${u.avatar}`);
+          setAvatarPreview(`${SERVER_BASE}${u.avatar}`);
         }
       } else {
         showToast(data.message || 'Failed to fetch profile info', 'error');
@@ -155,7 +157,7 @@ const Profile = () => {
         }
       }
 
-      const res = await fetch('http://localhost:5000/api/auth/profile', {
+      const res = await fetch(`${API_URL}/auth/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -188,7 +190,7 @@ const Profile = () => {
         
         // Refresh component state
         if (data.user.avatar) {
-          setAvatarPreview(`http://localhost:5000${data.user.avatar}`);
+          setAvatarPreview(`${SERVER_BASE}${data.user.avatar}`);
           setAvatarFile(null);
         }
       } else {
@@ -214,7 +216,7 @@ const Profile = () => {
 
     setPasswordUpdating(true);
     try {
-      const res = await fetch('http://localhost:5000/api/auth/change-password', {
+      const res = await fetch(`${API_URL}/auth/change-password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -258,7 +260,7 @@ const Profile = () => {
 
     setDeleting(true);
     try {
-      const res = await fetch('http://localhost:5000/api/auth/delete-account', {
+      const res = await fetch(`${API_URL}/auth/delete-account`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

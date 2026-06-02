@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect, requireRole } = require('../middleware/auth');
-const upload = require('../utils/multerConfig');
+// Fix #21: Removed unused `upload` import — only marksheetUpload is used here
 const { marksheetUpload } = require('../utils/multerConfig');
 const {
   getStudents,

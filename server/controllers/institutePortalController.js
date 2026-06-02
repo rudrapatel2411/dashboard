@@ -72,9 +72,21 @@ exports.updateStudent = async (req, res) => {
       return res.status(404).json({ message: 'Student not found in your institute' });
     }
 
-    const updates = { ...req.body };
+    // Fix #8: Explicit field whitelist to prevent mass-assignment (no raw req.body spread).
+    // This prevents attackers from injecting fields like instituteId, __v, or _id.
+    const { name, dob, class: studentClass, gender, contact, address, taaluka, city, pincode } = req.body;
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (dob !== undefined) updates.dob = dob;
+    if (studentClass !== undefined) updates.class = studentClass;
+    if (gender !== undefined) updates.gender = gender;
+    if (contact !== undefined) updates.contact = contact;
+    if (address !== undefined) updates.address = address;
+    if (taaluka !== undefined) updates.taaluka = taaluka;
+    if (city !== undefined) updates.city = city;
+    if (pincode !== undefined) updates.pincode = pincode;
 
-    const updated = await Student.findByIdAndUpdate(req.params.id, updates, { new: true });
+    const updated = await Student.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
     res.json(updated);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -187,7 +199,10 @@ exports.getClassWiseReport = async (req, res) => {
 
     const records = await TestPerformance.find(query)
       .populate('studentId', 'name studentId class gender')
-      .sort({ class: 1, 'studentId.name': 1 });
+      // Fix #11: Mongoose .sort() runs before .populate(), so sorting by 'studentId.name'
+      // (a populated field) has no effect — it sorts on the raw ObjectId.
+      // We sort by class (a DB field) and let the frontend sort by student name if needed.
+      .sort({ class: 1 });
 
     if (records.length === 0) {
       return res.json({

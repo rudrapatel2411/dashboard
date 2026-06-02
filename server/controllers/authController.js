@@ -24,10 +24,9 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Auto-approve first user or admin emails. Others register as 'institution' with 'pending' status
+    // Only the very first registered user becomes admin. All others are institutions pending approval.
     const isFirstUser = (await User.countDocuments()) === 0;
-    const isSpecialAdmin = email.toLowerCase().includes('admin');
-    const role = (isFirstUser || isSpecialAdmin) ? 'admin' : 'institution';
+    const role = isFirstUser ? 'admin' : 'institution';
     const approvalStatus = role === 'admin' ? 'approved' : 'pending';
 
     const user = await User.create({
@@ -225,9 +224,15 @@ exports.forgotPassword = async (req, res) => {
     user.resetPasswordOTPExpires = Date.now() + 15 * 60 * 1000; // 15 mins expiry
     await user.save();
 
+    // SECURITY: OTP is NEVER sent in the API response.
+    // In production: integrate an email/SMS provider here to deliver the OTP.
+    // In development: the OTP is logged to the server console only.
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[DEV OTP] Email: ${user.email} | OTP: ${otp}`);
+    }
+
     res.json({
-      message: 'OTP verification code generated successfully.',
-      otp,
+      message: 'OTP verification code generated. Check your registered email/phone (or server console in development).',
       email: user.email
     });
   } catch (error) {

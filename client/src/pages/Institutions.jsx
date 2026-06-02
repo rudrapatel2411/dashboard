@@ -4,7 +4,7 @@ import {
   Building2, Users, Search, 
   ChevronDown, ChevronUp, GraduationCap, Phone, Mail,
   Award, Printer, Eye, Activity, Sparkles, Trophy, FileText, CheckCircle,
-  ArrowLeft, BookOpen, X, User, MapPin, Camera
+  ArrowLeft, BookOpen, X, User, MapPin
 } from 'lucide-react';
 
 const generateMockStudentsForMissingClasses = (institutionsList) => {
@@ -413,13 +413,6 @@ const Institutions = () => {
   // State for active student portfolio report modal
   const [selectedStudentReport, setSelectedStudentReport] = useState(null);
 
-  // Scanned Hardcopy Sheet Upload States
-  const [classHardcopies, setClassHardcopies] = useState({
-    "inst-101-9": "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800&auto=format&fit=crop",
-    "inst-101-10": "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=800&auto=format&fit=crop"
-  });
-  const [zoomedImage, setZoomedImage] = useState(null);
-
   // Toggle accordion expand/collapse
   const toggleExpand = async (id) => {
     const target = institutions.find(inst => inst.id === id);
@@ -756,69 +749,7 @@ const Institutions = () => {
                               Class {activeClass}th Students ({classStudents.length})
                             </h4>
                           </div>
-                          <div className="flex flex-wrap items-center gap-2 self-end sm:self-center">
-                            <label className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/15 hover:scale-[1.02] cursor-pointer">
-                              <Camera size={14} />
-                              {classHardcopies[`${inst.id}-${activeClass}`] ? 'Update Scanned Photo' : 'Upload Scanned Photo'}
-                              <input 
-                                type="file" 
-                                accept="image/*" 
-                                className="hidden" 
-                                onChange={(e) => {
-                                  const file = e.target.files[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = (event) => {
-                                      setClassHardcopies(prev => ({
-                                        ...prev,
-                                        [`${inst.id}-${activeClass}`]: event.target.result
-                                      }));
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                }}
-                              />
-                            </label>
-                          </div>
                         </div>
-
-                        {/* Class Hardcopy Photo Scanned Scan Preview Banner */}
-                        {classHardcopies[`${inst.id}-${activeClass}`] && (
-                          <div className="mb-4 bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                              <div 
-                                className="w-16 h-12 rounded-xl bg-slate-900 border border-slate-200 overflow-hidden cursor-zoom-in shrink-0 relative group shadow-sm"
-                                onClick={() => setZoomedImage(classHardcopies[`${inst.id}-${activeClass}`])}
-                                title="Click to zoom hardcopy sheet photo"
-                              >
-                                <img 
-                                  src={classHardcopies[`${inst.id}-${activeClass}`]} 
-                                  alt="Class Hardcopy Scan" 
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                                />
-                                <div className="absolute inset-0 bg-slate-950/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Eye size={14} className="text-white" />
-                                </div>
-                              </div>
-                              <div>
-                                <p className="font-extrabold text-slate-800 text-sm">Class {activeClass}th Hardcopy Sheet Scanned Upload</p>
-                                <p className="text-xs text-slate-500 font-medium">Scanned copy of physical screening registry loaded successfully.</p>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setClassHardcopies(prev => {
-                                  const copy = { ...prev };
-                                  delete copy[`${inst.id}-${activeClass}`];
-                                  return copy;
-                                });
-                              }}
-                              className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition-all"
-                            >
-                              Delete Upload
-                            </button>
-                          </div>
-                        )}
 
                         {classStudents.length > 0 ? (
                           <div className="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
@@ -1171,30 +1102,6 @@ const Institutions = () => {
         </div>
       )}
 
-      {/* ═══════════════ FULL SCREEN SCAN LIGHTBOX MODAL ═══════════════ */}
-      {zoomedImage && (
-        <div 
-          className="fixed inset-0 z-[100] bg-slate-950/95 flex items-center justify-center p-4 backdrop-blur-md animate-fade-in"
-          onClick={() => setZoomedImage(null)}
-        >
-          <button 
-            className="absolute top-5 right-5 text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all cursor-pointer font-bold text-lg"
-            onClick={() => setZoomedImage(null)}
-          >
-            ✕
-          </button>
-          <div 
-            className="max-w-4xl max-h-[85vh] w-full flex items-center justify-center relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 animate-scale-up"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img 
-              src={zoomedImage} 
-              alt="Scanned Class Hardcopy" 
-              className="max-w-full max-h-[85vh] object-contain" 
-            />
-          </div>
-        </div>
-      )}
 
     </div>
   );

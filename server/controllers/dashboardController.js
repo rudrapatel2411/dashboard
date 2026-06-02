@@ -26,11 +26,9 @@ exports.getDashboardStats = async (req, res) => {
       totalSports,
       averagePerformance,
       genderStats,
-      // adding mocked recent activities for UI purposes
-      recentActivities: [
-        { id: 1, action: "Term-1 performance added for John Doe", time: "2 hours ago" },
-        { id: 2, action: "New student Jane Smith registered", time: "5 hours ago" }
-      ]
+      // TODO #26: Implement a real ActivityLog collection and populate recent activities from DB.
+      // For now, returning empty array to avoid showing misleading hardcoded fake data.
+      recentActivities: []
     });
   } catch (error) {
     console.error('Error in getDashboardStats:', error);

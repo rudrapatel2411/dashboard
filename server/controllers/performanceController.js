@@ -111,8 +111,10 @@ exports.addPerformance = async (req, res) => {
     const finalDiscipline = parseFloat(discipline) || (isAbsent ? 0 : 8);
     const finalMatchPerf = parseFloat(matchPerformance) || (isAbsent ? 0 : 80);
 
-    const totalMetrics = 6;
-    const overallScore = isAbsent ? 0 : (speed + strength + stamina + agility + accuracy + endurance) / totalMetrics;
+    // Fix #12: overallScore now uses all 8 physical metrics, not 6.
+    // Previously flexibility and reactionTime were excluded, understating athlete scores.
+    const totalMetrics = 8;
+    const overallScore = isAbsent ? 0 : (speed + strength + stamina + agility + flexibility + accuracy + endurance + reactionTime) / totalMetrics;
     
     let fitnessLevel = 'Poor';
     if (!isAbsent) {
@@ -139,7 +141,9 @@ exports.addPerformance = async (req, res) => {
       sitAndReach: isAbsent || ageGroup !== 2 ? 0 : sitReach,
       runWalk600m: isAbsent || ageGroup !== 2 ? '' : runWalk600m,
       run50m: isAbsent || ageGroup !== 2 ? 0 : sprint,
-      recommendedSport, manualReportData: manualReportData || '', reportHardCopyUrl: reportHardCopyUrl || ''
+      recommendedSport,
+      manualReportData: isAbsent ? '' : (manualReportData || ''),
+      reportHardCopyUrl: isAbsent ? '' : (reportHardCopyUrl || '')
     };
 
     if (performance) {

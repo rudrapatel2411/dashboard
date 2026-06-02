@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const studentSchema = new mongoose.Schema({
   studentId: {
     type: String,
-    required: true,
-    unique: true
+    required: true
+    // Note: unique constraint removed from field level — see compound index below
   },
   name: {
     type: String,
@@ -50,5 +50,9 @@ const studentSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Fix #7: Compound unique index — studentId must be unique PER institute, not globally.
+// This prevents cross-institute ID collisions that caused unhandled E11000 duplicate key errors.
+studentSchema.index({ studentId: 1, instituteId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Student', studentSchema);

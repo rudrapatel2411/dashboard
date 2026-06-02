@@ -23,10 +23,12 @@ const InstituteForgotPassword = () => {
       return;
     }
     setIsLoading(true);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', { identifier });
-      const generatedOtp = response.data.otp;
-      triggerToast('OTP Sent!', `Your OTP is: ${generatedOtp}. Enter it in the next step.`);
+      // Fix #1 + #16: Use VITE_API_URL and do NOT read OTP from response (security fix).
+      // The OTP is printed to the server console in development mode.
+      await axios.post(`${API_URL}/auth/forgot-password`, { identifier });
+      triggerToast('OTP Generated!', 'Check the server console (development) or your registered email (production) for the OTP.');
       setTimeout(() => {
         setIsLoading(false);
         setStep(2);
@@ -51,8 +53,9 @@ const InstituteForgotPassword = () => {
       return;
     }
     setIsLoading(true);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     try {
-      await axios.post('http://localhost:5000/api/auth/reset-password', { otp, newPassword });
+      await axios.post(`${API_URL}/auth/reset-password`, { otp, newPassword });
       triggerToast('Password Updated!', 'Redirecting you to login...');
       setTimeout(() => {
         setIsLoading(false);

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Users, Plus, Search, Edit3, Trash2, X, Loader2, ChevronDown } from 'lucide-react';
+import { TableSkeleton } from '../../components/Skeleton';
+import Pagination from '../../components/Pagination';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const STANDARDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+const PAGE_SIZE = 10;
 
 const AcademyStudents = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,6 +21,7 @@ const AcademyStudents = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [autoId, setAutoId] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const authHeaders = {
     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -37,6 +41,7 @@ const AcademyStudents = () => {
       if (res.ok) {
         const data = await res.json();
         setStudents(data);
+        setCurrentPage(1);
       }
     } catch (err) {
       console.error('Failed to fetch athletes:', err);
@@ -45,14 +50,18 @@ const AcademyStudents = () => {
     }
   };
 
+  // Fix double-fetch: separate fetch from URL-sync useEffect
   useEffect(() => {
     fetchStudents();
+  }, [selectedClass, searchTerm]);
+
+  useEffect(() => {
     if (selectedClass) {
       setSearchParams({ class: selectedClass });
     } else {
       setSearchParams({});
     }
-  }, [selectedClass, searchTerm]);
+  }, [selectedClass]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -172,7 +181,7 @@ const AcademyStudents = () => {
         <div className="relative">
           <select
             value={selectedClass}
-            onChange={(e) => setSelectedClass(e.target.value)}
+            onChange={(e) => { setSelectedClass(e.target.value); setCurrentPage(1); }}
             className="gov-field appearance-none px-4 py-2.5 pr-10 text-sm font-bold transition-all cursor-pointer min-w-[160px]"
           >
             <option value="">All Standards</option>
@@ -190,7 +199,7 @@ const AcademyStudents = () => {
             type="text"
             placeholder="Search by name or ID..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             className="gov-field w-full py-2.5 pl-10 pr-4 transition-all text-sm font-semibold"
           />
         </div>
@@ -203,9 +212,7 @@ const AcademyStudents = () => {
       {/* Athletes Table */}
       <div className="gov-card overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center py-24">
-            <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
-          </div>
+          <TableSkeleton cols={6} rows={8} />
         ) : students.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-slate-400 text-center space-y-3">
             <div className="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
@@ -222,81 +229,90 @@ const AcademyStudents = () => {
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="gov-table-head text-[10px] uppercase font-black tracking-wider">
-                  <th className="py-4 px-6 font-bold">Athlete</th>
-                  <th className="py-4 px-6 font-bold">Athlete ID</th>
-                  <th className="py-4 px-6 font-bold">Class & Gender</th>
-                  <th className="py-4 px-6 font-bold">DOB & Contact</th>
-                  <th className="py-4 px-6 font-bold">Address</th>
-                  <th className="py-4 px-6 font-bold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="text-xs divide-y divide-slate-100 font-semibold text-slate-700">
-                {students.map((student) => (
-                  <tr key={student._id} className="hover:bg-[#fffaf0] transition-colors">
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-white font-black text-sm shadow-sm">
-                          {student.name?.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-black text-slate-800">{student.name}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className="px-2.5 py-1 bg-slate-100 text-slate-600 font-mono text-[11px] rounded-lg border border-slate-200/50 font-bold">
-                        {student.studentId}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div>
-                        <span className="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-lg text-[10px] font-black">
-                          Class {student.class}th
-                        </span>
-                        <p className="text-[10px] text-slate-400 mt-1">{student.gender}</p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div>
-                        <p className="text-slate-800 font-bold">{formatDate(student.dob)}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{student.contact}</p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 max-w-xs">
-                      <div>
-                        <p className="text-slate-800 font-medium truncate" title={student.address}>{student.address}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5 truncate">
-                          {student.taaluka}, {student.city} - {student.pincode}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEditModal(student)}
-                          className="p-2 text-amber-500 hover:bg-amber-50 rounded-xl transition-all"
-                          title="Edit"
-                        >
-                          <Edit3 size={14} />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(student._id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                          title="Delete"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="gov-table-head text-[10px] uppercase font-black tracking-wider">
+                    <th className="py-4 px-6 font-bold">Athlete</th>
+                    <th className="py-4 px-6 font-bold">Athlete ID</th>
+                    <th className="py-4 px-6 font-bold">Class &amp; Gender</th>
+                    <th className="py-4 px-6 font-bold">DOB &amp; Contact</th>
+                    <th className="py-4 px-6 font-bold">Address</th>
+                    <th className="py-4 px-6 font-bold text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="text-xs divide-y divide-slate-100 font-semibold text-slate-700">
+                  {students.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((student) => (
+                    <tr key={student._id} className="hover:bg-[#fffaf0] transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-white font-black text-sm shadow-sm">
+                            {student.name?.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-black text-slate-800">{student.name}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="px-2.5 py-1 bg-slate-100 text-slate-600 font-mono text-[11px] rounded-lg border border-slate-200/50 font-bold">
+                          {student.studentId}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div>
+                          <span className="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-lg text-[10px] font-black">
+                            Class {student.class}th
+                          </span>
+                          <p className="text-[10px] text-slate-400 mt-1">{student.gender}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div>
+                          <p className="text-slate-800 font-bold">{formatDate(student.dob)}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{student.contact}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 max-w-xs">
+                        <div>
+                          <p className="text-slate-800 font-medium truncate" title={student.address}>{student.address}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5 truncate">
+                            {student.taaluka}, {student.city} - {student.pincode}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => openEditModal(student)}
+                            className="p-2 text-amber-500 hover:bg-amber-50 rounded-xl transition-all"
+                            title="Edit"
+                          >
+                            <Edit3 size={14} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirm(student._id)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                            title="Delete"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(students.length / PAGE_SIZE)}
+              onPageChange={setCurrentPage}
+              totalItems={students.length}
+              pageSize={PAGE_SIZE}
+            />
+          </>
         )}
       </div>
 

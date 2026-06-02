@@ -28,7 +28,8 @@ const upload = multer({
     if (mimetype && extname) {
       return cb(null, true);
     } else {
-      cb('Error: Images Only!');
+      // Fix #19: must pass an Error object, not a plain string
+      cb(new Error('Error: Images Only!'));
     }
   }
 });

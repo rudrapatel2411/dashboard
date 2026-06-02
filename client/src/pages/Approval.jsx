@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { UserCheck, Eye, Check, X, Loader2, Building2, MapPin, Phone, User, Calendar, Sparkles, Trophy, Award } from 'lucide-react';
+import { TableSkeleton } from '../components/Skeleton';
+import Pagination from '../components/Pagination';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const PAGE_SIZE = 10;
 
 const Approval = () => {
   const [institutes, setInstitutes] = useState([]);
@@ -9,6 +12,7 @@ const Approval = () => {
   const [error, setError] = useState(null);
   const [selectedInstitute, setSelectedInstitute] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const authHeaders = {
     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -56,7 +60,14 @@ const Approval = () => {
         return;
       }
       if (!res.ok) throw new Error('Failed to approve institute');
-      setInstitutes((prev) => prev.filter((inst) => (inst._id || inst.id) !== id));
+      setInstitutes((prev) => {
+        const next = prev.filter((inst) => (inst._id || inst.id) !== id);
+        // If the current page becomes empty after removal, go to previous
+        if (currentPage > Math.ceil(next.length / PAGE_SIZE)) {
+          setCurrentPage(Math.max(1, Math.ceil(next.length / PAGE_SIZE)));
+        }
+        return next;
+      });
     } catch (err) {
       alert(err.message);
     } finally {
@@ -78,7 +89,13 @@ const Approval = () => {
         return;
       }
       if (!res.ok) throw new Error('Failed to reject institute');
-      setInstitutes((prev) => prev.filter((inst) => (inst._id || inst.id) !== id));
+      setInstitutes((prev) => {
+        const next = prev.filter((inst) => (inst._id || inst.id) !== id);
+        if (currentPage > Math.ceil(next.length / PAGE_SIZE)) {
+          setCurrentPage(Math.max(1, Math.ceil(next.length / PAGE_SIZE)));
+        }
+        return next;
+      });
     } catch (err) {
       alert(err.message);
     } finally {
@@ -114,9 +131,7 @@ const Approval = () => {
       {/* Pending list container */}
       <div className="gov-card overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center py-24">
-            <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
-          </div>
+          <TableSkeleton cols={5} rows={6} />
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-20 text-red-500 space-y-4">
             <p className="text-sm font-semibold">{error}</p>
@@ -138,21 +153,22 @@ const Approval = () => {
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-wider border-b border-slate-100">
-                  <th className="py-4 px-6 font-bold">Institute Name</th>
-                  <th className="py-4 px-6 font-bold">City</th>
-                  <th className="py-4 px-6 font-bold">State</th>
-                  <th className="py-4 px-6 font-bold">Registered Date</th>
-                  <th className="py-4 px-6 font-bold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="text-xs divide-y divide-slate-100 font-semibold text-slate-700">
-                {institutes.map((inst) => {
-                  const id = inst._id || inst.id;
-                  return (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-wider border-b border-slate-100">
+                    <th className="py-4 px-6 font-bold">Institute Name</th>
+                    <th className="py-4 px-6 font-bold">City</th>
+                    <th className="py-4 px-6 font-bold">State</th>
+                    <th className="py-4 px-6 font-bold">Registered Date</th>
+                    <th className="py-4 px-6 font-bold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="text-xs divide-y divide-slate-100 font-semibold text-slate-700">
+                  {institutes.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((inst) => {
+                    const id = inst._id || inst.id;
+                    return (
                     <tr key={id} className="hover:bg-indigo-50/20 transition-colors">
                       <td className="py-4.5 px-6">
                         <div className="flex items-center gap-3">
@@ -206,12 +222,20 @@ const Approval = () => {
                           </button>
                         </div>
                       </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(institutes.length / PAGE_SIZE)}
+              onPageChange={setCurrentPage}
+              totalItems={institutes.length}
+              pageSize={PAGE_SIZE}
+            />
+          </>
         )}
       </div>
 

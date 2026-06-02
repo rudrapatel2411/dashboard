@@ -1,18 +1,4 @@
-const { Student } = require('../models');
-
-// Calculate BMI and Category
-const calculateBMI = (weight, height) => {
-  const heightInMeters = height / 100;
-  const bmi = weight / (heightInMeters * heightInMeters);
-  let category = 'Normal';
-  
-  if (bmi < 18.5) category = 'Underweight';
-  else if (bmi >= 18.5 && bmi <= 24.9) category = 'Normal';
-  else if (bmi >= 25 && bmi <= 29.9) category = 'Overweight';
-  else if (bmi >= 30) category = 'Obese';
-  
-  return { bmi: parseFloat(bmi.toFixed(2)), category };
-};
+const { Student, Performance, TestPerformance } = require('../models');
 
 exports.getStudents = async (req, res) => {
   try {
@@ -33,20 +19,17 @@ exports.getStudentById = async (req, res) => {
   }
 };
 
+// Fix #10: Only create fields that actually exist in the Student schema.
+// Previously referenced stale fields (age, bmi, bmiCategory, assignedSport, coachName, photoUrl)
+// which are not in the model and were silently discarded by Mongoose.
 exports.createStudent = async (req, res) => {
   try {
-    const { studentId, name, age, gender, height, weight, class: studentClass, contact, assignedSport, coachName } = req.body;
-    
-    let photoUrl = null;
-    if (req.file) {
-      photoUrl = `/uploads/${req.file.filename}`;
-    }
-
-    const { bmi, category } = calculateBMI(parseFloat(weight), parseFloat(height));
+    const { studentId, name, dob, class: studentClass, gender, contact, address, taaluka, city, pincode } = req.body;
 
     const student = await Student.create({
-      studentId, name, age, gender, height, weight, bmi, bmiCategory: category,
-      class: studentClass, contact, assignedSport, coachName, photoUrl
+      studentId, name, dob,
+      class: studentClass,
+      gender, contact, address, taaluka, city, pincode
     });
 
     res.status(201).json(student);
@@ -57,20 +40,20 @@ exports.createStudent = async (req, res) => {
 
 exports.updateStudent = async (req, res) => {
   try {
-    const { weight, height } = req.body;
-    let updates = { ...req.body };
+    // Fix #10: Only allow fields that exist in the Student schema
+    const { name, dob, class: studentClass, gender, contact, address, taaluka, city, pincode } = req.body;
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (dob !== undefined) updates.dob = dob;
+    if (studentClass !== undefined) updates.class = studentClass;
+    if (gender !== undefined) updates.gender = gender;
+    if (contact !== undefined) updates.contact = contact;
+    if (address !== undefined) updates.address = address;
+    if (taaluka !== undefined) updates.taaluka = taaluka;
+    if (city !== undefined) updates.city = city;
+    if (pincode !== undefined) updates.pincode = pincode;
 
-    if (weight && height) {
-      const { bmi, category } = calculateBMI(parseFloat(weight), parseFloat(height));
-      updates.bmi = bmi;
-      updates.bmiCategory = category;
-    }
-
-    if (req.file) {
-      updates.photoUrl = `/uploads/${req.file.filename}`;
-    }
-
-    const student = await Student.findByIdAndUpdate(req.params.id, updates, { new: true });
+    const student = await Student.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
     if (!student) return res.status(404).json({ message: 'Student not found' });
     res.json(student);
   } catch (error) {
@@ -83,7 +66,13 @@ exports.deleteStudent = async (req, res) => {
     const student = await Student.findByIdAndDelete(req.params.id);
     if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    res.json({ message: 'Student removed' });
+    // Fix #9: Cascade-delete all performance/academic records for this student.
+    // Previously, deleting a student left orphaned Performance and TestPerformance
+    // documents, inflating dashboard statistics with ghost data.
+    await Performance.deleteMany({ studentId: student._id });
+    await TestPerformance.deleteMany({ studentId: student._id });
+
+    res.json({ message: 'Student and all associated records removed' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

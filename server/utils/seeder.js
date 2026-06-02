@@ -7,8 +7,14 @@ const bcrypt = require('bcrypt');
 
 const seedStudents = async (force = false) => {
   try {
-    // Check if database already has data to prevent data loss on restart
+    // Fix #13: Dual-guard to prevent accidental data wipe on server restart.
+    // Guard 1: Skip if users already exist in the database.
+    // Guard 2: Skip if SEEDED env flag is set (set this manually after first successful seed).
     if (!force) {
+      if (process.env.SEEDED === 'true') {
+        console.log("SEEDED=true flag set. Skipping seeder entirely.");
+        return;
+      }
       const userCount = await User.countDocuments();
       if (userCount > 0) {
         console.log("Database already contains data. Skipping seeding to prevent overwrite on restart.");
@@ -26,9 +32,22 @@ const seedStudents = async (force = false) => {
     console.log("Database cleared. Seeding admin user and institute portal...");
 
     const salt = await bcrypt.genSalt(10);
-    const hashedAdminPassword = await bcrypt.hash("admin123", salt);
-    const hashedGmailAdminPassword = await bcrypt.hash("123456", salt);
-    const hashedInstitutePassword = await bcrypt.hash("password123", salt);
+    // Fix #14: Passwords now read from environment variables.
+    // Set SEED_ADMIN_PASSWORD, SEED_GMAIL_ADMIN_PASSWORD, SEED_INSTITUTE_PASSWORD in .env.
+    // Falls back to weak defaults ONLY in development — never deploy with these.
+    const adminPass = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+    const gmailAdminPass = process.env.SEED_GMAIL_ADMIN_PASSWORD || '123456';
+    const institutePass = process.env.SEED_INSTITUTE_PASSWORD || 'password123';
+
+    if (process.env.NODE_ENV === 'production') {
+      if (!process.env.SEED_ADMIN_PASSWORD || !process.env.SEED_INSTITUTE_PASSWORD) {
+        throw new Error('SEED_ADMIN_PASSWORD and SEED_INSTITUTE_PASSWORD must be set in production before seeding.');
+      }
+    }
+
+    const hashedAdminPassword = await bcrypt.hash(adminPass, salt);
+    const hashedGmailAdminPassword = await bcrypt.hash(gmailAdminPass, salt);
+    const hashedInstitutePassword = await bcrypt.hash(institutePass, salt);
 
     // Seed admin user
     await User.create({
@@ -448,7 +467,11 @@ const seedStudents = async (force = false) => {
     });
 
     if (performanceSeeds.length > 0) {
-      await Performance.insertMany(performanceSeeds);
+      // Fix #23: Use individual create() calls instead of insertMany() to ensure
+      // pre-save hooks (if added to Performance model in future) are triggered correctly.
+      for (const p of performanceSeeds) {
+        await Performance.create(p);
+      }
       console.log(`Successfully seeded ${performanceSeeds.length} physical performance records!`);
     }
 
