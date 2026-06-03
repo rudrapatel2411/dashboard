@@ -58,7 +58,7 @@ const Reports = () => {
           location: `${inst.city}, ${inst.state}`,
           contactPerson: inst.contactPerson || 'N/A',
           registeredAt: inst.createdAt,
-          studentCount: 0
+          studentCount: inst.studentCount || 0
         }));
         const academies = (acadRes.data?.institutes || []).map(acad => ({
           id: acad._id,
@@ -70,7 +70,7 @@ const Reports = () => {
           location: `${acad.city}, ${acad.state}`,
           registeredAt: acad.createdAt,
           gradient: 'from-indigo-500 to-blue-600',
-          studentCount: 0
+          studentCount: acad.studentCount || 0
         }));
         setDbInstitutions(institutes);
         setDbAcademies(academies);
@@ -723,7 +723,7 @@ const Reports = () => {
                     <div className="border-t border-slate-100 mt-6 pt-4 flex items-center justify-between">
                       <span className="text-xs font-black text-slate-700 bg-slate-50 group-hover:bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1">
                         <Users size={12} className="text-indigo-600" />
-                        {acad.students.length} Enrolled Athletes
+                        {acad.studentCount} Enrolled Athletes
                       </span>
                       <span className="text-xs font-bold text-indigo-600 flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
                         Select Academy <ChevronRight size={14} />

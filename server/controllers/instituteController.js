@@ -36,7 +36,15 @@ const getInstitutes = async (req, res) => {
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    res.json({ institutes, totalPages, currentPage: page, totalCount });
+    const institutesWithCount = await Promise.all(institutes.map(async (inst) => {
+      const studentCount = await Student.countDocuments({ instituteId: inst._id });
+      return {
+        ...inst.toObject(),
+        studentCount
+      };
+    }));
+
+    res.json({ institutes: institutesWithCount, totalPages, currentPage: page, totalCount });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

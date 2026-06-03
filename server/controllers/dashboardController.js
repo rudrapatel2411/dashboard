@@ -1,9 +1,12 @@
-const { Student, Performance, Institute } = require('../models');
+const Student = require('../models/Student');
+const Performance = require('../models/Performance');
+const Institute = require('../models/Institute');
 
 exports.getDashboardStats = async (req, res) => {
   try {
     const totalStudents = await Student.countDocuments();
-    const totalInstitutes = await Institute.countDocuments();
+    const totalInstitutes = await Institute.countDocuments({ type: 'institute', status: 'approved' });
+    const totalAcademies = await Institute.countDocuments({ type: 'academy', status: 'approved' });
     const pendingCount = await Institute.countDocuments({ status: 'pending' });
     const totalSports = 14; // Fixed number of sports for this system
 
@@ -22,6 +25,7 @@ exports.getDashboardStats = async (req, res) => {
     res.json({
       totalStudents,
       totalInstitutes,
+      totalAcademies,
       pendingCount,
       totalSports,
       averagePerformance,
