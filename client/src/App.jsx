@@ -24,6 +24,7 @@ import InstituteDashboardLayout from './components/institute/InstituteDashboardL
 import InstituteDashboard from './pages/institute/InstituteDashboard';
 import InstituteStudents from './pages/institute/InstituteStudents';
 
+
 // Academy Dashboard
 import AcademyDashboardLayout from './components/academy/AcademyDashboardLayout';
 import AcademyDashboard from './pages/academy/AcademyDashboard';
@@ -96,7 +97,10 @@ function App() {
           <Route path="students" element={<InstituteStudents />} />
           <Route path="physical-tests" element={<Tests />} />
           <Route path="performance" element={<Performance />} />
+          <Route path="reports" element={<Reports />} />
+
           <Route path="profile" element={<Profile />} />
+
         </Route>
 
         {/* ========= Academy Protected Routes ========= */}
@@ -109,7 +113,10 @@ function App() {
           <Route path="students" element={<AcademyStudents />} />
           <Route path="physical-tests" element={<Tests />} />
           <Route path="performance" element={<Performance />} />
+          <Route path="reports" element={<Reports />} />
+
           <Route path="profile" element={<Profile />} />
+
         </Route>
 
         {/* ========= Catch-all ========= */}

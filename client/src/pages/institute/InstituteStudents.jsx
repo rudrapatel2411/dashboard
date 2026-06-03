@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
-import { Users, Plus, Search, Edit3, Trash2, X, Loader2, BookOpen, ChevronDown } from 'lucide-react';
+import { Users, Plus, Search, Edit3, Trash2, X, Loader2, BookOpen, ChevronDown, Printer, Sparkles } from 'lucide-react';
 import { TableSkeleton } from '../../components/Skeleton';
 import Pagination from '../../components/Pagination';
 
@@ -9,6 +10,7 @@ const STANDARDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'
 const PAGE_SIZE = 10;
 
 const InstituteStudents = () => {
+  const user = JSON.parse(localStorage.getItem('user')) || {};
   const [searchParams, setSearchParams] = useSearchParams();
   const initialClass = searchParams.get('class') || '';
   
@@ -22,6 +24,14 @@ const InstituteStudents = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [autoId, setAutoId] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Fit India Requirements State
+  const [printStudentIdCard, setPrintStudentIdCard] = useState(null);
+  const [showPromoteModal, setShowPromoteModal] = useState(false);
+  const [promoteSourceClass, setPromoteSourceClass] = useState('');
+  const [promoteTargetClass, setPromoteTargetClass] = useState('');
+  const [promoteLoading, setPromoteLoading] = useState(false);
+
 
   const authHeaders = {
     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -140,6 +150,47 @@ const InstituteStudents = () => {
     }
   };
 
+  const handleBulkPromote = async (e) => {
+    e.preventDefault();
+    if (!promoteSourceClass || !promoteTargetClass) {
+      alert('Please select both source and target classes.');
+      return;
+    }
+    if (promoteSourceClass === promoteTargetClass) {
+      alert('Source and target classes must be different.');
+      return;
+    }
+    
+    setPromoteLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/institute-portal/students/promote`, {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          sourceClass: promoteSourceClass,
+          targetClass: promoteTargetClass,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        alert(`Successfully promoted ${data.modifiedCount} student(s) from Class ${promoteSourceClass} to Class ${promoteTargetClass}!`);
+        setShowPromoteModal(false);
+        setPromoteSourceClass('');
+        setPromoteTargetClass('');
+        fetchStudents();
+      } else {
+        const errData = await res.json();
+        alert(errData.message || 'Failed to promote students');
+      }
+    } catch (err) {
+      alert('Network error. Please try again.');
+    } finally {
+      setPromoteLoading(false);
+    }
+  };
+
+
   const openAddModal = () => {
     setEditingStudent(null);
     setAutoId(generateStudentId());
@@ -158,6 +209,73 @@ const InstituteStudents = () => {
   return (
     <div className="space-y-8 animate-fade-in pb-16 font-sans">
       
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          #root {
+            display: none !important;
+          }
+          body {
+            background-color: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          #print-modal-overlay {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+          }
+          #print-modal-container {
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: auto !important;
+            max-width: none !important;
+          }
+          #print-controls, #print-help-footer {
+            display: none !important;
+          }
+          #print-id-card-area {
+            padding: 0 !important;
+            background: transparent !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+          }
+          #print-id-card-card {
+            width: 280px !important;
+            height: 420px !important;
+            border: 2px solid #1f5f99 !important;
+            border-radius: 16px !important;
+            background-color: white !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            box-shadow: none !important;
+            position: relative !important;
+            overflow: hidden !important;
+            margin: 0 auto !important;
+            page-break-inside: avoid !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `}</style>
+
+
+
+
+      
       {/* Header Banner */}
       <div className="gov-card p-6 md:p-8 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -170,12 +288,21 @@ const InstituteStudents = () => {
               Manage your students grouped by class/standard.
             </p>
           </div>
-          <button
-            onClick={openAddModal}
-            className="gov-btn-primary px-5 py-2.5 font-bold text-sm transition-all flex items-center gap-2 active:scale-95 self-start"
-          >
-            <Plus size={16} /> Add Student
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowPromoteModal(true)}
+              className="px-5 py-2.5 bg-slate-100 hover:bg-[#f3eadc] border border-[#d8cfc0] rounded-xl text-slate-700 font-bold text-sm transition-all flex items-center gap-2 active:scale-95 self-start shadow-sm"
+            >
+              <Sparkles size={16} className="text-amber-500 animate-pulse" /> Bulk Promote
+            </button>
+            <button
+              onClick={openAddModal}
+              className="gov-btn-primary px-5 py-2.5 font-bold text-sm transition-all flex items-center gap-2 active:scale-95 self-start shadow-sm"
+            >
+              <Plus size={16} /> Add Student
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -288,6 +415,13 @@ const InstituteStudents = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setPrintStudentIdCard(student)}
+                            className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                            title="Print ID Card"
+                          >
+                            <Printer size={14} />
+                          </button>
                           <button
                             onClick={() => openEditModal(student)}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
@@ -443,8 +577,195 @@ const InstituteStudents = () => {
           </div>
         </div>
       )}
+      {/* Bulk Promotion Modal */}
+
+      {showPromoteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => setShowPromoteModal(false)}>
+          <div className="gov-card p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                <Sparkles className="text-amber-500 w-5 h-5 animate-pulse" /> Bulk Promote Students
+              </h3>
+              <button onClick={() => setShowPromoteModal(false)} className="p-2 border border-slate-200 hover:bg-slate-50 rounded-xl transition-all text-slate-500">
+                <X size={16} />
+              </button>
+            </div>
+            <form onSubmit={handleBulkPromote} className="space-y-4">
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                Bulk promote all students from a source class/standard to a new target class/standard in one click.
+              </p>
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Source Class (From) *</label>
+                <select 
+                  value={promoteSourceClass} 
+                  onChange={(e) => setPromoteSourceClass(e.target.value)} 
+                  required 
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                >
+                  <option value="">Select Class</option>
+                  {STANDARDS.map(s => <option key={s} value={s}>Class {s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Target Class (To) *</label>
+                <select 
+                  value={promoteTargetClass} 
+                  onChange={(e) => setPromoteTargetClass(e.target.value)} 
+                  required 
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                >
+                  <option value="">Select Class</option>
+                  {STANDARDS.map(s => <option key={s} value={s}>Class {s}</option>)}
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button type="button" onClick={() => setShowPromoteModal(false)} className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
+                  Cancel
+                </button>
+                <button type="submit" disabled={promoteLoading} className="gov-btn-primary px-5 py-2 text-xs font-black transition-all disabled:opacity-50 flex items-center gap-1.5">
+                  {promoteLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                  {promoteLoading ? 'Promoting...' : 'Promote Class'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Print ID Card Modal */}
+      {printStudentIdCard && createPortal(
+        <div id="print-modal-overlay" className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setPrintStudentIdCard(null)}>
+          <div id="print-modal-container" className="gov-card max-w-sm w-full relative flex flex-col justify-between overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+            
+            {/* Modal Header Controls */}
+            <div id="print-controls" className="px-6 py-4 gov-panel-title flex justify-between items-center border-b border-[#e2d8c9] bg-[#fbf7ee]">
+              <span className="font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
+                <Printer size={16} className="text-secondary animate-pulse" /> Student ID Card
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="bg-secondary hover:bg-blue-600 text-white px-3.5 py-1.5 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Printer size={12} /> Print Card
+                </button>
+                <button 
+                  onClick={() => setPrintStudentIdCard(null)}
+                  className="text-slate-600 hover:text-slate-900 text-[10px] font-black uppercase bg-white hover:bg-[#f3eadc] border border-[#d8cfc0] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer"
+                >
+                  ✕ Close
+                </button>
+              </div>
+            </div>
+
+            {/* Print ID Card Content Container */}
+            <div className="p-8 bg-slate-100 flex justify-center items-center">
+              <div id="print-id-card-area">
+                <div 
+                  id="print-id-card-card"
+                  className="w-[280px] h-[420px] bg-white rounded-2xl border-2 border-secondary shadow-lg flex flex-col justify-between relative overflow-hidden font-sans select-none"
+                >
+
+                  {/* Government Trilayer Accent Header */}
+                  <div className="h-2.5 w-full flex">
+                    <div className="w-1/3 bg-[#ff9933]"></div>
+                    <div className="w-1/3 bg-white"></div>
+                    <div className="w-1/3 bg-[#138808]"></div>
+                  </div>
+
+                  {/* ID Card Branding */}
+                  <div className="text-center pt-3 px-3">
+                    <span className="text-[7px] font-black text-[#ff9933] uppercase tracking-[0.2em] block">FIT INDIA • KHELO INDIA</span>
+                    <h3 className="text-xs font-black tracking-wide uppercase text-slate-800 mt-0.5">National Physical Fitness</h3>
+                    <span className="text-[6px] text-slate-400 font-extrabold tracking-widest uppercase block mt-0.5">SportSphere Roster ID Card</span>
+                  </div>
+
+                  {/* Profile Photo Avatar */}
+                  <div className="flex flex-col items-center mt-3">
+                    <div className="w-20 h-20 rounded-full bg-secondary border-4 border-slate-50 flex items-center justify-center text-white font-black text-3xl shadow-md">
+                      {printStudentIdCard.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="mt-2.5 px-3 py-1 bg-blue-50 text-secondary border border-blue-100 rounded-full text-[8px] font-black uppercase tracking-widest">
+                      STUDENT ATHLETE
+                    </span>
+                  </div>
+
+                  {/* Student Details Grid */}
+                  <div className="px-5 mt-3 space-y-1.5 text-slate-700">
+                    <div className="text-center mb-1">
+                      <h4 className="text-sm font-black text-slate-900 leading-tight truncate">{printStudentIdCard.name}</h4>
+                      <span className="text-[9px] font-bold font-mono text-slate-400">ID: {printStudentIdCard.studentId}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-y-1 text-[9px] font-bold border-t border-b border-slate-100 py-1.5">
+                      <div>
+                        <span className="text-[7px] text-slate-400 block uppercase">Standard</span>
+                        <span className="text-slate-800 font-black">Class {printStudentIdCard.class}th</span>
+                      </div>
+                      <div>
+                        <span className="text-[7px] text-slate-400 block uppercase">Gender</span>
+                        <span className="text-slate-800 font-black">{printStudentIdCard.gender}</span>
+                      </div>
+                      <div>
+                        <span className="text-[7px] text-slate-400 block uppercase">Date of Birth</span>
+                        <span className="text-slate-800 font-black">{formatDate(printStudentIdCard.dob)}</span>
+                      </div>
+                      <div>
+                        <span className="text-[7px] text-slate-400 block uppercase">Pincode</span>
+                        <span className="text-slate-800 font-black">{printStudentIdCard.pincode}</span>
+                      </div>
+                    </div>
+
+                    <div className="text-center pt-0.5">
+                      <span className="text-[7px] text-slate-400 block uppercase leading-none">Institution</span>
+                      <span className="text-slate-800 font-black text-[9px] truncate block leading-tight">{user.instituteName || "SportSphere Alliance"}</span>
+                    </div>
+                  </div>
+
+                  {/* Barcode and Signature Footer */}
+                  <div className="px-5 pb-3 pt-1 border-t border-slate-50 flex items-center justify-between mt-2">
+                    {/* Pseudo Barcode */}
+                    <div className="flex flex-col gap-[1px] justify-center h-5 w-20 bg-white">
+                      <div className="flex gap-[1px] h-full items-stretch">
+                        <div className="w-[1px] bg-slate-800"></div>
+                        <div className="w-[2px] bg-slate-800"></div>
+                        <div className="w-[1px] bg-slate-800"></div>
+                        <div className="w-[3px] bg-slate-800"></div>
+                        <div className="w-[1px] bg-slate-800"></div>
+                        <div className="w-[2px] bg-slate-800"></div>
+                        <div className="w-[4px] bg-slate-800"></div>
+                        <div className="w-[1px] bg-slate-800"></div>
+                        <div className="w-[2px] bg-slate-800"></div>
+                        <div className="w-[1px] bg-slate-800"></div>
+                      </div>
+                      <span className="text-[5px] text-slate-400 font-mono tracking-widest leading-none mt-0.5 text-center">{printStudentIdCard.studentId}</span>
+                    </div>
+
+                    {/* Principal Sign */}
+                    <div className="text-center">
+                      <div className="h-3 font-signature text-secondary font-semibold text-[8px] italic select-none">
+                        Dr. R. K. Patel
+                      </div>
+                      <div className="w-16 h-[0.5px] bg-slate-300 mx-auto my-0.5"></div>
+                      <span className="text-[5px] text-slate-400 font-bold block uppercase tracking-wide">Issuing Authority</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Print Help Footer info */}
+            <div id="print-help-footer" className="px-6 py-3 bg-slate-50 border-t border-slate-100 text-center text-[9px] text-slate-400 font-bold">
+              Verification Card • Fit India School Roster
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
 
 export default InstituteStudents;
+

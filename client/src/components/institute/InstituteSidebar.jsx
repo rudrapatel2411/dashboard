@@ -22,6 +22,7 @@ const InstituteSidebar = ({ isOpen, setIsOpen }) => {
     { name: 'Students', path: '/institute/students', icon: <Users size={20} /> },
     { name: 'Physical Tests', path: '/institute/physical-tests', icon: <ClipboardList size={20} /> },
     { name: 'Performance', path: '/institute/performance', icon: <Activity size={20} /> },
+    { name: 'Reports', path: '/institute/reports', icon: <FileBarChart size={20} /> },
   ];
 
   const handleLogout = () => {

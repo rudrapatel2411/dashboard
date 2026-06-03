@@ -107,6 +107,40 @@ exports.deleteStudent = async (req, res) => {
   }
 };
 
+// POST bulk promote students from source class to target class (scoped to institute)
+exports.promoteStudents = async (req, res) => {
+  try {
+    const instituteId = req.user.instituteId;
+    if (!instituteId) {
+      return res.status(403).json({ message: 'No institute linked to your account' });
+    }
+
+    const { sourceClass, targetClass } = req.body;
+
+    if (!sourceClass || !targetClass) {
+      return res.status(400).json({ message: 'Source class and target class are required' });
+    }
+
+    if (sourceClass === targetClass) {
+      return res.status(400).json({ message: 'Source and target classes must be different' });
+    }
+
+    const result = await Student.updateMany(
+      { instituteId, class: sourceClass },
+      { $set: { class: targetClass } }
+    );
+
+    res.json({
+      message: `Successfully promoted students from Class ${sourceClass} to Class ${targetClass}`,
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
 // --- Test Performance ---
 
 // POST add test performance (with optional marksheet image)

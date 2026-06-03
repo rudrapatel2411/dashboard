@@ -8,6 +8,7 @@ const {
   addStudent,
   updateStudent,
   deleteStudent,
+  promoteStudents,
   addTestPerformance,
   getTestPerformance,
   getClassWiseReport,
@@ -20,8 +21,10 @@ router.use(protect, requireRole('institution'));
 // Student management
 router.get('/students', getStudents);
 router.post('/students', addStudent);
+router.post('/students/promote', promoteStudents);
 router.put('/students/:id', updateStudent);
 router.delete('/students/:id', deleteStudent);
+
 
 // Test performance
 router.post('/test-performance', marksheetUpload.single('marksheet'), addTestPerformance);

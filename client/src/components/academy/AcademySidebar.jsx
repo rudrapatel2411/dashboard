@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, ClipboardList, LogOut, X, Activity } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, LogOut, X, Activity, FileBarChart } from 'lucide-react';
 
 const AcademySidebar = ({ isOpen, setIsOpen }) => {
   const [currentUser, setCurrentUser] = useState(() => {
@@ -22,6 +22,7 @@ const AcademySidebar = ({ isOpen, setIsOpen }) => {
     { name: 'Athletes', path: '/academy/students', icon: <Users size={20} /> },
     { name: 'Physical Tests', path: '/academy/physical-tests', icon: <ClipboardList size={20} /> },
     { name: 'Performance', path: '/academy/performance', icon: <Activity size={20} /> },
+    { name: 'Reports', path: '/academy/reports', icon: <FileBarChart size={20} /> },
   ];
 
   const handleLogout = () => {
