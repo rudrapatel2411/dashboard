@@ -29,369 +29,20 @@ const Performance = () => {
 
   // API data states
   const [dbStudents, setDbStudents] = useState([]);
+  const [instStudents, setInstStudents] = useState([]);
+  const [dbInstitutions, setDbInstitutions] = useState([]);
+  const [dbAcademies, setDbAcademies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', title: '', isError: false });
   const [selectedTerm, setSelectedTerm] = useState("TERM-2");
 
-  // Rich mock data representing Sports Academies with Grade 9-10 students
-  const [mockAcademies] = useState([
-    {
-      id: "acad-1",
-      name: "Dronacharya Cricket Academy",
-      sport: "Cricket",
-      coach: "Coach Devendra Prasad",
-      email: "contact@dronacharyacricket.in",
-      phone: "+91 99887 76655",
-      registeredAt: "2026-03-10",
-      location: "Ahmedabad, Gujarat",
-      gradient: "from-red-500 to-rose-600",
-      students: [
-        { 
-          id: "stu-c1", 
-          name: "Rohan Patel", 
-          age: 15, 
-          class: "9", 
-          sport: "Cricket",
-          assignedSport: "Cricket",
-          mentor: "Coach Devendra Prasad",
-          bmiCategory: "Normal",
-          bmi: 20.8,
-          height: 168,
-          weight: 58.8
-        },
-        { 
-          id: "stu-c2", 
-          name: "Amit Mishra", 
-          age: 15, 
-          class: "9", 
-          sport: "Cricket",
-          assignedSport: "Cricket",
-          mentor: "Coach Devendra Prasad",
-          bmiCategory: "Normal",
-          bmi: 21.3,
-          height: 166,
-          weight: 58.7
-        },
-        { 
-          id: "stu-c3", 
-          name: "Kabir Dev", 
-          age: 16, 
-          class: "10", 
-          sport: "Cricket",
-          assignedSport: "Cricket",
-          mentor: "Coach Devendra Prasad",
-          bmiCategory: "Underweight",
-          bmi: 18.0,
-          height: 172,
-          weight: 53.2
-        },
-        { 
-          id: "stu-c4", 
-          name: "Sachin Verma", 
-          age: 16, 
-          class: "10", 
-          sport: "Cricket",
-          assignedSport: "Cricket",
-          mentor: "Coach Devendra Prasad",
-          bmiCategory: "Normal",
-          bmi: 22.1,
-          height: 170,
-          weight: 63.9
-        }
-      ]
-    },
-    {
-      id: "acad-2",
-      name: "Golden Boot Football Academy",
-      sport: "Football",
-      coach: "Coach Arthur Winston",
-      email: "hello@goldenbootfc.com",
-      phone: "+91 91234 98765",
-      registeredAt: "2026-04-15",
-      location: "Mumbai, Maharashtra",
-      gradient: "from-emerald-500 to-teal-600",
-      students: [
-        { 
-          id: "stu-f1", 
-          name: "Aditya Roy", 
-          age: 15, 
-          class: "9", 
-          sport: "Football",
-          assignedSport: "Football",
-          mentor: "Coach Arthur Winston",
-          bmiCategory: "Normal",
-          bmi: 20.4,
-          height: 165,
-          weight: 55.5
-        },
-        { 
-          id: "stu-f2", 
-          name: "Neil Nitin", 
-          age: 16, 
-          class: "10", 
-          sport: "Football",
-          assignedSport: "Football",
-          mentor: "Coach Arthur Winston",
-          bmiCategory: "Normal",
-          bmi: 21.8,
-          height: 171,
-          weight: 63.7
-        },
-        { 
-          id: "stu-f3", 
-          name: "Arjun Rampal", 
-          age: 15, 
-          class: "9", 
-          sport: "Football",
-          assignedSport: "Football",
-          mentor: "Coach Arthur Winston",
-          bmiCategory: "Normal",
-          bmi: 21.0,
-          height: 168,
-          weight: 59.3
-        }
-      ]
-    },
-    {
-      id: "acad-3",
-      name: "Pinnacle Badminton Club",
-      sport: "Badminton",
-      coach: "Coach Paul Fernandes",
-      email: "contact@pinnaclebadminton.org",
-      phone: "+91 88776 11223",
-      registeredAt: "2026-05-01",
-      location: "Bangalore, Karnataka",
-      gradient: "from-cyan-500 to-blue-600",
-      students: [
-        { 
-          id: "stu-b1", 
-          name: "Jiya Shah", 
-          age: 15, 
-          class: "9", 
-          sport: "Badminton",
-          assignedSport: "Badminton",
-          mentor: "Coach Paul Fernandes",
-          bmiCategory: "Normal",
-          bmi: 19.8,
-          height: 162,
-          weight: 52.0
-        },
-        { 
-          id: "stu-b2", 
-          name: "Sneha Reddy", 
-          age: 15, 
-          class: "9", 
-          sport: "Badminton",
-          assignedSport: "Badminton",
-          mentor: "Coach Paul Fernandes",
-          bmiCategory: "Normal",
-          bmi: 20.1,
-          height: 163,
-          weight: 53.4
-        },
-        { 
-          id: "stu-b3", 
-          name: "Kareena Kapoor", 
-          age: 16, 
-          class: "10", 
-          sport: "Badminton",
-          assignedSport: "Badminton",
-          mentor: "Coach Paul Fernandes",
-          bmiCategory: "Normal",
-          bmi: 19.5,
-          height: 164,
-          weight: 52.4
-        }
-      ]
-    },
-    {
-      id: "acad-4",
-      name: "Apex Swimming Academy",
-      sport: "Swimming",
-      coach: "Coach Ranjitsinh Jadeja",
-      email: "elite@apexswim.in",
-      phone: "+91 76008 55443",
-      registeredAt: "2026-05-12",
-      location: "Hyderabad, Telangana",
-      gradient: "from-blue-500 to-indigo-600",
-      students: [
-        { 
-          id: "stu-s1", 
-          name: "Priya Patel", 
-          age: 16, 
-          class: "10", 
-          sport: "Swimming",
-          assignedSport: "Swimming",
-          mentor: "Coach Ranjitsinh Jadeja",
-          bmiCategory: "Normal",
-          bmi: 20.4,
-          height: 165,
-          weight: 55.5
-        },
-        { 
-          id: "stu-s2", 
-          name: "Ishaan Verma", 
-          age: 15, 
-          class: "9", 
-          sport: "Swimming",
-          assignedSport: "Swimming",
-          mentor: "Coach Ranjitsinh Jadeja",
-          bmiCategory: "Overweight",
-          bmi: 25.5,
-          height: 165,
-          weight: 69.4
-        },
-        { 
-          id: "stu-s3", 
-          name: "Kiara Advani", 
-          age: 15, 
-          class: "9", 
-          sport: "Swimming",
-          assignedSport: "Swimming",
-          mentor: "Coach Ranjitsinh Jadeja",
-          bmiCategory: "Normal",
-          bmi: 19.0,
-          height: 160,
-          weight: 48.6
-        }
-      ]
-    },
-    {
-      id: "acad-5",
-      name: "Vanguard Athletics Academy",
-      sport: "Athletics",
-      coach: "Coach Ramesh Kalsaria",
-      email: "admin@vanguardathletics.com",
-      phone: "+91 94282 33221",
-      registeredAt: "2026-02-18",
-      location: "Delhi NCR",
-      gradient: "from-orange-500 to-amber-600",
-      students: [
-        { 
-          id: "stu-a1", 
-          name: "Rohan Sharma", 
-          age: 15, 
-          class: "9", 
-          sport: "Athletics",
-          assignedSport: "Athletics",
-          mentor: "Coach Ramesh Kalsaria",
-          bmiCategory: "Normal",
-          bmi: 21.2,
-          height: 168,
-          weight: 59.8
-        },
-        { 
-          id: "stu-a2", 
-          name: "Diya Sen", 
-          age: 16, 
-          class: "10", 
-          sport: "Athletics",
-          assignedSport: "Athletics",
-          mentor: "Coach Ramesh Kalsaria",
-          bmiCategory: "Normal",
-          bmi: 20.0,
-          height: 166,
-          weight: 55.1
-        },
-        { 
-          id: "stu-a3", 
-          name: "Aarav Mehta", 
-          age: 15, 
-          class: "9", 
-          sport: "Athletics",
-          assignedSport: "Athletics",
-          mentor: "Coach Ramesh Kalsaria",
-          bmiCategory: "Underweight",
-          bmi: 17.8,
-          height: 160,
-          weight: 45.6
-        }
-      ]
-    }
-  ]);
-
-  // Rich fallback mock data representing institutions and nested students
-  const [mockInstitutions] = useState([
-    {
-      id: "inst-101",
-      name: "St. Xavier's International School",
-      email: "contact@stxaviers.edu",
-      phone: "+91 98765 43210",
-      registeredAt: "2026-04-12",
-      studentCount: 7,
-      students: [
-        { id: "stu-1", name: "Rohan Sharma", age: 15, class: "9", sport: "Football", assignedSport: "Football", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 21.2, height: 168, weight: 60 },
-        { id: "stu-2", name: "Priya Patel", age: 16, class: "10", sport: "Basketball", assignedSport: "Basketball", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 20.4, height: 165, weight: 55 },
-        { id: "stu-3", name: "Aarav Mehta", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Arthur", bmiCategory: "Underweight", bmi: 17.8, height: 160, weight: 45 },
-        { id: "stu-4", name: "Sneha Reddy", age: 15, class: "9", sport: "Volleyball", assignedSport: "Volleyball", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 19.8, height: 162, weight: 52 },
-        { id: "stu-12", name: "Rohan Patel", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 19.1, height: 158, weight: 48 },
-        { id: "stu-13", name: "Jiya Shah", age: 15, class: "9", sport: "Badminton", assignedSport: "Badminton", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 20.1, height: 163, weight: 53 },
-        { id: "stu-14", name: "Manan Desai", age: 16, class: "10", sport: "Football", assignedSport: "Football", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 22.3, height: 172, weight: 66 }
-      ]
-    },
-    {
-      id: "inst-102",
-      name: "Delhi Public Sports Academy",
-      email: "sports@dpsdelhi.edu",
-      phone: "+91 91234 56789",
-      registeredAt: "2026-05-01",
-      studentCount: 6,
-      students: [
-        { id: "stu-5", name: "Kabir Singh", age: 16, class: "10", sport: "Cricket", assignedSport: "Cricket", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 21.8, height: 170, weight: 63 },
-        { id: "stu-6", name: "Ananya Iyer", age: 17, class: "11", sport: "Swimming", assignedSport: "Swimming", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 19.5, height: 167, weight: 54 },
-        { id: "stu-7", name: "Ishaan Verma", age: 15, class: "9", sport: "Football", assignedSport: "Football", mentor: "Coach Sharma", bmiCategory: "Overweight", bmi: 25.5, height: 165, weight: 69 },
-        { id: "stu-30", name: "Manish Kumar", age: 16, class: "10", sport: "Cricket", assignedSport: "Cricket", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 22.1, height: 171, weight: 65 },
-        { id: "stu-31", name: "Divya Teja", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 18.9, height: 159, weight: 48 },
-        { id: "stu-32", name: "Preeti Shenoy", age: 15, class: "9", sport: "Basketball", assignedSport: "Basketball", mentor: "Coach Sharma", bmiCategory: "Normal", bmi: 20.6, height: 164, weight: 55 }
-      ]
-    },
-    {
-      id: "inst-103",
-      name: "Ryan Elite High School",
-      email: "info@ryanelite.org",
-      phone: "+91 88776 65544",
-      registeredAt: "2026-05-18",
-      studentCount: 5,
-      students: [
-        { id: "stu-8", name: "Aditya Roy", age: 14, class: "8", sport: "Basketball", assignedSport: "Basketball", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 19.3, height: 161, weight: 50 },
-        { id: "stu-9", name: "Diya Sen", age: 16, class: "10", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 20.0, height: 166, weight: 55 },
-        { id: "stu-33", name: "Arjun Rampal", age: 15, class: "9", sport: "Football", assignedSport: "Football", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 21.0, height: 169, weight: 60 },
-        { id: "stu-34", name: "Kareena Kapoor", age: 16, class: "10", sport: "Badminton", assignedSport: "Badminton", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 19.9, height: 163, weight: 53 },
-        { id: "stu-35", name: "Saif Khan", age: 17, class: "11", sport: "Volleyball", assignedSport: "Volleyball", mentor: "Coach Paul", bmiCategory: "Normal", bmi: 22.8, height: 175, weight: 70 }
-      ]
-    },
-    {
-      id: "inst-104",
-      name: "Oakridge International Sports Hub",
-      email: "oakridge@oakridge.in",
-      phone: "+91 77665 54433",
-      registeredAt: "2026-05-19",
-      studentCount: 5,
-      students: [
-        { id: "stu-10", name: "Varun Dhawan", age: 15, class: "9", sport: "Cricket", assignedSport: "Cricket", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 21.5, height: 168, weight: 61 },
-        { id: "stu-11", name: "Kiara Advani", age: 14, class: "8", sport: "Swimming", assignedSport: "Swimming", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 19.0, height: 160, weight: 49 },
-        { id: "stu-36", name: "Siddharth Malhotra", age: 16, class: "10", sport: "Football", assignedSport: "Football", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 22.0, height: 173, weight: 66 },
-        { id: "stu-37", name: "Alia Bhatt", age: 15, class: "9", sport: "Gymnastics", assignedSport: "Gymnastics", mentor: "Coach Arthur", bmiCategory: "Normal", bmi: 18.5, height: 157, weight: 46 },
-        { id: "stu-38", name: "Katrina Kaif", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Arthur", bmiCategory: "Underweight", bmi: 18.0, height: 162, weight: 47 }
-      ]
-    },
-    {
-      id: "inst-105",
-      name: "DAV Public School, Gandhinagar",
-      email: "info@davgandhinagar.org",
-      phone: "+91 94567 12345",
-      registeredAt: "2026-03-24",
-      studentCount: 6,
-      students: [
-        { id: "stu-12b", name: "Rohan Patel", age: 14, class: "8", sport: "Athletics", assignedSport: "Athletics", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 19.1, height: 158, weight: 48 },
-        { id: "stu-13b", name: "Jiya Shah", age: 15, class: "9", sport: "Badminton", assignedSport: "Badminton", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 20.1, height: 163, weight: 53 },
-        { id: "stu-14b", name: "Manan Desai", age: 16, class: "10", sport: "Football", assignedSport: "Football", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 22.3, height: 172, weight: 66 },
-        { id: "stu-39", name: "Neil Nitin", age: 15, class: "9", sport: "Volleyball", assignedSport: "Volleyball", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 20.3, height: 166, weight: 56 },
-        { id: "stu-40", name: "Mukesh Ambani", age: 16, class: "10", sport: "Cricket", assignedSport: "Cricket", mentor: "Coach Mehta", bmiCategory: "Overweight", bmi: 26.2, height: 170, weight: 76 },
-        { id: "stu-41", name: "Nita Shah", age: 14, class: "8", sport: "Swimming", assignedSport: "Swimming", mentor: "Coach Mehta", bmiCategory: "Normal", bmi: 18.6, height: 156, weight: 45 }
-      ]
-    }
-  ]);
+  // Helper to compute age from dob
+  const computeAge = (dob) => {
+    if (!dob) return 'N/A';
+    const birthDate = new Date(dob);
+    const diff = Date.now() - birthDate.getTime();
+    return Math.abs(new Date(diff).getUTCFullYear() - 1970);
+  };
 
   const triggerToast = (title, message, isError = false) => {
     setToast({ show: true, title, message, isError });
@@ -409,26 +60,95 @@ const Performance = () => {
     };
   };
 
-  // Fetch actual DB students on mount to overlay/sync with backend
+  // Fetch institutes and academies from DB on mount
   useEffect(() => {
-    const fetchDbStudents = async () => {
+    const fetchInstitutes = async () => {
       setIsLoading(true);
       try {
-        const fetchUrl = isInstituteUser 
-          ? `${API_URL}/institute-portal/students` 
-          : `${API_URL}/students`;
-        const response = await axios.get(fetchUrl, getAuthConfig());
-        setDbStudents(response.data || []);
+        const [instRes, acadRes] = await Promise.all([
+          axios.get(`${API_URL}/institutes?status=approved&type=institute&limit=100`, getAuthConfig()),
+          axios.get(`${API_URL}/institutes?status=approved&type=academy&limit=100`, getAuthConfig())
+        ]);
+        const institutes = (instRes.data?.institutes || []).map(inst => ({
+          id: inst._id,
+          name: inst.name,
+          email: inst.email || 'N/A',
+          phone: inst.mobile || 'N/A',
+          location: `${inst.city}, ${inst.state}`,
+          contactPerson: inst.contactPerson || 'N/A',
+          registeredAt: inst.createdAt,
+          studentCount: 0
+        }));
+        const academies = (acadRes.data?.institutes || []).map(acad => ({
+          id: acad._id,
+          name: acad.name,
+          sport: acad.sport || 'General',
+          coach: acad.contactPerson || 'Coach',
+          email: acad.email || 'N/A',
+          phone: acad.mobile || 'N/A',
+          location: `${acad.city}, ${acad.state}`,
+          registeredAt: acad.createdAt,
+          gradient: 'from-indigo-500 to-blue-600',
+          studentCount: 0
+        }));
+        setDbInstitutions(institutes);
+        setDbAcademies(academies);
       } catch (error) {
-        // Quietly fail as mock data serves as primary visual framework
-        console.warn("DB Students loading failed. Utilizing preloaded mock collections.");
+        console.warn('Failed to load institutes from DB:', error.message);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchDbStudents();
+    if (!isInstituteUser) {
+      fetchInstitutes();
+    }
   }, []);
+
+  // Fetch students for selected institute from DB
+  useEffect(() => {
+    const fetchInstStudents = async () => {
+      if (!selectedInst) {
+        setInstStudents([]);
+        return;
+      }
+      try {
+        const fetchUrl = isInstituteUser
+          ? `${API_URL}/institute-portal/students`
+          : `${API_URL}/institutes/${selectedInst.id}/students`;
+        const response = await axios.get(fetchUrl, getAuthConfig());
+        const students = (response.data || []).map(s => ({
+          id: s._id,
+          name: s.name,
+          age: computeAge(s.dob),
+          class: s.class?.toString() || 'N/A',
+          gender: s.gender || 'N/A',
+          sport: 'General',
+          assignedSport: 'General',
+          mentor: selectedInst.contactPerson || selectedInst.coach || 'Coach',
+          bmiCategory: 'N/A',
+          bmi: 0,
+          height: 0,
+          weight: 0
+        }));
+        setInstStudents(students);
+
+        // Also update student count on the institute card
+        if (!isInstituteUser) {
+          if (activeCategory === 'academies') {
+            setDbAcademies(prev => prev.map(a => a.id === selectedInst.id ? { ...a, studentCount: students.length } : a));
+          } else {
+            setDbInstitutions(prev => prev.map(i => i.id === selectedInst.id ? { ...i, studentCount: students.length } : i));
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to load students for institute:', error.message);
+        setInstStudents([]);
+      }
+    };
+
+    fetchInstStudents();
+  }, [selectedInst]);
 
   const [dbPerformances, setDbPerformances] = useState([]);
 
@@ -564,46 +284,10 @@ const Performance = () => {
     ];
   };
 
-  // Compile all local + DB students for selected institution
+  // Return students for selected institution (from DB)
   const getStudentsForInst = () => {
     if (!selectedInst) return [];
-    
-    // Find matching mock students depending on the active category
-    let mockList = [];
-    if (activeCategory === 'academies') {
-      const acad = mockAcademies.find(a => a.id === selectedInst.id);
-      mockList = acad ? acad.students : [];
-    } else {
-      const inst = mockInstitutions.find(i => i.id === selectedInst.id);
-      mockList = inst ? inst.students : [];
-    }
-    
-    // Merge database students if any match the parameters
-    const dbList = dbStudents.filter(s => {
-      return s.instituteId === selectedInst.id || s.instituteName === selectedInst.name;
-    });
-
-    // De-duplicate by name
-    const combined = [...mockList];
-    dbList.forEach(dbStudent => {
-      if (!combined.some(c => c.name.toLowerCase() === dbStudent.name.toLowerCase())) {
-        combined.push({
-          id: dbStudent._id,
-          name: dbStudent.name,
-          age: dbStudent.age || 15,
-          class: dbStudent.class?.toString() || "9",
-          sport: dbStudent.assignedSport || "Athletics",
-          assignedSport: dbStudent.assignedSport || "Athletics",
-          mentor: dbStudent.coachName || "Coach Mentor",
-          bmiCategory: dbStudent.bmiCategory || "Normal",
-          bmi: dbStudent.bmi || 20.0,
-          height: dbStudent.height || 165,
-          weight: dbStudent.weight || 55
-        });
-      }
-    });
-
-    return combined;
+    return instStudents;
   };
 
   // Compile local + DB students for a specific class grade
@@ -646,15 +330,15 @@ const Performance = () => {
     setSelectedStudent(null);
   };
 
-  const filteredInstitutions = mockInstitutions.filter(inst => 
+  const filteredInstitutions = dbInstitutions.filter(inst => 
     inst.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     inst.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredAcademies = mockAcademies.filter(acad => 
+  const filteredAcademies = dbAcademies.filter(acad => 
     acad.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    acad.sport.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    acad.coach.toLowerCase().includes(searchQuery.toLowerCase())
+    (acad.sport || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (acad.coach || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Performance data compilation for Recharts
@@ -709,11 +393,11 @@ const Performance = () => {
           <div className="flex gap-4">
             <div className="bg-[#fbf7ee] border border-[#e4dccf] rounded-lg p-4 text-center shrink-0">
               <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Institutions</span>
-              <span className="text-2xl font-black text-slate-900">{mockInstitutions.length}</span>
+              <span className="text-2xl font-black text-slate-900">{dbInstitutions.length}</span>
             </div>
             <div className="bg-[#fbf7ee] border border-[#e4dccf] rounded-lg p-4 text-center shrink-0">
               <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Academies</span>
-              <span className="text-2xl font-black text-secondary">{mockAcademies.length}</span>
+              <span className="text-2xl font-black text-secondary">{dbAcademies.length}</span>
             </div>
           </div>
         </div>
