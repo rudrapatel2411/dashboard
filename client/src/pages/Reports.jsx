@@ -104,13 +104,13 @@ const Reports = () => {
           age: computeAge(s.dob),
           class: s.class?.toString() || 'N/A',
           gender: s.gender || 'N/A',
-          sport: 'General',
-          assignedSport: 'General',
+          sport: selectedInst.sport || 'General',
+          assignedSport: selectedInst.sport || 'General',
           mentor: selectedInst.contactPerson || selectedInst.coach || 'Coach',
-          bmiCategory: 'N/A',
-          bmi: 0,
-          height: 0,
-          weight: 0
+          bmiCategory: s.bmiCategory || 'N/A',
+          bmi: s.bmi || 0,
+          height: s.height || 0,
+          weight: s.weight || 0
         }));
         setInstStudents(mapped);
         setStudents(mapped);
