@@ -35,7 +35,7 @@ const seedStudents = async (force = false) => {
     // Fix #14: Passwords now read from environment variables.
     // Set SEED_ADMIN_PASSWORD, SEED_GMAIL_ADMIN_PASSWORD, SEED_INSTITUTE_PASSWORD in .env.
     // Falls back to weak defaults ONLY in development — never deploy with these.
-    const adminPass = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+    const adminPass = process.env.SEED_ADMIN_PASSWORD || '123456';
     const gmailAdminPass = process.env.SEED_GMAIL_ADMIN_PASSWORD || '123456';
     const institutePass = process.env.SEED_INSTITUTE_PASSWORD || 'password123';
 
