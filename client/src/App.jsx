@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Existing Admin pages
@@ -31,8 +32,62 @@ import AcademyDashboard from './pages/academy/AcademyDashboard';
 import AcademyStudents from './pages/academy/AcademyStudents';
 
 function App() {
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const [auth, setAuth] = useState(() => ({
+    token: localStorage.getItem('token'),
+    user: JSON.parse(localStorage.getItem('user') || '{}')
+  }));
+
+  useEffect(() => {
+    const validateSession = async () => {
+      const savedToken = localStorage.getItem('token');
+      if (!savedToken) {
+        setAuth({ token: null, user: {} });
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/auth/profile`, {
+          headers: { Authorization: `Bearer ${savedToken}` }
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setAuth({ token: null, user: {} });
+          return;
+        }
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const profileUser = data.user || {};
+        const institute = data.institute || null;
+        const nextUser = {
+          id: profileUser._id || profileUser.id,
+          name: profileUser.name,
+          role: profileUser.role,
+          email: profileUser.email,
+          approvalStatus: profileUser.approvalStatus,
+          avatar: profileUser.avatar,
+          instituteId: institute?._id,
+          instituteName: institute?.name,
+          instituteType: institute?.type,
+          sport: institute?.sport
+        };
+
+        localStorage.setItem('user', JSON.stringify(nextUser));
+        setAuth({ token: savedToken, user: nextUser });
+      } catch (error) {
+        // Keep the current session during temporary network/server failures.
+      }
+    };
+
+    validateSession();
+  }, [API_URL]);
+
+  const token = auth.token;
+  const user = auth.user || {};
   const isAuthenticated = !!token;
   const isAdmin = isAuthenticated && user.role === 'admin';
   const isInstitute = isAuthenticated && user.role === 'institution' && user.instituteType !== 'academy';
@@ -90,7 +145,7 @@ function App() {
         {/* ========= Institute Protected Routes ========= */}
         <Route 
           path="/institute" 
-          element={isInstitute ? <InstituteDashboardLayout /> : <Navigate to="/institute/login" />}
+          element={isInstitute ? <InstituteDashboardLayout key={user.instituteId || user.id} /> : <Navigate to="/institute/login" />}
         >
           <Route index element={<Navigate to="/institute/dashboard" />} />
           <Route path="dashboard" element={<InstituteDashboard />} />
@@ -106,7 +161,7 @@ function App() {
         {/* ========= Academy Protected Routes ========= */}
         <Route 
           path="/academy" 
-          element={isAcademy ? <AcademyDashboardLayout /> : <Navigate to="/institute/login" />}
+          element={isAcademy ? <AcademyDashboardLayout key={user.instituteId || user.id} /> : <Navigate to="/institute/login" />}
         >
           <Route index element={<Navigate to="/academy/dashboard" />} />
           <Route path="dashboard" element={<AcademyDashboard />} />

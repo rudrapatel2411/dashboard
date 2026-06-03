@@ -18,6 +18,7 @@ const InstituteStudents = () => {
   const [selectedClass, setSelectedClass] = useState(initialClass);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -40,6 +41,7 @@ const InstituteStudents = () => {
 
   const fetchStudents = async () => {
     setIsLoading(true);
+    setLoadError('');
     try {
       let url = `${API_URL}/institute-portal/students`;
       const params = new URLSearchParams();
@@ -52,9 +54,23 @@ const InstituteStudents = () => {
         const data = await res.json();
         setStudents(data);
         setCurrentPage(1); // reset to first page on filter change
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        const message = errData.message || `Failed to fetch students (${res.status})`;
+        setStudents([]);
+        setLoadError(message);
+
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setTimeout(() => {
+            window.location.href = '/institute/login';
+          }, 900);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch students:', err);
+      setLoadError('Could not connect to the server. Please make sure the backend is running.');
     } finally {
       setIsLoading(false);
     }
@@ -339,6 +355,12 @@ const InstituteStudents = () => {
           {students.length} student{students.length !== 1 ? 's' : ''} found
         </div>
       </div>
+
+      {loadError && (
+        <div className="gov-card border-red-200 bg-red-50 px-5 py-4 text-sm font-bold text-red-700">
+          {loadError}
+        </div>
+      )}
 
       {/* Students Table */}
       <div className="gov-card overflow-hidden">

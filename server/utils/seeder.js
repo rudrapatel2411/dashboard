@@ -7,29 +7,37 @@ const bcrypt = require('bcrypt');
 
 const seedStudents = async (force = false) => {
   try {
-    // Fix #13: Dual-guard to prevent accidental data wipe on server restart.
-    // Guard 1: Skip if users already exist in the database.
-    // Guard 2: Skip if SEEDED env flag is set (set this manually after first successful seed).
+    const getCounts = async () => ({
+      users: await User.countDocuments(),
+      students: await Student.countDocuments(),
+      performances: await Performance.countDocuments(),
+      testPerformances: await TestPerformance.countDocuments(),
+      institutes: await Institute.countDocuments()
+    });
+
     if (!force) {
       if (process.env.SEEDED === 'true') {
         console.log("SEEDED=true flag set. Skipping seeder entirely.");
         return;
       }
-      const userCount = await User.countDocuments();
-      if (userCount > 0) {
-        console.log("Database already contains data. Skipping seeding to prevent overwrite on restart.");
+
+      const counts = await getCounts();
+      if (Object.values(counts).some((count) => count > 0)) {
+        console.log(`Database already contains data ${JSON.stringify(counts)}. Skipping seed.`);
         return;
       }
     }
 
-    // Clear previous records to ensure clean seed
-    await Student.deleteMany({});
-    await Performance.deleteMany({});
-    await TestPerformance.deleteMany({});
-    await Institute.deleteMany({});
-    await User.deleteMany({});
+    if (force) {
+      await Student.deleteMany({});
+      await Performance.deleteMany({});
+      await TestPerformance.deleteMany({});
+      await Institute.deleteMany({});
+      await User.deleteMany({});
+      console.log("Database cleared for forced reseed.");
+    }
 
-    console.log("Database cleared. Seeding admin user and institute portal...");
+    console.log("Seeding admin user and institute portal...");
 
     const salt = await bcrypt.genSalt(10);
     // Fix #14: Passwords now read from environment variables.

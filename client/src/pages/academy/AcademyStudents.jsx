@@ -16,6 +16,7 @@ const AcademyStudents = () => {
   const [selectedClass, setSelectedClass] = useState(initialClass);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -30,6 +31,7 @@ const AcademyStudents = () => {
 
   const fetchStudents = async () => {
     setIsLoading(true);
+    setLoadError('');
     try {
       let url = `${API_URL}/institute-portal/students`;
       const params = new URLSearchParams();
@@ -42,9 +44,23 @@ const AcademyStudents = () => {
         const data = await res.json();
         setStudents(data);
         setCurrentPage(1);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        const message = errData.message || `Failed to fetch athletes (${res.status})`;
+        setStudents([]);
+        setLoadError(message);
+
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setTimeout(() => {
+            window.location.href = '/institute/login';
+          }, 900);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch athletes:', err);
+      setLoadError('Could not connect to the server. Please make sure the backend is running.');
     } finally {
       setIsLoading(false);
     }
@@ -208,6 +224,12 @@ const AcademyStudents = () => {
           {students.length} athlete{students.length !== 1 ? 's' : ''} found
         </div>
       </div>
+
+      {loadError && (
+        <div className="gov-card border-red-200 bg-red-50 px-5 py-4 text-sm font-bold text-red-700">
+          {loadError}
+        </div>
+      )}
 
       {/* Athletes Table */}
       <div className="gov-card overflow-hidden">
