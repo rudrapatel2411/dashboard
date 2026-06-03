@@ -314,6 +314,12 @@ const Performance = () => {
     return instStudents;
   };
 
+  const getAvailableClasses = () => {
+    const students = getStudentsForInst();
+    const classes = [...new Set(students.map(s => s.class?.toString()).filter(Boolean))];
+    return classes.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+  };
+
   // Compile local + DB students for a specific class grade
   const getStudentsForClassGrade = (classGrade) => {
     return getStudentsForInst().filter(s => s.class?.toString() === classGrade?.toString());
@@ -326,9 +332,6 @@ const Performance = () => {
   };
 
   const getDisplayStudents = () => {
-    if (activeCategory === 'academies') {
-      return getStudentsForInst();
-    }
     return getStudentsForClass();
   };
 
@@ -684,7 +687,7 @@ const Performance = () => {
         )}
 
         {/* LEVEL 2: Classes of Institution */}
-        {selectedInst && !selectedClass && activeCategory === 'institutions' && (
+        {selectedInst && !selectedClass && (
           <div className="space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h3 className="text-xl font-black text-slate-800">
@@ -694,7 +697,7 @@ const Performance = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {(activeCategory === "institutions" ? ["8", "9", "10", "11"] : ["9", "10"]).map((classGrade) => {
+              {getAvailableClasses().map((classGrade) => {
                 const count = getStudentsForClassGrade(classGrade).length;
                 return (
                   <div 
@@ -714,34 +717,35 @@ const Performance = () => {
                   </div>
                 );
               })}
+              {getAvailableClasses().length === 0 && (
+                <div className="col-span-full border border-dashed border-slate-200 rounded-2xl p-12 text-center text-slate-400 text-sm font-semibold bg-slate-50/50">
+                  <AlertCircle className="mx-auto text-slate-300 w-8 h-8 mb-2" />
+                  No students are registered in any classes for this institution.
+                </div>
+              )}
             </div>
           </div>
         )}
 
         {/* LEVEL 3: Student Roster Table */}
-        {((activeCategory === 'institutions' && selectedInst && selectedClass && !selectedStudent) ||
-          (activeCategory === 'academies' && selectedInst && !selectedStudent)) && (
+        {selectedInst && selectedClass && !selectedStudent && (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6 animate-fade-in">
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-lg font-black text-slate-800">
                   {activeCategory === 'academies' 
-                    ? `Academy Roster • Enrolled Athletes` 
+                    ? `Academy Roster • Class ${selectedClass}th Grade` 
                     : `Students Roster • Class ${selectedClass}th Grade`}
                 </h3>
                 <p className="text-xs text-slate-400 font-semibold mt-0.5">Showing students listed inside {selectedInst.name}.</p>
               </div>
               <button 
                 onClick={() => {
-                  if (activeCategory === 'academies') {
-                    handleResetNavigation();
-                  } else {
-                    setSelectedClass(null);
-                  }
+                  setSelectedClass(null);
                 }}
                 className="px-3.5 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all"
               >
-                {activeCategory === 'academies' ? "Change Academy" : "Change Class"}
+                Change Class
               </button>
             </div>
 
