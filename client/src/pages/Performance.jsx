@@ -142,6 +142,7 @@ const Performance = () => {
           };
           return {
             id: s._id,
+            studentId: s.studentId,
             name: s.name,
             age,
             class: s.class?.toString() || 'N/A',
@@ -774,7 +775,7 @@ const Performance = () => {
                           </div>
                           <div>
                             <h5 className="font-extrabold text-slate-800">{student.name}</h5>
-                            <span className="text-[10px] text-slate-400 font-bold block mt-0.5">ID: {student.id}</span>
+                            <span className="text-[10px] text-slate-400 font-bold block mt-0.5">ID: {student.studentId || student.id || student._id}</span>
                           </div>
                         </td>
                         <td className="py-4 px-4 text-slate-500">{student.age} Yrs</td>
@@ -835,8 +836,8 @@ const Performance = () => {
                       {selectedStudent.assignedSport || selectedStudent.sport}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">
-                    ID: {selectedStudent.id || selectedStudent._id || 'STU-001'} • Class {selectedStudent.class}th • {selectedStudent.age} Years Old • Mentor: {selectedStudent.mentor}
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1.5 flex flex-wrap gap-2">
+                    ID: {selectedStudent.studentId || selectedStudent.id || selectedStudent._id || 'STU-001'} • Class {selectedStudent.class}th • {selectedStudent.age} Years Old • Mentor: {selectedStudent.mentor}
                   </p>
                 </div>
               </div>

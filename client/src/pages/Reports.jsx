@@ -123,6 +123,7 @@ const Reports = () => {
           };
           return {
             id: s._id,
+            studentId: s.studentId,
             name: s.name,
             age,
             class: s.class?.toString() || 'N/A',
@@ -291,7 +292,7 @@ const Reports = () => {
         doc.setFontSize(11);
         doc.setTextColor(71, 85, 105);
         doc.text(`Name: ${selectedStudent.name}`, 20, 65);
-        doc.text(`Student ID: ${selectedStudent.id || 'STU-001'}`, 20, 73);
+        doc.text(`Student ID: ${selectedStudent.studentId || selectedStudent.id || 'STU-001'}`, 20, 73);
         doc.text(`Assigned Sport: ${selectedStudent.assignedSport || selectedStudent.sport}`, 20, 81);
         doc.text(`BMI: ${selectedStudent.bmi} (${selectedStudent.bmiCategory})`, 20, 89);
         doc.text(`Class Grade: Class ${selectedStudent.class}th`, 20, 97);
@@ -826,7 +827,7 @@ const Reports = () => {
                           </div>
                           <div>
                             <h5 className="font-extrabold text-slate-800">{student.name}</h5>
-                            <span className="text-[10px] text-slate-400 font-bold block mt-0.5">ID: {student.id}</span>
+                            <span className="text-[10px] text-slate-400 font-bold block mt-0.5">ID: {student.studentId || student.id || student._id}</span>
                           </div>
                         </td>
                         <td className="py-4 px-4 text-slate-500">{student.age} Yrs</td>
@@ -907,7 +908,7 @@ const Reports = () => {
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Athlete ID</span>
-                  <span className="text-base font-black text-slate-800">{selectedStudent.id || 'STU-001'}</span>
+                  <span className="text-base font-black text-slate-800">{selectedStudent.studentId || selectedStudent.id || 'STU-001'}</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Standard/Class</span>
