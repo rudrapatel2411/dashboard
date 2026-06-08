@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Download, Printer, Share2, Award, Activity, Building2, Users, FileText, Search, 
   User, CheckCircle, ChevronRight, ArrowLeft, Trophy, Calendar, Eye, 
-  ShieldAlert, Sparkles, Zap, Target, AlertCircle
+  ShieldAlert, Sparkles, Zap, Target, AlertCircle, Plus
 } from 'lucide-react';
 import axios from 'axios';
 
 const Reports = () => {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const isInstituteUser = user.role === 'institution';
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -27,6 +29,8 @@ const Reports = () => {
   const [dbAcademies, setDbAcademies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTerm, setSelectedTerm] = useState("TERM-2");
+  const [dbPerformances, setDbPerformances] = useState([]);
+  const [allPerformances, setAllPerformances] = useState([]);
 
   // Helper to compute age from dob
   const computeAge = (dob) => {
@@ -157,6 +161,43 @@ const Reports = () => {
     fetchInstStudents();
   }, [selectedInst]);
 
+  // Fetch all student performances for the selected institution
+  useEffect(() => {
+    const fetchAllPerformances = async () => {
+      if (!selectedInst) {
+        setAllPerformances([]);
+        return;
+      }
+      try {
+        const response = await axios.get(`${API_URL}/performance`, getAuthConfig());
+        setAllPerformances(response.data || []);
+      } catch (error) {
+        console.warn('Failed to load all performances:', error.message);
+        setAllPerformances([]);
+      }
+    };
+    fetchAllPerformances();
+  }, [selectedInst]);
+
+  // Fetch selected student's performances
+  useEffect(() => {
+    const fetchStudentPerformances = async () => {
+      if (!selectedStudent) {
+        setDbPerformances([]);
+        return;
+      }
+      try {
+        const studentId = selectedStudent.id || selectedStudent._id;
+        const res = await axios.get(`${API_URL}/performance/${studentId}`, getAuthConfig());
+        setDbPerformances(res.data || []);
+      } catch (error) {
+        console.warn("Could not fetch student performance from backend.");
+        setDbPerformances([]);
+      }
+    };
+    fetchStudentPerformances();
+  }, [selectedStudent]);
+
   // Return students for selected institution (from DB)
   const getStudentsForInst = () => {
     if (!selectedInst) return [];
@@ -257,7 +298,14 @@ const Reports = () => {
     };
   };
 
-  const selectedPerformance = selectedStudent ? generatePerformanceData(selectedStudent) : null;
+  const selectedPerformance = (() => {
+    if (!selectedStudent) return null;
+    if (dbPerformances && dbPerformances.length > 0) {
+      const match = dbPerformances.find(r => r.term === selectedTerm);
+      return match || dbPerformances[dbPerformances.length - 1];
+    }
+    return null;
+  })();
 
   const handleExportPDF = async () => {
     if (!selectedInst) {
@@ -270,7 +318,11 @@ const Reports = () => {
       const doc = new jsPDF();
       
       if (selectedStudent) {
-        const perf = selectedPerformance || { overallScore: 85, fitnessLevel: 'Good', attendance: 92, speed: 80, strength: 75, stamina: 85, agility: 80, flexibility: 75, accuracy: 80, endurance: 85, reactionTime: 80, discipline: 9, matchPerformance: 85 };
+        if (!selectedPerformance) {
+          alert("No performance records found for this student. Export disabled.");
+          return;
+        }
+        const perf = selectedPerformance;
         
         // Student Report PDF Formatting
         doc.setFontSize(22);
@@ -279,7 +331,7 @@ const Reports = () => {
         
         doc.setFontSize(12);
         doc.setTextColor(100, 116, 139);
-        doc.text('Academic Year 2026 - Term 2', 20, 35);
+        doc.text(`Academic Year 2026 - ${perf.term === 'TERM-1' ? 'Term 1' : 'Term 2'}`, 20, 35);
         
         doc.setDrawColor(79, 70, 229);
         doc.setLineWidth(1);
@@ -378,14 +430,17 @@ const Reports = () => {
             doc.rect(20, y - 6, 170, 10, 'F');
           }
           
-          const tempHistory = generatePerformanceData(s);
-          const score = tempHistory ? tempHistory.overallScore : 80;
+          const studentPerf = allPerformances.find(r => {
+            const rStudentId = r.studentId && (typeof r.studentId === 'object' ? r.studentId._id : r.studentId);
+            return (rStudentId === s.id || rStudentId === s._id) && r.term === selectedTerm;
+          });
+          const score = studentPerf ? `${studentPerf.overallScore}%` : "N/A";
           
           doc.text((i + 1).toString(), 22, y);
           doc.text(s.name, 32, y);
           doc.text(`Class ${s.class}th`, 82, y);
           doc.text(s.assignedSport || s.sport, 112, y);
-          doc.text(`${score}%`, 162, y);
+          doc.text(score, 162, y);
         });
         
         doc.setFontSize(10);
@@ -404,6 +459,10 @@ const Reports = () => {
   };
 
   const handlePrint = () => {
+    if (selectedStudent && !selectedPerformance) {
+      alert("No performance records found for this student. Print disabled.");
+      return;
+    }
     window.print();
   };
 
@@ -487,13 +546,23 @@ const Reports = () => {
             <>
               <button 
                 onClick={handlePrint}
-                className="bg-white text-slate-700 hover:text-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 text-xs shadow-sm hover:bg-slate-50 transition-all flex items-center gap-2 font-bold active:scale-95 cursor-pointer"
+                disabled={selectedStudent && !selectedPerformance}
+                className={`px-4 py-2.5 rounded-xl border text-xs shadow-sm transition-all flex items-center gap-2 font-bold active:scale-95 cursor-pointer ${
+                  (selectedStudent && !selectedPerformance)
+                    ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-50" 
+                    : "bg-white text-slate-700 hover:text-slate-900 border-slate-200 hover:bg-slate-50"
+                }`}
               >
                 <Printer size={15} /> Print Report
               </button>
               <button
                 onClick={handleExportPDF}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-xs shadow-md hover:shadow-indigo-500/10 transition-all flex items-center gap-2 font-black active:scale-95 cursor-pointer"
+                disabled={selectedStudent && !selectedPerformance}
+                className={`px-5 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2 font-black active:scale-95 cursor-pointer ${
+                  (selectedStudent && !selectedPerformance)
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed opacity-50 shadow-none" 
+                    : "bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-indigo-500/10"
+                }`}
               >
                 <Download size={15} /> Export PDF
               </button>
@@ -817,7 +886,11 @@ const Reports = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100/60 font-semibold text-slate-700">
                   {getDisplayStudents().map((student) => {
-                    const tempHistory = generatePerformanceData(student);
+                    const studentPerf = allPerformances.find(r => {
+                      const rStudentId = r.studentId && (typeof r.studentId === 'object' ? r.studentId._id : r.studentId);
+                      return (rStudentId === student.id || rStudentId === student._id) && r.term === selectedTerm;
+                    });
+                    const score = studentPerf ? `${studentPerf.overallScore}%` : "N/A";
                     
                     return (
                       <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
@@ -845,7 +918,7 @@ const Reports = () => {
                             {student.bmiCategory} ({student.bmi})
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-slate-500 font-extrabold">{tempHistory?.overallScore}%</td>
+                         <td className="py-4 px-4 text-slate-500 font-extrabold">{score}</td>
                         <td className="py-4 px-4 text-right">
                           <button
                             onClick={() => setSelectedStudent(student)}
@@ -875,16 +948,73 @@ const Reports = () => {
       {/* Printable Report Display Panel */}
       <div className="printable-report-area">
         {selectedStudent ? (
-          /* ===== LEVEL 4: ATHLETE DETAILED REPORT CARD ===== */
-          <div className="bg-white rounded-3xl p-8 shadow-md border border-slate-100 max-w-4xl mx-auto space-y-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-full pointer-events-none -z-0"></div>
-            
-            {/* Report Header */}
-            <div className="border-b-4 border-indigo-600 pb-6 mb-8 flex justify-between items-start relative z-10">
-              <div>
-                <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tight">Athletic Performance Report</h2>
-                <p className="text-slate-400 text-xs mt-1.5 font-bold uppercase tracking-wider">Academic Year 2026 - Term 2 Evaluation Log</p>
+          !selectedPerformance ? (
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-12 text-center max-w-2xl mx-auto space-y-4 animate-fade-in">
+              <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 mx-auto text-slate-450">
+                <Activity className="w-8 h-8 text-slate-400" />
               </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-black text-slate-800">No Performance Data Found</h3>
+                <p className="text-sm text-slate-500 font-medium">
+                  No physical tests, sports scores, or attendance records have been entered for <span className="font-bold text-indigo-600">{selectedStudent.name}</span> yet.
+                </p>
+              </div>
+              {isInstituteUser && (
+                <div className="pt-2">
+                  <button
+                    onClick={() => navigate(`${user.instituteType === 'academy' ? '/academy' : '/institute'}/physical-tests?class=${selectedStudent.class}&search=${encodeURIComponent(selectedStudent.name)}`)}
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Plus size={14} /> Enter Sports Marks & Attendance
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Term Selector (Non-Printable) */}
+              <div className="non-printable flex items-center justify-between gap-4 max-w-4xl mx-auto mb-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedStudent(null)}
+                    className="px-3.5 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <ArrowLeft size={14} /> Back to Roster
+                  </button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Viewing Term:</span>
+                  <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
+                    <button 
+                      onClick={() => setSelectedTerm("TERM-1")}
+                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${
+                        selectedTerm === "TERM-1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                      }`}
+                    >
+                      Term 1
+                    </button>
+                    <button 
+                      onClick={() => setSelectedTerm("TERM-2")}
+                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${
+                        selectedTerm === "TERM-2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                      }`}
+                    >
+                      Term 2
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* ===== LEVEL 4: ATHLETE DETAILED REPORT CARD ===== */}
+              <div className="bg-white rounded-3xl p-8 shadow-md border border-slate-100 max-w-4xl mx-auto space-y-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-full pointer-events-none -z-0"></div>
+                
+                {/* Report Header */}
+                <div className="border-b-4 border-indigo-600 pb-6 mb-8 flex justify-between items-start relative z-10">
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tight">Athletic Performance Report</h2>
+                    <p className="text-slate-400 text-xs mt-1.5 font-bold uppercase tracking-wider">Academic Year 2026 - {selectedPerformance.term === 'TERM-1' ? 'Term 1' : 'Term 2'} Evaluation Log</p>
+                  </div>
               <div className="text-right">
                 <div className="w-12 h-12 bg-indigo-600 rounded-xl ml-auto mb-2 flex items-center justify-center shadow-lg shadow-indigo-500/10">
                   <Award className="text-white" size={22} />
@@ -1017,7 +1147,8 @@ const Reports = () => {
               </div>
             </div>
           </div>
-        ) : (
+        </>
+      ) ) : (
           /* ===== NO STUDENT SELECTED PLACEOHLDER ===== */
           !selectedInst && (
             <div className="bg-white rounded-3xl p-12 text-center text-slate-400 text-xs font-semibold border border-slate-100 shadow-sm max-w-4xl mx-auto">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Activity, Users, Search, ChevronRight, ArrowLeft,
   Award, ClipboardList, BarChart3, BookOpen, User, 
@@ -12,6 +13,7 @@ import {
 import axios from 'axios';
 
 const Performance = () => {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const isInstituteUser = user.role === 'institution';
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -373,9 +375,9 @@ const Performance = () => {
   const historyRecords = (() => {
     if (!selectedStudent) return [];
     if (dbPerformances && dbPerformances.length > 0) {
-      return [...dbPerformances].sort((a, b) => a.term.localeCompare(b.term));
+      return [...dbPerformances].sort((a, b) => (a.term || "").localeCompare(b.term || ""));
     }
-    return generatePerformanceData(selectedStudent);
+    return [];
   })();
 
   const activeRecord = historyRecords.find(r => r.term === selectedTerm) || historyRecords[historyRecords.length - 1] || historyRecords[0];
@@ -820,24 +822,47 @@ const Performance = () => {
 
         {/* LEVEL 4: Student Performance Analytics Panel */}
         {selectedStudent && (
-          <div className="space-y-8 animate-fade-in">
+          historyRecords.length === 0 ? (
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-12 text-center max-w-2xl mx-auto space-y-4 animate-fade-in">
+              <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 mx-auto text-slate-450">
+                <Activity className="w-8 h-8 text-slate-400" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-black text-slate-800">No Performance Data Found</h3>
+                <p className="text-sm text-slate-500 font-medium">
+                  No physical tests, sports scores, or attendance records have been entered for <span className="font-bold text-indigo-600">{selectedStudent.name}</span> yet.
+                </p>
+              </div>
+              {isInstituteUser && (
+                <div className="pt-2">
+                  <button
+                    onClick={() => navigate(`${user.instituteType === 'academy' ? '/academy' : '/institute'}/physical-tests?class=${selectedStudent.class}&search=${encodeURIComponent(selectedStudent.name)}`)}
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Plus size={14} /> Enter Sports Marks & Attendance
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-8 animate-fade-in">
             
             {/* Student Profiler Header & Controls */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row justify-between gap-6">
               
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-600 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-500/10 uppercase">
-                  {selectedStudent.name.substring(0, 2)}
+                  {selectedStudent.name?.substring(0, 2) || ""}
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-xl font-black text-slate-800">{selectedStudent.name}</h3>
+                    <h3 className="text-xl font-black text-slate-800">{selectedStudent.name || ""}</h3>
                     <span className="px-2.5 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg border border-indigo-100 uppercase tracking-wide">
-                      {selectedStudent.assignedSport || selectedStudent.sport}
+                      {selectedStudent.assignedSport || selectedStudent.sport || ""}
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1.5 flex flex-wrap gap-2">
-                    ID: {selectedStudent.studentId || selectedStudent.id || selectedStudent._id || 'STU-001'} • Class {selectedStudent.class}th • {selectedStudent.age} Years Old • Mentor: {selectedStudent.mentor}
+                    ID: {selectedStudent.studentId || selectedStudent.id || selectedStudent._id || 'STU-001'} • Class {selectedStudent.class || ""}th • {selectedStudent.age || ""} Years Old • Mentor: {selectedStudent.mentor || ""}
                   </p>
                 </div>
               </div>
@@ -1249,6 +1274,7 @@ const Performance = () => {
             </div>
 
           </div>
+          )
         )}
 
       </div>

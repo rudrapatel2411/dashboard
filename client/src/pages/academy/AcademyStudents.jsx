@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Users, Plus, Search, Edit3, Trash2, X, Loader2, ChevronDown } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Users, Plus, Search, Edit3, Trash2, X, Loader2, ChevronDown, Activity } from 'lucide-react';
 import { TableSkeleton } from '../../components/Skeleton';
 import Pagination from '../../components/Pagination';
 
@@ -10,6 +10,7 @@ const PAGE_SIZE = 10;
 
 const AcademyStudents = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialClass = searchParams.get('class') || '';
   
   const [students, setStudents] = useState([]);
@@ -306,6 +307,13 @@ const AcademyStudents = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => navigate(`/academy/physical-tests?class=${student.class}&search=${encodeURIComponent(student.name)}`)}
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                            title="Enter Sports Marks & Attendance"
+                          >
+                            <Activity size={14} />
+                          </button>
                           <button
                             onClick={() => openEditModal(student)}
                             className="p-2 text-amber-500 hover:bg-amber-50 rounded-xl transition-all"

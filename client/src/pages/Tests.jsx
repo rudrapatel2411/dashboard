@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { 
   ClipboardList, Award, Upload, Image as ImageIcon, CheckCircle, 
   Trash2, User, Activity, Sparkles, ShieldAlert, FileText, Eye, Printer, ArrowUpDown, RefreshCw, Search 
@@ -39,7 +39,10 @@ const DRAFT_TEST_FIELDS = [
   "sitAndReach",
   "runWalk600m",
   "run50m",
-  "manualReportData"
+  "manualReportData",
+  "attendance",
+  "discipline",
+  "matchPerformance"
 ];
 
 const hasDraftTestData = (row) => {
@@ -58,7 +61,10 @@ const createEmptyRowInput = (status = "Present") => ({
   sitAndReach: "",
   runWalk600m: "",
   run50m: "",
-  manualReportData: ""
+  manualReportData: "",
+  attendance: "",
+  discipline: "",
+  matchPerformance: ""
 });
 
 const STANDARDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
@@ -66,10 +72,13 @@ const STANDARDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'
 const Tests = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const isAcademy = user.instituteType === 'academy';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialClass = searchParams.get('class') || '10';
+  const initialSearch = searchParams.get('search') || '';
 
   // Live students fetched from backend
   const [students, setStudents] = useState([]);
-  const [selectedClass, setSelectedClass] = useState("10"); // Default standard select
+  const [selectedClass, setSelectedClass] = useState(initialClass); // Default standard select
   const [selectedTerm, setSelectedTerm] = useState("TERM-2"); // Default evaluation term
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', title: '', isError: false });
@@ -121,9 +130,19 @@ const Tests = () => {
 
   // Connect with global DashboardLayout search context
   const outletContext = useOutletContext();
-  const [localSearchTerm, setLocalSearchTerm] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState(initialSearch);
   const searchTerm = outletContext ? outletContext.searchTerm : localSearchTerm;
   const setSearchTerm = outletContext ? outletContext.setSearchTerm : setLocalSearchTerm;
+
+  useEffect(() => {
+    if (initialSearch) {
+      if (outletContext && outletContext.setSearchTerm) {
+        outletContext.setSearchTerm(initialSearch);
+      } else {
+        setLocalSearchTerm(initialSearch);
+      }
+    }
+  }, [initialSearch, outletContext]);
 
   const [sortBy, setSortBy] = useState("date"); 
 
@@ -175,7 +194,10 @@ const Tests = () => {
           run50m: p.run50m || null,
           recommendedSport: p.recommendedSport || "N/A",
           manualReportData: p.manualReportData || "",
-          reportHardCopyUrl: p.reportHardCopyUrl || null
+          reportHardCopyUrl: p.reportHardCopyUrl || null,
+          attendance: p.attendance || null,
+          discipline: p.discipline || null,
+          matchPerformance: p.matchPerformance || null
         };
       });
 
@@ -370,6 +392,22 @@ const Tests = () => {
     };
 
     if (!isAbsent) {
+      if (
+        isFieldEmpty(row.attendance) ||
+        isFieldEmpty(row.discipline) ||
+        isFieldEmpty(row.matchPerformance)
+      ) {
+        triggerToast(
+          "Missing details",
+          "Please fill attendance, discipline, and match performance.",
+          true
+        );
+        return;
+      }
+      payload.attendance = parseFloat(row.attendance);
+      payload.discipline = parseFloat(row.discipline);
+      payload.matchPerformance = parseFloat(row.matchPerformance);
+
       if (isGroup1) {
         if (
           isFieldEmpty(row.height) ||
@@ -442,7 +480,10 @@ const Tests = () => {
         run50m: savedPerf.run50m || null,
         recommendedSport: savedPerf.recommendedSport,
         manualReportData: savedPerf.manualReportData,
-        reportHardCopyUrl: savedPerf.reportHardCopyUrl
+        reportHardCopyUrl: savedPerf.reportHardCopyUrl,
+        attendance: savedPerf.attendance,
+        discipline: savedPerf.discipline,
+        matchPerformance: savedPerf.matchPerformance
       };
 
       setSubmissions(prev => {
@@ -483,6 +524,11 @@ const Tests = () => {
       if (!row || row.status === "Absent") return;
       const age = calculateAge(student.dob);
       const isGroup1 = age >= 5 && age <= 8;
+
+      if (isFieldEmpty(row.attendance) || isFieldEmpty(row.discipline) || isFieldEmpty(row.matchPerformance)) {
+        incompleteStudents.push(student.name);
+        return;
+      }
       
       if (isGroup1) {
         if (isFieldEmpty(row.height) || isFieldEmpty(row.weight) || isFieldEmpty(row.plateTapping) || isFieldEmpty(row.flamingoBalance) || isFieldEmpty(row.manualReportData)) {
@@ -525,6 +571,10 @@ const Tests = () => {
         };
 
         if (!isAbsent) {
+          payload.attendance = parseFloat(row.attendance);
+          payload.discipline = parseFloat(row.discipline);
+          payload.matchPerformance = parseFloat(row.matchPerformance);
+
           if (isGroup1) {
             payload.height = parseFloat(row.height);
             payload.weight = parseFloat(row.weight);
@@ -564,7 +614,10 @@ const Tests = () => {
             run50m: savedPerf.run50m || null,
             recommendedSport: savedPerf.recommendedSport,
             manualReportData: savedPerf.manualReportData,
-            reportHardCopyUrl: savedPerf.reportHardCopyUrl
+            reportHardCopyUrl: savedPerf.reportHardCopyUrl,
+            attendance: savedPerf.attendance,
+            discipline: savedPerf.discipline,
+            matchPerformance: savedPerf.matchPerformance
           };
 
           setSubmissions(prev => {
@@ -919,6 +972,22 @@ const Tests = () => {
                               </div>
                             )}
 
+                            {/* Attendance, Discipline, Match Performance saved details */}
+                            <div className="grid grid-cols-3 gap-3 pt-3 border-t border-dashed border-slate-200">
+                              <div className="bg-slate-50/50 border border-slate-100 p-2.5 rounded-xl text-center min-w-0">
+                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight">Attendance</p>
+                                <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words">{matchedSub?.attendance !== null ? `${matchedSub?.attendance}%` : "N/A"}</p>
+                              </div>
+                              <div className="bg-slate-50/50 border border-slate-100 p-2.5 rounded-xl text-center min-w-0">
+                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight">Discipline</p>
+                                <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words">{matchedSub?.discipline !== null ? `${matchedSub?.discipline}/10` : "N/A"}</p>
+                              </div>
+                              <div className="bg-slate-50/50 border border-slate-100 p-2.5 rounded-xl text-center min-w-0">
+                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight">Match Perf.</p>
+                                <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words">{matchedSub?.matchPerformance !== null ? `${matchedSub?.matchPerformance}%` : "N/A"}</p>
+                              </div>
+                            </div>
+
                             {/* Additional Info: Sport & Observations & Proof */}
                             <div className="flex flex-col sm:flex-row items-start gap-4 pt-3 border-t border-slate-100 text-sm font-semibold justify-between min-w-0">
                               <div className="text-left space-y-1 min-w-0">
@@ -1091,6 +1160,49 @@ const Tests = () => {
                                 </div>
                               </div>
                             )}
+
+                            {/* Sports Marks & Attendance Section */}
+                            <div className="pt-4 border-t border-slate-200/40">
+                              <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Sports Evaluation & Attendance</h5>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="min-w-0">
+                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight">Attendance (%) *</label>
+                                  <input 
+                                    type="number" 
+                                    min="0"
+                                    max="100"
+                                    placeholder="e.g. 95"
+                                    value={input.attendance}
+                                    onChange={(e) => updateRowField(student._id, "attendance", e.target.value)}
+                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
+                                  />
+                                </div>
+                                <div className="min-w-0">
+                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight">Discipline (1-10) *</label>
+                                  <input 
+                                    type="number" 
+                                    min="1"
+                                    max="10"
+                                    placeholder="e.g. 9"
+                                    value={input.discipline}
+                                    onChange={(e) => updateRowField(student._id, "discipline", e.target.value)}
+                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
+                                  />
+                                </div>
+                                <div className="min-w-0">
+                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight">Match Performance (%) *</label>
+                                  <input 
+                                    type="number" 
+                                    min="0"
+                                    max="100"
+                                    placeholder="e.g. 85"
+                                    value={input.matchPerformance}
+                                    onChange={(e) => updateRowField(student._id, "matchPerformance", e.target.value)}
+                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
+                                  />
+                                </div>
+                              </div>
+                            </div>
 
                             {/* Observations / Notes Only */}
                             <div className="pt-3 border-t border-slate-200/40">

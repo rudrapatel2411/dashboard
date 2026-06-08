@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useSearchParams } from 'react-router-dom';
-import { Users, Plus, Search, Edit3, Trash2, X, Loader2, BookOpen, ChevronDown, Printer, Sparkles } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Users, Plus, Search, Edit3, Trash2, X, Loader2, BookOpen, ChevronDown, Printer, Sparkles, Activity } from 'lucide-react';
 import { TableSkeleton } from '../../components/Skeleton';
 import Pagination from '../../components/Pagination';
 
@@ -12,6 +12,7 @@ const PAGE_SIZE = 10;
 const InstituteStudents = () => {
   const user = JSON.parse(localStorage.getItem('user')) || {};
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialClass = searchParams.get('class') || '';
   
   const [students, setStudents] = useState([]);
@@ -437,6 +438,13 @@ const InstituteStudents = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => navigate(`/institute/physical-tests?class=${student.class}&search=${encodeURIComponent(student.name)}`)}
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                            title="Enter Sports Marks & Attendance"
+                          >
+                            <Activity size={14} />
+                          </button>
                           <button
                             onClick={() => setPrintStudentIdCard(student)}
                             className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
