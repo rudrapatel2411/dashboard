@@ -7,7 +7,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
   .then(async () => {
     let admin = await User.findOne({ email: 'admin@gmail.com' });
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash('123456', salt);
+    const hashedPassword = await bcrypt.hash('admin123', salt);
 
     if (!admin) {
       console.log('No admin with email admin@gmail.com found. Creating one...');
@@ -31,7 +31,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
     
     console.log(`\n--- Admin Credentials ---`);
     console.log(`Email: admin@gmail.com`);
-    console.log(`Password: 123456\n`);
+    console.log(`Password: admin123\n`);
     process.exit(0);
   })
   .catch(err => {

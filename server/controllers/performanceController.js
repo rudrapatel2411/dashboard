@@ -14,6 +14,12 @@ const generateAiInsight = (metrics, term) => {
   return insight || "Consistent performance across metrics.";
 };
 
+const parseOptionalNumber = (value) => {
+  if (value === undefined || value === null || value === '') return undefined;
+  const parsed = parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
 exports.addPerformance = async (req, res) => {
   try {
     const { 
@@ -107,9 +113,9 @@ exports.addPerformance = async (req, res) => {
       }
     }
 
-    const finalAttendance = parseFloat(attendance) || (isAbsent ? 0 : 90);
-    const finalDiscipline = parseFloat(discipline) || (isAbsent ? 0 : 8);
-    const finalMatchPerf = parseFloat(matchPerformance) || (isAbsent ? 0 : 80);
+    const finalAttendance = parseOptionalNumber(attendance);
+    const finalDiscipline = parseOptionalNumber(discipline);
+    const finalMatchPerf = parseOptionalNumber(matchPerformance);
 
     // Fix #12: overallScore now uses all 8 physical metrics, not 6.
     // Previously flexibility and reactionTime were excluded, understating athlete scores.

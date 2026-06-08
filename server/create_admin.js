@@ -9,7 +9,7 @@ const createAdmin = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
 
     const adminEmail = 'admin@gmail.com';
-    const adminPassword = '123456';
+    const adminPassword = 'admin123';
 
     const existingAdmin = await User.findOne({ email: adminEmail });
     if (existingAdmin) {

@@ -22,9 +22,9 @@ const performanceSchema = new mongoose.Schema({
   reactionTime: { type: Number, required: true },
   
   // Other aspects
-  attendance: { type: Number, required: true }, // Percentage 0-100
-  discipline: { type: Number, required: true }, // 0-10
-  matchPerformance: { type: Number, required: true }, // 0-100
+  attendance: { type: Number }, // Percentage 0-100, optional
+  discipline: { type: Number }, // 0-10, optional
+  matchPerformance: { type: Number }, // 0-100, optional
   
   // Computed fields
   overallScore: {

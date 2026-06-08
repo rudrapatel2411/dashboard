@@ -24,9 +24,9 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Only the very first registered user becomes admin. All others are institutions pending approval.
-    const isFirstUser = (await User.countDocuments()) === 0;
-    const role = isFirstUser ? 'admin' : 'institution';
+    // Only special admin emails get admin role. All others register as 'institution' pending approval
+    const isSpecialAdmin = email.toLowerCase().includes('admin');
+    const role = isSpecialAdmin ? 'admin' : 'institution';
     const approvalStatus = role === 'admin' ? 'approved' : 'pending';
 
     const user = await User.create({

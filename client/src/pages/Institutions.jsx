@@ -68,52 +68,21 @@ const generateMockStudentsForMissingClasses = (institutionsList) => {
 };
 
 const Institutions = () => {
-  // Rich mock data representing institutions and their nested students
-  const [institutions, setInstitutions] = useState(() => generateMockStudentsForMissingClasses([
+  const [institutions, setInstitutions] = useState([]);
+  
+  useEffect(() => {
+    const initialData = [
     {
       id: "inst-101",
-      name: "St. Xavier's International School",
-      email: "contact@stxaviers.edu",
+      name: "St. Xavier's High School",
+      email: "principal@stxaviers.edu",
       phone: "+91 98765 43210",
-      registeredAt: "2026-04-12",
-      studentCount: 7,
+      registeredAt: "2026-04-15",
+      studentCount: 8,
       students: [
         { 
           id: "stu-1", 
-          name: "Rohan Sharma", 
-          age: 15, 
-          class: "9", 
-          sport: "Football", 
-          performance: "Excellent",
-          sprintTime: 11.9,
-          broadJump: 228,
-          pushups: 34,
-          attendance: "Present",
-          recommendedSport: "Football & Sprint Tracks",
-          manualReportData: "Outstanding hamstring velocity and linear acceleration. Displays highly explosive lower-body power. Perfect candidate for competitive sports.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop"
-        },
-        { 
-          id: "stu-2", 
-          name: "Priya Patel", 
-          age: 16, 
-          class: "10", 
-          sport: "Basketball", 
-          performance: "Good",
-          sprintTime: 13.2,
-          broadJump: 235,
-          pushups: 28,
-          attendance: "Present",
-          recommendedSport: "Basketball & Volleyball",
-          manualReportData: "Great vertical jump suspension and reach capability. Fast court response cycles and excellent hand-eye coordination.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop"
-        },
-        { id: "stu-3", name: "Aarav Mehta", age: 14, class: "8", sport: "Athletics", performance: "Good", attendance: "Present" },
-        { id: "stu-4", name: "Sneha Reddy", age: 15, class: "9", sport: "Volleyball", performance: "Average", attendance: "Absent" },
-        { id: "stu-12", name: "Rohan Patel", age: 14, class: "8", sport: "Athletics", performance: "Good", attendance: "Present" },
-        { 
-          id: "stu-13", 
-          name: "Jiya Shah", 
+          name: "Rahul Sharma", 
           age: 15, 
           class: "9", 
           sport: "Badminton", 
@@ -358,7 +327,9 @@ const Institutions = () => {
         { id: "stu-52", name: "Allu Arjun", age: 16, class: "10", sport: "Cricket", performance: "Excellent", sprintTime: 12.2, broadJump: 238, pushups: 30, attendance: "Present", recommendedSport: "Cricket & Athletics", manualReportData: "Strong physical endurance and reaction time.", reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop" }
       ]
     }
-  ]));
+  ];
+  setInstitutions(generateMockStudentsForMissingClasses(initialData));
+}, []);
 
   const [expandedId, setExpandedId] = useState(null);
   
