@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   Activity, Users, Search, ChevronRight, ArrowLeft,
-  Award, ClipboardList, BarChart3, BookOpen, User, 
-  CheckCircle, ShieldAlert, Sparkles, Trophy, Calendar, 
-  Eye, Heart, Zap, Target, Sliders, Building2, TrendingUp, AlertCircle
+  Award, ClipboardList, BarChart3, BookOpen, User,
+  CheckCircle, ShieldAlert, Sparkles, Trophy, Calendar,
+  Eye, Heart, Zap, Target, Sliders, Building2, TrendingUp, AlertCircle, Plus
 } from 'lucide-react';
-import { 
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, 
+import {
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from 'recharts';
 import axios from 'axios';
@@ -211,10 +211,10 @@ const Performance = () => {
 
     const seed = student.id || student._id || "default";
     const sportName = (student.assignedSport || student.sport || "General Sports").toLowerCase();
-    
+
     // Custom athletic profiles depending on the sport assigned
     let baseSpeed = 70, baseStrength = 65, baseStamina = 70, baseAgility = 70, baseFlex = 60, baseAcc = 65, baseEnd = 68, baseReact = 70;
-    
+
     if (sportName.includes("football")) {
       baseSpeed = 82; baseStamina = 80; baseAgility = 85; baseReact = 78;
     } else if (sportName.includes("basketball")) {
@@ -360,12 +360,12 @@ const Performance = () => {
     setSelectedStudent(null);
   };
 
-  const filteredInstitutions = dbInstitutions.filter(inst => 
+  const filteredInstitutions = dbInstitutions.filter(inst =>
     inst.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     inst.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredAcademies = dbAcademies.filter(acad => 
+  const filteredAcademies = dbAcademies.filter(acad =>
     acad.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (acad.sport || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (acad.coach || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -406,7 +406,7 @@ const Performance = () => {
 
   return (
     <div className="space-y-8 animate-fade-in pb-16 font-sans">
-      
+
       {/* Header Banner */}
       <div className="gov-card p-6 md:p-8 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -414,21 +414,10 @@ const Performance = () => {
             <span className="gov-eyebrow px-3.5 py-1.5 text-xs font-black uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
               <Activity size={12} className="animate-pulse" /> Analytics Center
             </span>
-            <h1 className="gov-page-heading text-3xl md:text-4xl font-black">Performance Evaluation</h1>
+            <h1 className="gov-page-heading text-3xl md:text-4xl font-black">Sports Performance & Analytics</h1>
             <p className="text-slate-600 text-sm mt-1.5 max-w-xl font-medium">
-              Explore school and sports academy physical indicators, analyze interactive performance radars, and view coach diagnostics.
+              Track athlete progress, enter sports marks & attendance, and generate AI-powered performance insights across all classes.
             </p>
-          </div>
-          
-          <div className="flex gap-4">
-            <div className="bg-[#fbf7ee] border border-[#e4dccf] rounded-lg p-4 text-center shrink-0">
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Institutions</span>
-              <span className="text-2xl font-black text-slate-900">{dbInstitutions.length}</span>
-            </div>
-            <div className="bg-[#fbf7ee] border border-[#e4dccf] rounded-lg p-4 text-center shrink-0">
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Academies</span>
-              <span className="text-2xl font-black text-secondary">{dbAcademies.length}</span>
-            </div>
           </div>
         </div>
       </div>
@@ -437,7 +426,7 @@ const Performance = () => {
       <div className="gov-card p-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
           {!isInstituteUser ? (
-            <span 
+            <span
               className="hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-1.5"
               onClick={handleResetNavigation}
             >
@@ -456,11 +445,11 @@ const Performance = () => {
               <Building2 size={16} className="text-indigo-600" /> {selectedInst?.name}
             </span>
           )}
-          
+
           {selectedInst && !isInstituteUser && (
             <>
               <ChevronRight size={14} className="text-slate-300" />
-              <span 
+              <span
                 className="hover:text-indigo-600 cursor-pointer transition-colors text-slate-700 font-extrabold"
                 onClick={() => { setSelectedClass(null); setSelectedStudent(null); }}
               >
@@ -472,7 +461,7 @@ const Performance = () => {
           {selectedClass && (
             <>
               <ChevronRight size={14} className="text-slate-300" />
-              <span 
+              <span
                 className="hover:text-indigo-600 cursor-pointer transition-colors text-slate-700 font-bold"
                 onClick={() => setSelectedStudent(null)}
               >
@@ -492,7 +481,7 @@ const Performance = () => {
         </div>
 
         {((!isInstituteUser && (selectedInst || selectedClass || selectedStudent)) || (isInstituteUser && (selectedClass || selectedStudent))) && (
-          <button 
+          <button
             onClick={() => {
               if (selectedStudent) {
                 setSelectedStudent(null);
@@ -511,7 +500,7 @@ const Performance = () => {
 
       {/* Main Core Layout Grid */}
       <div className="space-y-8">
-        
+
         {/* LEVEL 0: Category Segmented Control (Shown at Hub view) */}
         {!selectedInst && !isInstituteUser && (
           <div className="flex justify-center">
@@ -521,11 +510,10 @@ const Performance = () => {
                   setActiveCategory("institutions");
                   handleResetNavigation();
                 }}
-                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
-                  activeCategory === "institutions"
+                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeCategory === "institutions"
                     ? "bg-white text-indigo-600 shadow-md scale-[1.02]"
                     : "text-slate-500 hover:text-slate-800"
-                }`}
+                  }`}
               >
                 <Building2 size={16} />
                 Schools & Institutions
@@ -535,11 +523,10 @@ const Performance = () => {
                   setActiveCategory("academies");
                   handleResetNavigation();
                 }}
-                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
-                  activeCategory === "academies"
+                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeCategory === "academies"
                     ? "bg-white text-indigo-600 shadow-md scale-[1.02]"
                     : "text-slate-500 hover:text-slate-800"
-                }`}
+                  }`}
               >
                 <Trophy size={16} />
                 Sports Academies
@@ -576,7 +563,7 @@ const Performance = () => {
               {/* Search Bar */}
               <div className="relative max-w-xs w-full">
                 <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input 
+                <input
                   type="text"
                   placeholder={activeCategory === "institutions" ? "Search institution..." : "Search academy..."}
                   value={searchQuery}
@@ -590,7 +577,7 @@ const Performance = () => {
             {activeCategory === "institutions" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredInstitutions.map((inst) => (
-                  <div 
+                  <div
                     key={inst.id}
                     onClick={() => handleSelectInstitution(inst)}
                     className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden"
@@ -639,7 +626,7 @@ const Performance = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredAcademies.map((acad) => (
-                  <div 
+                  <div
                     key={acad.id}
                     onClick={() => handleSelectInstitution(acad)}
                     className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden"
@@ -703,7 +690,7 @@ const Performance = () => {
               {getAvailableClasses().map((classGrade) => {
                 const count = getStudentsForClassGrade(classGrade).length;
                 return (
-                  <div 
+                  <div
                     key={classGrade}
                     onClick={() => handleSelectClass(classGrade)}
                     className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-200 hover:scale-[1.02] transition-all duration-300 cursor-pointer text-center relative overflow-hidden"
@@ -713,7 +700,7 @@ const Performance = () => {
                     </div>
                     <h4 className="font-extrabold text-slate-800 text-sm">Class {classGrade}th Grade</h4>
                     <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">{count} Registered Students</p>
-                    
+
                     <div className="border-t border-slate-100 mt-5 pt-3.5 flex justify-center items-center gap-1 text-xs font-bold text-indigo-600 group-hover:text-indigo-800">
                       Open Class <ChevronRight size={14} />
                     </div>
@@ -736,13 +723,13 @@ const Performance = () => {
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-lg font-black text-slate-800">
-                  {activeCategory === 'academies' 
-                    ? `Academy Roster • Class ${selectedClass}th Grade` 
+                  {activeCategory === 'academies'
+                    ? `Academy Roster • Class ${selectedClass}th Grade`
                     : `Students Roster • Class ${selectedClass}th Grade`}
                 </h3>
                 <p className="text-xs text-slate-400 font-semibold mt-0.5">Showing students listed inside {selectedInst.name}.</p>
               </div>
-              <button 
+              <button
                 onClick={() => {
                   setSelectedClass(null);
                 }}
@@ -768,7 +755,7 @@ const Performance = () => {
                   {getDisplayStudents().map((student) => {
                     const tempHistory = generatePerformanceData(student);
                     const avg = tempHistory[1]?.overallScore || tempHistory[0]?.overallScore || 0;
-                    
+
                     return (
                       <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
                         <td className="py-4 px-4 flex items-center gap-3">
@@ -787,11 +774,10 @@ const Performance = () => {
                           </span>
                         </td>
                         <td className="py-4 px-4 text-center">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            student.bmiCategory === 'Normal' ? 'bg-emerald-50 text-emerald-700' :
-                            student.bmiCategory === 'Underweight' ? 'bg-amber-50 text-amber-700' :
-                            'bg-red-50 text-red-700'
-                          }`}>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${student.bmiCategory === 'Normal' ? 'bg-emerald-50 text-emerald-700' :
+                              student.bmiCategory === 'Underweight' ? 'bg-amber-50 text-amber-700' :
+                                'bg-red-50 text-red-700'
+                            }`}>
                             {student.bmiCategory} ({student.bmi})
                           </span>
                         </td>
@@ -846,434 +832,431 @@ const Performance = () => {
             </div>
           ) : (
             <div className="space-y-8 animate-fade-in">
-            
-            {/* Student Profiler Header & Controls */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row justify-between gap-6">
-              
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-600 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-500/10 uppercase">
-                  {selectedStudent.name?.substring(0, 2) || ""}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-xl font-black text-slate-800">{selectedStudent.name || ""}</h3>
-                    <span className="px-2.5 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg border border-indigo-100 uppercase tracking-wide">
-                      {selectedStudent.assignedSport || selectedStudent.sport || ""}
-                    </span>
+
+              {/* Student Profiler Header & Controls */}
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row justify-between gap-6">
+
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-600 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-500/10 uppercase">
+                    {selectedStudent.name?.substring(0, 2) || ""}
                   </div>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1.5 flex flex-wrap gap-2">
-                    ID: {selectedStudent.studentId || selectedStudent.id || selectedStudent._id || 'STU-001'} • Class {selectedStudent.class || ""}th • {selectedStudent.age || ""} Years Old • Mentor: {selectedStudent.mentor || ""}
-                  </p>
-                </div>
-              </div>
-
-              {/* Term Selector & Back Link */}
-              <div className="flex items-center gap-3 self-end md:self-center">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Viewing Term:</span>
-                <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
-                  <button 
-                    onClick={() => setSelectedTerm("TERM-1")}
-                    className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all ${
-                      selectedTerm === "TERM-1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                    }`}
-                  >
-                    Term 1
-                  </button>
-                  <button 
-                    onClick={() => setSelectedTerm("TERM-2")}
-                    className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all ${
-                      selectedTerm === "TERM-2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                    }`}
-                  >
-                    Term 2
-                  </button>
-                </div>
-              </div>
-
-            </div>
-
-            {/* High-Impact Stat widgets Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-50 rounded-bl-full pointer-events-none flex items-center justify-center">
-                  <Trophy className="text-indigo-600/30 w-5 h-5" />
-                </div>
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Overall Score</span>
-                <span className="text-3xl font-black text-slate-800">{activeRecord?.overallScore || 0}%</span>
-                
-                {/* Visual score slider */}
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
-                  <div 
-                    className="bg-indigo-600 h-full rounded-full transition-all duration-1000"
-                    style={{ width: `${activeRecord?.overallScore || 0}%` }}
-                  ></div>
-                </div>
-                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                  <span>Progress Log</span>
-                  <span className="text-indigo-600 font-extrabold">{activeRecord?.fitnessLevel} Level</span>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-teal-50 rounded-bl-full pointer-events-none flex items-center justify-center">
-                  <CheckCircle className="text-teal-600/30 w-5 h-5" />
-                </div>
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Attendance Rate</span>
-                <span className="text-3xl font-black text-slate-800">{activeRecord?.attendance || 0}%</span>
-                
-                {/* Visual score slider */}
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
-                  <div 
-                    className="bg-teal-500 h-full rounded-full transition-all duration-1000"
-                    style={{ width: `${activeRecord?.attendance || 0}%` }}
-                  ></div>
-                </div>
-                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                  <span>Regularity Target</span>
-                  <span className="text-teal-600 font-extrabold">{activeRecord?.attendance >= 90 ? 'Excellent' : 'Average'}</span>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-bl-full pointer-events-none flex items-center justify-center">
-                  <Zap className="text-purple-600/30 w-5 h-5" />
-                </div>
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Discipline Index</span>
-                <span className="text-3xl font-black text-slate-800">{activeRecord?.discipline || 0} / 10</span>
-                
-                {/* Visual score slider */}
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
-                  <div 
-                    className="bg-purple-500 h-full rounded-full transition-all duration-1000"
-                    style={{ width: `${(activeRecord?.discipline || 0) * 10}%` }}
-                  ></div>
-                </div>
-                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                  <span>Attitude Markers</span>
-                  <span className="text-purple-600 font-extrabold">{activeRecord?.discipline >= 8 ? 'Exceptional' : 'Good'}</span>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-amber-50 rounded-bl-full pointer-events-none flex items-center justify-center">
-                  <Target className="text-amber-600/30 w-5 h-5" />
-                </div>
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Match Performance</span>
-                <span className="text-3xl font-black text-slate-800">{activeRecord?.matchPerformance || 0}%</span>
-                
-                {/* Visual score slider */}
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
-                  <div 
-                    className="bg-amber-500 h-full rounded-full transition-all duration-1000"
-                    style={{ width: `${activeRecord?.matchPerformance || 0}%` }}
-                  ></div>
-                </div>
-                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                  <span>In-game scoring</span>
-                  <span className="text-amber-600 font-extrabold">{activeRecord?.matchPerformance >= 80 ? 'Highly Competent' : 'Average'}</span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Core Visualization Charts Row (Radar & Comparison) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
-              {/* Radar Chart */}
-              <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between h-[450px]">
-                <div>
-                  <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
-                    <Activity size={16} className="text-indigo-600" />
-                    Physical Capacity Distribution Radar
-                  </h4>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Physical indicators representation inside the selected term</p>
-                </div>
-
-                <div className="flex-1 w-full min-h-[300px] flex items-center justify-center mt-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
-                      <PolarGrid stroke="#f1f5f9" strokeWidth={1.5} />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#334155', fontSize: 10, fontWeight: '800' }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 8 }} />
-                      <Radar 
-                        name={`${selectedStudent.name} (${selectedTerm})`} 
-                        dataKey="val" 
-                        stroke="#4f46e5" 
-                        fill="#4f46e5" 
-                        fillOpacity={0.25} 
-                        strokeWidth={2.5}
-                      />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: '#0f172a', 
-                          border: 'none', 
-                          borderRadius: '12px',
-                          color: '#f8fafc',
-                          fontSize: '11px',
-                          fontWeight: '700',
-                          boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
-                        }} 
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Term Comparative Chart */}
-              <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between h-[450px]">
-                <div>
-                  <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
-                    <TrendingUp size={16} className="text-indigo-600" />
-                    Term Improvement Diagnostics
-                  </h4>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Side-by-side comparative analysis of physical parameters</p>
-                </div>
-
-                <div className="flex-1 w-full min-h-[300px] mt-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={comparisonData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10, fontWeight: '700' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: '#0f172a', 
-                          border: 'none', 
-                          borderRadius: '12px',
-                          color: '#f8fafc',
-                          fontSize: '11px',
-                          fontWeight: '700'
-                        }} 
-                      />
-                      <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: '800' }} />
-                      <Bar dataKey="Term 1" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={22} />
-                      <Bar dataKey="Term 2" fill="#4f46e5" radius={[4, 4, 0, 0]} maxBarSize={22} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Auto AI Diagnostic Diagnostic Block */}
-            {activeRecord?.aiInsight && (
-              <div className="bg-gradient-to-r from-indigo-50 via-slate-50 to-indigo-50/40 rounded-3xl border border-indigo-100/50 p-6 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-indigo-200/15 to-transparent rounded-bl-full pointer-events-none"></div>
-                
-                <h4 className="font-extrabold text-indigo-900 text-sm flex items-center gap-2.5 mb-3">
-                  <Sparkles className="text-indigo-600 w-5 h-5 animate-pulse" />
-                  Auto AI Diagnostic Evaluation
-                </h4>
-                
-                <p className="text-xs text-indigo-950 font-semibold leading-relaxed max-w-4xl">
-                  {activeRecord.aiInsight}
-                </p>
-
-                <div className="mt-4 flex flex-wrap gap-4 text-[10px] font-black uppercase text-indigo-700">
-                  <span className="px-3.5 py-1.5 bg-white rounded-xl border border-indigo-100 flex items-center gap-1 shadow-sm">
-                    🏋️‍♂️ Strength: {activeRecord.strength}%
-                  </span>
-                  <span className="px-3.5 py-1.5 bg-white rounded-xl border border-indigo-100 flex items-center gap-1 shadow-sm">
-                    🏃‍♂️ Speed: {activeRecord.speed}%
-                  </span>
-                  <span className="px-3.5 py-1.5 bg-white rounded-xl border border-indigo-100 flex items-center gap-1 shadow-sm">
-                    🎯 Accuracy: {activeRecord.accuracy}%
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Raw Physical screening parameters entered by coach */}
-            {activeRecord && (
-              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-6">
-                <div className="border-b border-slate-150 pb-3 flex justify-between items-center">
                   <div>
-                    <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
-                      <ClipboardList size={16} className="text-indigo-600" />
-                      Physical screening parameters (Real Scores)
-                    </h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                      Actual measurements recorded during {selectedTerm}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-xl font-black text-slate-800">{selectedStudent.name || ""}</h3>
+                      <span className="px-2.5 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg border border-indigo-100 uppercase tracking-wide">
+                        {selectedStudent.assignedSport || selectedStudent.sport || ""}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1.5 flex flex-wrap gap-2">
+                      ID: {selectedStudent.studentId || selectedStudent.id || selectedStudent._id || 'STU-001'} • Class {selectedStudent.class || ""}th • {selectedStudent.age || ""} Years Old • Mentor: {selectedStudent.mentor || ""}
                     </p>
                   </div>
-                  {activeRecord.recommendedSport && activeRecord.recommendedSport !== 'N/A' && (
-                    <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-black rounded-xl border border-indigo-100 uppercase">
-                      Recommended Sport: {activeRecord.recommendedSport}
-                    </span>
-                  )}
                 </div>
 
-                {activeRecord.status === 'Absent' ? (
-                  <div className="text-center text-red-500 font-semibold text-xs py-6">
-                    ⚠️ Student was marked ABSENT for physical screenings during this term.
+                {/* Term Selector & Back Link */}
+                <div className="flex items-center gap-3 self-end md:self-center">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Viewing Term:</span>
+                  <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
+                    <button
+                      onClick={() => setSelectedTerm("TERM-1")}
+                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all ${selectedTerm === "TERM-1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                        }`}
+                    >
+                      Term 1
+                    </button>
+                    <button
+                      onClick={() => setSelectedTerm("TERM-2")}
+                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all ${selectedTerm === "TERM-2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                        }`}
+                    >
+                      Term 2
+                    </button>
                   </div>
-                ) : activeRecord.height ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    
-                    {/* General Body Composition */}
-                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-4">
-                      <h5 className="font-black text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 pb-1.5 flex items-center gap-1.5">
-                        📏 Body Composition
-                      </h5>
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
-                          <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Height</span>
-                          <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.height} cm</span>
-                        </div>
-                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
-                          <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Weight</span>
-                          <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.weight} kg</span>
-                        </div>
-                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
-                          <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">BMI</span>
-                          <span className="text-base font-black text-indigo-600 mt-1 block">{activeRecord.bmi}</span>
+                </div>
+
+              </div>
+
+              {/* High-Impact Stat widgets Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-50 rounded-bl-full pointer-events-none flex items-center justify-center">
+                    <Trophy className="text-indigo-600/30 w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Overall Score</span>
+                  <span className="text-3xl font-black text-slate-800">{activeRecord?.overallScore || 0}%</span>
+
+                  {/* Visual score slider */}
+                  <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
+                    <div
+                      className="bg-indigo-600 h-full rounded-full transition-all duration-1000"
+                      style={{ width: `${activeRecord?.overallScore || 0}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
+                    <span>Progress Log</span>
+                    <span className="text-indigo-600 font-extrabold">{activeRecord?.fitnessLevel} Level</span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-teal-50 rounded-bl-full pointer-events-none flex items-center justify-center">
+                    <CheckCircle className="text-teal-600/30 w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Attendance Rate</span>
+                  <span className="text-3xl font-black text-slate-800">{activeRecord?.attendance || 0}%</span>
+
+                  {/* Visual score slider */}
+                  <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
+                    <div
+                      className="bg-teal-500 h-full rounded-full transition-all duration-1000"
+                      style={{ width: `${activeRecord?.attendance || 0}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
+                    <span>Regularity Target</span>
+                    <span className="text-teal-600 font-extrabold">{activeRecord?.attendance >= 90 ? 'Excellent' : 'Average'}</span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-bl-full pointer-events-none flex items-center justify-center">
+                    <Zap className="text-purple-600/30 w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Discipline Index</span>
+                  <span className="text-3xl font-black text-slate-800">{activeRecord?.discipline || 0} / 10</span>
+
+                  {/* Visual score slider */}
+                  <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
+                    <div
+                      className="bg-purple-500 h-full rounded-full transition-all duration-1000"
+                      style={{ width: `${(activeRecord?.discipline || 0) * 10}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
+                    <span>Attitude Markers</span>
+                    <span className="text-purple-600 font-extrabold">{activeRecord?.discipline >= 8 ? 'Exceptional' : 'Good'}</span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-amber-50 rounded-bl-full pointer-events-none flex items-center justify-center">
+                    <Target className="text-amber-600/30 w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Match Performance</span>
+                  <span className="text-3xl font-black text-slate-800">{activeRecord?.matchPerformance || 0}%</span>
+
+                  {/* Visual score slider */}
+                  <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
+                    <div
+                      className="bg-amber-500 h-full rounded-full transition-all duration-1000"
+                      style={{ width: `${activeRecord?.matchPerformance || 0}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
+                    <span>In-game scoring</span>
+                    <span className="text-amber-600 font-extrabold">{activeRecord?.matchPerformance >= 80 ? 'Highly Competent' : 'Average'}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Core Visualization Charts Row (Radar & Comparison) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                {/* Radar Chart */}
+                <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between h-[450px]">
+                  <div>
+                    <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                      <Activity size={16} className="text-indigo-600" />
+                      Physical Capacity Distribution Radar
+                    </h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Physical indicators representation inside the selected term</p>
+                  </div>
+
+                  <div className="flex-1 w-full min-h-[300px] flex items-center justify-center mt-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
+                        <PolarGrid stroke="#f1f5f9" strokeWidth={1.5} />
+                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#334155', fontSize: 10, fontWeight: '800' }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 8 }} />
+                        <Radar
+                          name={`${selectedStudent.name} (${selectedTerm})`}
+                          dataKey="val"
+                          stroke="#4f46e5"
+                          fill="#4f46e5"
+                          fillOpacity={0.25}
+                          strokeWidth={2.5}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: '#0f172a',
+                            border: 'none',
+                            borderRadius: '12px',
+                            color: '#f8fafc',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+                          }}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Term Comparative Chart */}
+                <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between h-[450px]">
+                  <div>
+                    <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                      <TrendingUp size={16} className="text-indigo-600" />
+                      Term Improvement Diagnostics
+                    </h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Side-by-side comparative analysis of physical parameters</p>
+                  </div>
+
+                  <div className="flex-1 w-full min-h-[300px] mt-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={comparisonData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                        <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10, fontWeight: '700' }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: '#0f172a',
+                            border: 'none',
+                            borderRadius: '12px',
+                            color: '#f8fafc',
+                            fontSize: '11px',
+                            fontWeight: '700'
+                          }}
+                        />
+                        <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: '800' }} />
+                        <Bar dataKey="Term 1" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={22} />
+                        <Bar dataKey="Term 2" fill="#4f46e5" radius={[4, 4, 0, 0]} maxBarSize={22} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Auto AI Diagnostic Diagnostic Block */}
+              {activeRecord?.aiInsight && (
+                <div className="bg-gradient-to-r from-indigo-50 via-slate-50 to-indigo-50/40 rounded-3xl border border-indigo-100/50 p-6 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-indigo-200/15 to-transparent rounded-bl-full pointer-events-none"></div>
+
+                  <h4 className="font-extrabold text-indigo-900 text-sm flex items-center gap-2.5 mb-3">
+                    <Sparkles className="text-indigo-600 w-5 h-5 animate-pulse" />
+                    Auto AI Diagnostic Evaluation
+                  </h4>
+
+                  <p className="text-xs text-indigo-950 font-semibold leading-relaxed max-w-4xl">
+                    {activeRecord.aiInsight}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-4 text-[10px] font-black uppercase text-indigo-700">
+                    <span className="px-3.5 py-1.5 bg-white rounded-xl border border-indigo-100 flex items-center gap-1 shadow-sm">
+                      🏋️‍♂️ Strength: {activeRecord.strength}%
+                    </span>
+                    <span className="px-3.5 py-1.5 bg-white rounded-xl border border-indigo-100 flex items-center gap-1 shadow-sm">
+                      🏃‍♂️ Speed: {activeRecord.speed}%
+                    </span>
+                    <span className="px-3.5 py-1.5 bg-white rounded-xl border border-indigo-100 flex items-center gap-1 shadow-sm">
+                      🎯 Accuracy: {activeRecord.accuracy}%
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Raw Physical screening parameters entered by coach */}
+              {activeRecord && (
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-6">
+                  <div className="border-b border-slate-150 pb-3 flex justify-between items-center">
+                    <div>
+                      <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                        <ClipboardList size={16} className="text-indigo-600" />
+                        Physical screening parameters (Real Scores)
+                      </h4>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                        Actual measurements recorded during {selectedTerm}
+                      </p>
+                    </div>
+                    {activeRecord.recommendedSport && activeRecord.recommendedSport !== 'N/A' && (
+                      <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-black rounded-xl border border-indigo-100 uppercase">
+                        Recommended Sport: {activeRecord.recommendedSport}
+                      </span>
+                    )}
+                  </div>
+
+                  {activeRecord.status === 'Absent' ? (
+                    <div className="text-center text-red-500 font-semibold text-xs py-6">
+                      ⚠️ Student was marked ABSENT for physical screenings during this term.
+                    </div>
+                  ) : activeRecord.height ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                      {/* General Body Composition */}
+                      <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-4">
+                        <h5 className="font-black text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 pb-1.5 flex items-center gap-1.5">
+                          📏 Body Composition
+                        </h5>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                            <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Height</span>
+                            <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.height} cm</span>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                            <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Weight</span>
+                            <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.weight} kg</span>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                            <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">BMI</span>
+                            <span className="text-base font-black text-indigo-600 mt-1 block">{activeRecord.bmi}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Test Results depending on Age Group */}
-                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-4">
-                      <h5 className="font-black text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 pb-1.5 flex items-center gap-1.5">
-                        ⏱️ Evaluation Screening Scores
-                      </h5>
-                      {activeRecord.ageGroup === 1 ? (
-                        /* Group 1 tests */
-                        <div className="grid grid-cols-2 gap-4 text-center">
-                          <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
-                            <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Plate Tapping (Coord.)</span>
-                            <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.plateTapping} s</span>
+                      {/* Test Results depending on Age Group */}
+                      <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-4">
+                        <h5 className="font-black text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 pb-1.5 flex items-center gap-1.5">
+                          ⏱️ Evaluation Screening Scores
+                        </h5>
+                        {activeRecord.ageGroup === 1 ? (
+                          /* Group 1 tests */
+                          <div className="grid grid-cols-2 gap-4 text-center">
+                            <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                              <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Plate Tapping (Coord.)</span>
+                              <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.plateTapping} s</span>
+                            </div>
+                            <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
+                              <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Flamingo (Balancing)</span>
+                              <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.flamingoBalance} s</span>
+                            </div>
                           </div>
-                          <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
-                            <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Flamingo (Balancing)</span>
-                            <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.flamingoBalance} s</span>
+                        ) : (
+                          /* Group 2 tests */
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
+                            <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
+                              <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">Curl-Ups</span>
+                              <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.partialCurlUp} reps</span>
+                            </div>
+                            <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
+                              <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">Push-Ups</span>
+                              <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.pushups} reps</span>
+                            </div>
+                            <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
+                              <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">Sit & Reach</span>
+                              <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.sitAndReach} cm</span>
+                            </div>
+                            <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
+                              <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">600m Run</span>
+                              <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.runWalk600m}</span>
+                            </div>
+                            <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm col-span-2 sm:col-span-1">
+                              <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">50m Sprint</span>
+                              <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.run50m} s</span>
+                            </div>
                           </div>
-                        </div>
-                      ) : (
-                        /* Group 2 tests */
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
-                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
-                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">Curl-Ups</span>
-                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.partialCurlUp} reps</span>
-                          </div>
-                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
-                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">Push-Ups</span>
-                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.pushups} reps</span>
-                          </div>
-                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
-                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">Sit & Reach</span>
-                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.sitAndReach} cm</span>
-                          </div>
-                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm">
-                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">600m Run</span>
-                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.runWalk600m}</span>
-                          </div>
-                          <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm col-span-2 sm:col-span-1">
-                            <span className="text-[8px] text-slate-400 font-bold uppercase block leading-none">50m Sprint</span>
-                            <span className="text-sm font-black text-slate-800 mt-1 block">{activeRecord.run50m} s</span>
+                        )}
+                      </div>
+
+                      {/* Observations and file uploads */}
+                      {(activeRecord.manualReportData || activeRecord.reportHardCopyUrl) && (
+                        <div className="md:col-span-2 bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-3">
+                          <h5 className="font-black text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 pb-1 flex items-center gap-1">
+                            📝 Observations & Proof
+                          </h5>
+                          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 w-full">
+                            {activeRecord.manualReportData && (
+                              <p className="text-xs text-slate-600 italic leading-relaxed flex-1">
+                                "{activeRecord.manualReportData}"
+                              </p>
+                            )}
+                            {activeRecord.reportHardCopyUrl && (
+                              <a
+                                href={activeRecord.reportHardCopyUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-xl text-[10px] font-black uppercase flex items-center gap-1.5 shrink-0 shadow-sm transition-colors active:scale-95 cursor-pointer bg-white"
+                              >
+                                <Eye size={12} /> View Hardcopy Photo
+                              </a>
+                            )}
                           </div>
                         </div>
                       )}
                     </div>
-
-                    {/* Observations and file uploads */}
-                    {(activeRecord.manualReportData || activeRecord.reportHardCopyUrl) && (
-                      <div className="md:col-span-2 bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-3">
-                        <h5 className="font-black text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 pb-1 flex items-center gap-1">
-                          📝 Observations & Proof
-                        </h5>
-                        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 w-full">
-                          {activeRecord.manualReportData && (
-                            <p className="text-xs text-slate-600 italic leading-relaxed flex-1">
-                              "{activeRecord.manualReportData}"
-                            </p>
-                          )}
-                          {activeRecord.reportHardCopyUrl && (
-                            <a
-                              href={activeRecord.reportHardCopyUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-xl text-[10px] font-black uppercase flex items-center gap-1.5 shrink-0 shadow-sm transition-colors active:scale-95 cursor-pointer bg-white"
-                            >
-                              <Eye size={12} /> View Hardcopy Photo
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center text-slate-400 text-xs italic py-6">
-                    ℹ️ Showing derived indicators. Select a student that has been evaluated through the PE portal to view real screening logs.
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Historical Progression Panel */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-              <h4 className="font-extrabold text-slate-800 text-sm mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-                <Calendar size={16} className="text-indigo-600" />
-                Evaluation Logs Timeline
-              </h4>
-
-              <div className="space-y-6 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-                {historyRecords.map((record) => (
-                  <div key={record._id} className="flex gap-6 relative items-start group">
-                    
-                    {/* Timestamp Dot */}
-                    <div className="w-7 h-7 rounded-full bg-slate-50 border border-slate-200 text-slate-400 group-hover:border-indigo-600 group-hover:text-indigo-600 flex items-center justify-center shrink-0 z-10 transition-colors bg-white font-extrabold text-[10px]">
-                      {record.term === 'TERM-1' ? 'T1' : 'T2'}
+                  ) : (
+                    <div className="text-center text-slate-400 text-xs italic py-6">
+                      ℹ️ Showing derived indicators. Select a student that has been evaluated through the PE portal to view real screening logs.
                     </div>
+                  )}
+                </div>
+              )}
 
-                    {/* Record Card */}
-                    <div className="flex-1 bg-slate-50/50 border border-slate-100 rounded-2xl p-5 hover:bg-slate-50 hover:border-slate-200 transition-all">
-                      <div className="flex justify-between items-start gap-4 flex-wrap">
-                        <div>
-                          <span className="px-2.5 py-0.5 bg-white border border-slate-200 text-slate-600 text-[10px] font-black rounded-lg uppercase">
-                            {record.term}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-bold ml-2">
-                            Logged: {new Date(record.createdAt).toLocaleDateString()}
+              {/* Historical Progression Panel */}
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <h4 className="font-extrabold text-slate-800 text-sm mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
+                  <Calendar size={16} className="text-indigo-600" />
+                  Evaluation Logs Timeline
+                </h4>
+
+                <div className="space-y-6 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                  {historyRecords.map((record) => (
+                    <div key={record._id} className="flex gap-6 relative items-start group">
+
+                      {/* Timestamp Dot */}
+                      <div className="w-7 h-7 rounded-full bg-slate-50 border border-slate-200 text-slate-400 group-hover:border-indigo-600 group-hover:text-indigo-600 flex items-center justify-center shrink-0 z-10 transition-colors bg-white font-extrabold text-[10px]">
+                        {record.term === 'TERM-1' ? 'T1' : 'T2'}
+                      </div>
+
+                      {/* Record Card */}
+                      <div className="flex-1 bg-slate-50/50 border border-slate-100 rounded-2xl p-5 hover:bg-slate-50 hover:border-slate-200 transition-all">
+                        <div className="flex justify-between items-start gap-4 flex-wrap">
+                          <div>
+                            <span className="px-2.5 py-0.5 bg-white border border-slate-200 text-slate-600 text-[10px] font-black rounded-lg uppercase">
+                              {record.term}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-bold ml-2">
+                              Logged: {new Date(record.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${record.fitnessLevel === 'Excellent' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
+                              record.fitnessLevel === 'Good' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
+                                'bg-amber-50 text-amber-700 border border-amber-100'
+                            }`}>
+                            {record.fitnessLevel} Fitness Category
                           </span>
                         </div>
-                        
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                          record.fitnessLevel === 'Excellent' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
-                          record.fitnessLevel === 'Good' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
-                          'bg-amber-50 text-amber-700 border border-amber-100'
-                        }`}>
-                          {record.fitnessLevel} Fitness Category
-                        </span>
+
+                        {/* Summary Metrics */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 pt-3 border-t border-slate-200/60 text-xs font-semibold text-slate-500">
+                          <div>
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Average Fitness</span>
+                            <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.overallScore}%</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Stamina Marker</span>
+                            <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.stamina}%</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Agility displacement</span>
+                            <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.agility}%</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Reaction speed</span>
+                            <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.reactionTime}%</span>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Summary Metrics */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 pt-3 border-t border-slate-200/60 text-xs font-semibold text-slate-500">
-                        <div>
-                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Average Fitness</span>
-                          <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.overallScore}%</span>
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Stamina Marker</span>
-                          <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.stamina}%</span>
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Agility displacement</span>
-                          <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.agility}%</span>
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Reaction speed</span>
-                          <span className="font-extrabold text-slate-800 text-sm mt-0.5 inline-block">{record.reactionTime}%</span>
-                        </div>
-                      </div>
                     </div>
-
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+
             </div>
-
-          </div>
           )
         )}
 
