@@ -1,6 +1,6 @@
 const Student = require('../models/Student');
 const Performance = require('../models/Performance');
-const TestPerformance = require('../models/TestPerformance');
+
 const Institute = require('../models/Institute');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
@@ -11,7 +11,7 @@ const seedStudents = async (force = false) => {
       users: await User.countDocuments(),
       students: await Student.countDocuments(),
       performances: await Performance.countDocuments(),
-      testPerformances: await TestPerformance.countDocuments(),
+
       institutes: await Institute.countDocuments()
     });
 
@@ -31,7 +31,7 @@ const seedStudents = async (force = false) => {
     if (force) {
       await Student.deleteMany({});
       await Performance.deleteMany({});
-      await TestPerformance.deleteMany({});
+
       await Institute.deleteMany({});
       await User.deleteMany({});
       console.log("Database cleared for forced reseed.");
@@ -1265,7 +1265,7 @@ const seedStudents = async (force = false) => {
         accuracy: t1Acc,
         endurance: t1End,
         reactionTime: t1React,
-        attendance: 80 + (index % 16),
+
         discipline: 7 + (index % 4),
         matchPerformance: 60 + (index % 31),
         overallScore: t1Overall,
@@ -1284,7 +1284,7 @@ const seedStudents = async (force = false) => {
         accuracy: t2Acc,
         endurance: t2End,
         reactionTime: t2React,
-        attendance: 85 + (index % 16),
+
         discipline: 8 + (index % 3),
         matchPerformance: 70 + (index % 26),
         overallScore: t2Overall,
@@ -1302,53 +1302,6 @@ const seedStudents = async (force = false) => {
       console.log(`Successfully seeded ${performanceSeeds.length} physical performance records!`);
     }
 
-    // Seed Academic TestPerformance
-    console.log("Seeding academic test performance...");
-    const testPerformanceSeeds = [];
-
-    insertedStudents.forEach((student) => {
-      if (student.instituteId.toString() === "6650b2d1eb264088b036d101") {
-        // Seed TERM-1, HALF-YEARLY and ANNUAL
-        testPerformanceSeeds.push({
-          instituteId: student.instituteId,
-          studentId: student._id,
-          class: student.class,
-          examName: "Unit Test 1",
-          term: "TERM-1",
-          subjects: [
-            { subjectName: "Mathematics", marks: 85, maxMarks: 100 },
-            { subjectName: "Science", marks: 78, maxMarks: 100 },
-            { subjectName: "English", marks: 92, maxMarks: 100 },
-            { subjectName: "Hindi", marks: 80, maxMarks: 100 },
-            { subjectName: "Social Studies", marks: 88, maxMarks: 100 }
-          ],
-          remarks: "Excellent progress in all subjects. Active participation."
-        });
-
-        testPerformanceSeeds.push({
-          instituteId: student.instituteId,
-          studentId: student._id,
-          class: student.class,
-          examName: "Half-Yearly Examination",
-          term: "HALF-YEARLY",
-          subjects: [
-            { subjectName: "Mathematics", marks: 90, maxMarks: 100 },
-            { subjectName: "Science", marks: 82, maxMarks: 100 },
-            { subjectName: "English", marks: 88, maxMarks: 100 },
-            { subjectName: "Hindi", marks: 85, maxMarks: 100 },
-            { subjectName: "Social Studies", marks: 90, maxMarks: 100 }
-          ],
-          remarks: "Continues to excel. Mathematics scores are very strong."
-        });
-      }
-    });
-
-    if (testPerformanceSeeds.length > 0) {
-      for (const t of testPerformanceSeeds) {
-        await TestPerformance.create(t);
-      }
-      console.log(`Successfully seeded ${testPerformanceSeeds.length} academic test performance records.`);
-    }
 
     console.log("Seeding completed successfully!");
   } catch (error) {

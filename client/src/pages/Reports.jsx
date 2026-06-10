@@ -6,6 +6,7 @@ import {
   ShieldAlert, Sparkles, Zap, Target, AlertCircle, Plus
 } from 'lucide-react';
 import axios from 'axios';
+import FitnessReportExportButton from '../components/FitnessReport';
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -307,156 +308,8 @@ const Reports = () => {
     return null;
   })();
 
-  const handleExportPDF = async () => {
-    if (!selectedInst) {
-      alert("Please select an institution or sports academy first!");
-      return;
-    }
-
-    try {
-      const { jsPDF } = await import('jspdf');
-      const doc = new jsPDF();
-      
-      if (selectedStudent) {
-        if (!selectedPerformance) {
-          alert("No performance records found for this student. Export disabled.");
-          return;
-        }
-        const perf = selectedPerformance;
-        
-        // Student Report PDF Formatting
-        doc.setFontSize(22);
-        doc.setTextColor(30, 41, 59);
-        doc.text('Athletic Performance Report', 20, 25);
-        
-        doc.setFontSize(12);
-        doc.setTextColor(100, 116, 139);
-        doc.text(`Academic Year 2026 - ${perf.term === 'TERM-1' ? 'Term 1' : 'Term 2'}`, 20, 35);
-        
-        doc.setDrawColor(79, 70, 229);
-        doc.setLineWidth(1);
-        doc.line(20, 40, 190, 40);
-        
-        doc.setFontSize(14);
-        doc.setTextColor(30, 41, 59);
-        doc.text('Student Profile details', 20, 55);
-        
-        doc.setFontSize(11);
-        doc.setTextColor(71, 85, 105);
-        doc.text(`Name: ${selectedStudent.name}`, 20, 65);
-        doc.text(`Student ID: ${selectedStudent.studentId || selectedStudent.id || 'STU-001'}`, 20, 73);
-        doc.text(`Assigned Sport: ${selectedStudent.assignedSport || selectedStudent.sport}`, 20, 81);
-        doc.text(`BMI: ${selectedStudent.bmi} (${selectedStudent.bmiCategory})`, 20, 89);
-        doc.text(`Class Grade: Class ${selectedStudent.class}th`, 20, 97);
-        doc.text(`Coach Mentor: ${selectedStudent.mentor || 'Coach Arthur'}`, 20, 105);
-        
-        doc.setFontSize(14);
-        doc.setTextColor(30, 41, 59);
-        doc.text('Performance Summary', 20, 120);
-        
-        doc.setFontSize(11);
-        doc.setTextColor(71, 85, 105);
-        doc.text(`Overall Score: ${perf.overallScore}%`, 20, 130);
-        doc.text(`Fitness Level: ${perf.fitnessLevel}`, 20, 138);
-        doc.text(`Attendance Rate: ${perf.attendance}%`, 20, 146);
-        doc.text(`Discipline Rating: ${perf.discipline}/10`, 20, 154);
-        doc.text(`Match Score: ${perf.matchPerformance}%`, 20, 162);
-        
-        doc.setFontSize(14);
-        doc.setTextColor(30, 41, 59);
-        doc.text('Physical Capacity Indicators', 20, 178);
-        
-        doc.setFontSize(11);
-        doc.text(`Speed: ${perf.speed}%`, 20, 188);
-        doc.text(`Strength: ${perf.strength}%`, 20, 196);
-        doc.text(`Stamina: ${perf.stamina}%`, 20, 204);
-        doc.text(`Agility: ${perf.agility}%`, 20, 212);
-        doc.text(`Flexibility: ${perf.flexibility}%`, 110, 188);
-        doc.text(`Accuracy: ${perf.accuracy}%`, 110, 196);
-        doc.text(`Endurance: ${perf.endurance}%`, 110, 204);
-        doc.text(`Reaction Time: ${perf.reactionTime}%`, 110, 212);
-        
-        doc.setFontSize(10);
-        doc.setTextColor(100, 116, 139);
-        doc.text('Generated dynamically by SportSphere Analytics Center', 20, 280);
-      } else {
-        // Dynamic Roster Performance Report
-        const displayStudents = getDisplayStudents();
-
-        doc.setFontSize(22);
-        doc.setTextColor(30, 41, 59);
-        doc.text('Roster Performance Report', 20, 25);
-        
-        doc.setFontSize(12);
-        doc.setTextColor(100, 116, 139);
-        doc.text('Generated on: ' + new Date().toLocaleDateString('en-IN'), 20, 35);
-        
-        doc.setDrawColor(79, 70, 229);
-        doc.setLineWidth(1);
-        doc.line(20, 40, 190, 40);
-        
-        doc.setFontSize(14);
-        doc.setTextColor(30, 41, 59);
-        doc.text('Entity Details', 20, 55);
-        
-        doc.setFontSize(11);
-        doc.setTextColor(71, 85, 105);
-        doc.text(`Name: ${selectedInst.name}`, 20, 65);
-        doc.text(`Category: ${activeCategory === 'academies' ? 'Sports Academy' : 'School/Institution'}`, 20, 73);
-        doc.text(`Location: ${selectedInst.location || 'N/A'}`, 20, 81);
-        doc.text(`Total Enrolled: ${displayStudents.length}`, 20, 89);
-        
-        doc.setFontSize(14);
-        doc.setTextColor(30, 41, 59);
-        doc.text('Active Roster Performance Index', 20, 105);
-        
-        // Table header
-        doc.setFontSize(10);
-        doc.setTextColor(255, 255, 255);
-        doc.setFillColor(79, 70, 229);
-        doc.rect(20, 110, 170, 8, 'F');
-        doc.text('#', 22, 116);
-        doc.text('Name', 32, 116);
-        doc.text('Class', 82, 116);
-        doc.text('Assigned Sport', 112, 116);
-        doc.text('Overall Score', 162, 116);
-        
-        // Table rows
-        doc.setTextColor(71, 85, 105);
-        displayStudents.forEach((s, i) => {
-          const y = 126 + (i * 10);
-          if (i % 2 === 0) {
-            doc.setFillColor(248, 250, 252);
-            doc.rect(20, y - 6, 170, 10, 'F');
-          }
-          
-          const studentPerf = allPerformances.find(r => {
-            const rStudentId = r.studentId && (typeof r.studentId === 'object' ? r.studentId._id : r.studentId);
-            return (rStudentId === s.id || rStudentId === s._id) && r.term === selectedTerm;
-          });
-          const score = studentPerf ? `${studentPerf.overallScore}%` : "N/A";
-          
-          doc.text((i + 1).toString(), 22, y);
-          doc.text(s.name, 32, y);
-          doc.text(`Class ${s.class}th`, 82, y);
-          doc.text(s.assignedSport || s.sport, 112, y);
-          doc.text(score, 162, y);
-        });
-        
-        doc.setFontSize(10);
-        doc.setTextColor(100, 116, 139);
-        doc.text('Generated dynamically by SportSphere Analytics Center', 20, 280);
-      }
-      
-      const fileName = selectedStudent 
-        ? `${selectedStudent.name.replace(/\s+/g, '_')}_Report.pdf` 
-        : `${selectedInst.name.replace(/\s+/g, '_')}_Roster_Report.pdf`;
-      doc.save(fileName);
-    } catch (error) {
-      console.error('Failed to generate PDF:', error);
-      alert('Failed to generate PDF.');
-    }
-  };
+  // PDF export is now fully handled by <FitnessReportExportButton />
+  // which manages its own isExporting state, spinner, and try/catch/finally.
 
   const handlePrint = () => {
     if (selectedStudent && !selectedPerformance) {
@@ -555,17 +408,28 @@ const Reports = () => {
               >
                 <Printer size={15} /> Print Report
               </button>
-              <button
-                onClick={handleExportPDF}
-                disabled={selectedStudent && !selectedPerformance}
-                className={`px-5 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2 font-black active:scale-95 cursor-pointer ${
-                  (selectedStudent && !selectedPerformance)
-                    ? "bg-slate-200 text-slate-400 cursor-not-allowed opacity-50 shadow-none" 
-                    : "bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-indigo-500/10"
-                }`}
-              >
-                <Download size={15} /> Export PDF
-              </button>
+              {/* Phase 3+4+5: Self-managing PDF export button */}
+              {selectedStudent && selectedPerformance ? (
+                <FitnessReportExportButton
+                  student={selectedStudent}
+                  currentPerf={selectedPerformance}
+                  prevPerf={(() => {
+                    // Resolve previous term perf for comparison column
+                    const otherTerm = selectedTerm === 'TERM-1' ? 'TERM-2' : 'TERM-1';
+                    return dbPerformances.find(r => r.term === otherTerm) || null;
+                  })()}
+                  institute={selectedInst}
+                  disabled={false}
+                />
+              ) : (
+                <FitnessReportExportButton
+                  student={null}
+                  currentPerf={null}
+                  prevPerf={null}
+                  institute={selectedInst}
+                  disabled={true}
+                />
+              )}
             </>
           )}
         </div>

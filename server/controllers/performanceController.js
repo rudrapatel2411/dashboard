@@ -113,7 +113,7 @@ exports.addPerformance = async (req, res) => {
       }
     }
 
-    const finalAttendance = parseOptionalNumber(attendance);
+
     const finalDiscipline = parseOptionalNumber(discipline);
     const finalMatchPerf = parseOptionalNumber(matchPerformance);
 
@@ -137,7 +137,7 @@ exports.addPerformance = async (req, res) => {
     let performance = await Performance.findOne({ studentId, term });
     const performanceData = {
       studentId, term, speed, strength, stamina, agility, flexibility, accuracy, endurance, reactionTime,
-      attendance: finalAttendance, discipline: finalDiscipline, matchPerformance: finalMatchPerf,
+      attendance: undefined, discipline: finalDiscipline, matchPerformance: finalMatchPerf,
       overallScore: parseFloat(overallScore.toFixed(2)), fitnessLevel, aiInsight,
       status, ageGroup, height: isAbsent ? 0 : heightNum, weight: isAbsent ? 0 : weightNum, bmi,
       plateTapping: isAbsent || ageGroup !== 1 ? 0 : tap,

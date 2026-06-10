@@ -240,9 +240,6 @@ const Performance = () => {
     const t1Acc = Math.min(100, Math.max(40, baseAcc - 4 + (getHashValue(seed, "t1acc") % 12)));
     const t1End = Math.min(100, Math.max(40, baseEnd - 5 + (getHashValue(seed, "t1end") % 12)));
     const t1React = Math.min(100, Math.max(40, baseReact - 4 + (getHashValue(seed, "t1react") % 10)));
-    const t1Attendance = 85 + (getHashValue(seed, "t1att") % 15);
-    const t1Discipline = 7 + (getHashValue(seed, "t1disc") % 4);
-    const t1MatchPerf = 70 + (getHashValue(seed, "t1match") % 26);
 
     // Term 2 improvements showing athlete growth!
     const t2Speed = Math.min(100, Math.max(40, t1Speed + (getHashValue(seed, "t2speed") % 6)));
@@ -253,9 +250,6 @@ const Performance = () => {
     const t2Acc = Math.min(100, Math.max(40, t1Acc + (getHashValue(seed, "t2acc") % 6)));
     const t2End = Math.min(100, Math.max(40, t1End + (getHashValue(seed, "t2end") % 6)));
     const t2React = Math.min(100, Math.max(40, t1React + (getHashValue(seed, "t2react") % 6)));
-    const t2Attendance = Math.min(100, t1Attendance - 2 + (getHashValue(seed, "t2att") % 6));
-    const t2Discipline = Math.min(10, t1Discipline - 1 + (getHashValue(seed, "t2disc") % 3));
-    const t2MatchPerf = Math.min(100, t1MatchPerf + (getHashValue(seed, "t2match") % 7));
 
     const t1Overall = Math.round((t1Speed + t1Strength + t1Stamina + t1Agility + t1Flex + t1Acc + t1End + t1React) / 8);
     const t2Overall = Math.round((t2Speed + t2Strength + t2Stamina + t2Agility + t2Flex + t2Acc + t2End + t2React) / 8);
@@ -282,9 +276,6 @@ const Performance = () => {
         accuracy: t1Acc,
         endurance: t1End,
         reactionTime: t1React,
-        attendance: t1Attendance,
-        discipline: t1Discipline,
-        matchPerformance: t1MatchPerf,
         overallScore: t1Overall,
         fitnessLevel: getFitnessLevel(t1Overall),
         aiInsight: `Term-1 evaluation highlights a very high athletic baseline. Acceleration speeds and hamstring power metrics are superior. Focus items for training include improving static balance ratios and agility response cycles.`
@@ -301,9 +292,6 @@ const Performance = () => {
         accuracy: t2Acc,
         endurance: t2End,
         reactionTime: t2React,
-        attendance: t2Attendance,
-        discipline: t2Discipline,
-        matchPerformance: t2MatchPerf,
         overallScore: t2Overall,
         fitnessLevel: getFitnessLevel(t2Overall),
         aiInsight: `Diagnostic evaluation for ${student.name} (${student.sport || student.assignedSport || "General Sports"}) shows a notable physical index growth of +${delta}% over the tracking duration. Core agility indexes and stamina reserves are outstanding. Muscle skeletal reaction speeds are fully aligned with advanced competitive rosters. Recommended specialized court acceleration drills.`
@@ -830,7 +818,7 @@ const Performance = () => {
               <div className="space-y-1">
                 <h3 className="text-lg font-black text-slate-800">No Performance Data Found</h3>
                 <p className="text-sm text-slate-500 font-medium">
-                  No physical tests, sports scores, or attendance records have been entered for <span className="font-bold text-indigo-600">{selectedStudent.name}</span> yet.
+                  No physical tests or sports scores have been entered for <span className="font-bold text-indigo-600">{selectedStudent.name}</span> yet.
                 </p>
               </div>
               {isInstituteUser && (
@@ -839,7 +827,7 @@ const Performance = () => {
                     onClick={() => navigate(`${user.instituteType === 'academy' ? '/academy' : '/institute'}/physical-tests?class=${selectedStudent.class}&search=${encodeURIComponent(selectedStudent.name)}`)}
                     className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer"
                   >
-                    <Plus size={14} /> Enter Sports Marks & Attendance
+                    <Plus size={14} /> Enter Sports Marks
                   </button>
                 </div>
               )}
@@ -915,65 +903,7 @@ const Performance = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-teal-50 rounded-bl-full pointer-events-none flex items-center justify-center">
-                  <CheckCircle className="text-teal-600/30 w-5 h-5" />
-                </div>
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Attendance Rate</span>
-                <span className="text-3xl font-black text-slate-800">{activeRecord?.attendance || 0}%</span>
-                
-                {/* Visual score slider */}
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
-                  <div 
-                    className="bg-teal-500 h-full rounded-full transition-all duration-1000"
-                    style={{ width: `${activeRecord?.attendance || 0}%` }}
-                  ></div>
-                </div>
-                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                  <span>Regularity Target</span>
-                  <span className="text-teal-600 font-extrabold">{activeRecord?.attendance >= 90 ? 'Excellent' : 'Average'}</span>
-                </div>
-              </div>
 
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-bl-full pointer-events-none flex items-center justify-center">
-                  <Zap className="text-purple-600/30 w-5 h-5" />
-                </div>
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Discipline Index</span>
-                <span className="text-3xl font-black text-slate-800">{activeRecord?.discipline || 0} / 10</span>
-                
-                {/* Visual score slider */}
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
-                  <div 
-                    className="bg-purple-500 h-full rounded-full transition-all duration-1000"
-                    style={{ width: `${(activeRecord?.discipline || 0) * 10}%` }}
-                  ></div>
-                </div>
-                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                  <span>Attitude Markers</span>
-                  <span className="text-purple-600 font-extrabold">{activeRecord?.discipline >= 8 ? 'Exceptional' : 'Good'}</span>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-amber-50 rounded-bl-full pointer-events-none flex items-center justify-center">
-                  <Target className="text-amber-600/30 w-5 h-5" />
-                </div>
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Match Performance</span>
-                <span className="text-3xl font-black text-slate-800">{activeRecord?.matchPerformance || 0}%</span>
-                
-                {/* Visual score slider */}
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
-                  <div 
-                    className="bg-amber-500 h-full rounded-full transition-all duration-1000"
-                    style={{ width: `${activeRecord?.matchPerformance || 0}%` }}
-                  ></div>
-                </div>
-                <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                  <span>In-game scoring</span>
-                  <span className="text-amber-600 font-extrabold">{activeRecord?.matchPerformance >= 80 ? 'Highly Competent' : 'Average'}</span>
-                </div>
-              </div>
 
             </div>
 

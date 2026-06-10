@@ -1,16 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { protect, requireRole } = require('../middleware/auth');
-// Fix #21: Removed unused `upload` import — only marksheetUpload is used here
-const { marksheetUpload } = require('../utils/multerConfig');
 const {
   getStudents,
   addStudent,
   updateStudent,
   deleteStudent,
   promoteStudents,
-  addTestPerformance,
-  getTestPerformance,
   getClassWiseReport,
   getClassSummary
 } = require('../controllers/institutePortalController');
@@ -24,11 +20,6 @@ router.post('/students', addStudent);
 router.post('/students/promote', promoteStudents);
 router.put('/students/:id', updateStudent);
 router.delete('/students/:id', deleteStudent);
-
-
-// Test performance
-router.post('/test-performance', marksheetUpload.single('marksheet'), addTestPerformance);
-router.get('/test-performance', getTestPerformance);
 
 // Reports
 router.get('/reports', getClassWiseReport);

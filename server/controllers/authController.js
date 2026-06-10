@@ -1,4 +1,4 @@
-const { User, Institute, Student, Performance, TestPerformance } = require('../models');
+const { User, Institute, Student, Performance } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -417,11 +417,8 @@ exports.deleteAccount = async (req, res) => {
         if (studentIds.length > 0) {
           // 2. Delete all performance entries for these students
           await Performance.deleteMany({ studentId: { $in: studentIds } });
-          
-          // 3. Delete all academic test performance entries for these students
-          await TestPerformance.deleteMany({ studentId: { $in: studentIds } });
 
-          // 4. Delete the students themselves
+          // 3. Delete the students themselves
           await Student.deleteMany({ instituteId: institute._id });
         }
 

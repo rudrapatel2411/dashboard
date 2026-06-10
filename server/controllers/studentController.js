@@ -1,4 +1,4 @@
-const { Student, Performance, TestPerformance } = require('../models');
+const { Student, Performance } = require('../models');
 
 exports.getStudents = async (req, res) => {
   try {
@@ -66,11 +66,8 @@ exports.deleteStudent = async (req, res) => {
     const student = await Student.findByIdAndDelete(req.params.id);
     if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    // Fix #9: Cascade-delete all performance/academic records for this student.
-    // Previously, deleting a student left orphaned Performance and TestPerformance
-    // documents, inflating dashboard statistics with ghost data.
+    // Cascade-delete all performance records for this student.
     await Performance.deleteMany({ studentId: student._id });
-    await TestPerformance.deleteMany({ studentId: student._id });
 
     res.json({ message: 'Student and all associated records removed' });
   } catch (error) {

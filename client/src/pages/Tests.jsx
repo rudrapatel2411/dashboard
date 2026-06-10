@@ -194,10 +194,7 @@ const Tests = () => {
           run50m: p.run50m || null,
           recommendedSport: p.recommendedSport || "N/A",
           manualReportData: p.manualReportData || "",
-          reportHardCopyUrl: p.reportHardCopyUrl || null,
-          attendance: p.attendance || null,
-          discipline: p.discipline || null,
-          matchPerformance: p.matchPerformance || null
+          reportHardCopyUrl: p.reportHardCopyUrl || null
         };
       });
 
@@ -392,22 +389,6 @@ const Tests = () => {
     };
 
     if (!isAbsent) {
-      if (
-        isFieldEmpty(row.attendance) ||
-        isFieldEmpty(row.discipline) ||
-        isFieldEmpty(row.matchPerformance)
-      ) {
-        triggerToast(
-          "Missing details",
-          "Please fill attendance, discipline, and match performance.",
-          true
-        );
-        return;
-      }
-      payload.attendance = parseFloat(row.attendance);
-      payload.discipline = parseFloat(row.discipline);
-      payload.matchPerformance = parseFloat(row.matchPerformance);
-
       if (isGroup1) {
         if (
           isFieldEmpty(row.height) ||
@@ -480,10 +461,7 @@ const Tests = () => {
         run50m: savedPerf.run50m || null,
         recommendedSport: savedPerf.recommendedSport,
         manualReportData: savedPerf.manualReportData,
-        reportHardCopyUrl: savedPerf.reportHardCopyUrl,
-        attendance: savedPerf.attendance,
-        discipline: savedPerf.discipline,
-        matchPerformance: savedPerf.matchPerformance
+        reportHardCopyUrl: savedPerf.reportHardCopyUrl
       };
 
       setSubmissions(prev => {
@@ -524,11 +502,6 @@ const Tests = () => {
       if (!row || row.status === "Absent") return;
       const age = calculateAge(student.dob);
       const isGroup1 = age >= 5 && age <= 8;
-
-      if (isFieldEmpty(row.attendance) || isFieldEmpty(row.discipline) || isFieldEmpty(row.matchPerformance)) {
-        incompleteStudents.push(student.name);
-        return;
-      }
       
       if (isGroup1) {
         if (isFieldEmpty(row.height) || isFieldEmpty(row.weight) || isFieldEmpty(row.plateTapping) || isFieldEmpty(row.flamingoBalance) || isFieldEmpty(row.manualReportData)) {
@@ -571,10 +544,6 @@ const Tests = () => {
         };
 
         if (!isAbsent) {
-          payload.attendance = parseFloat(row.attendance);
-          payload.discipline = parseFloat(row.discipline);
-          payload.matchPerformance = parseFloat(row.matchPerformance);
-
           if (isGroup1) {
             payload.height = parseFloat(row.height);
             payload.weight = parseFloat(row.weight);
@@ -614,10 +583,7 @@ const Tests = () => {
             run50m: savedPerf.run50m || null,
             recommendedSport: savedPerf.recommendedSport,
             manualReportData: savedPerf.manualReportData,
-            reportHardCopyUrl: savedPerf.reportHardCopyUrl,
-            attendance: savedPerf.attendance,
-            discipline: savedPerf.discipline,
-            matchPerformance: savedPerf.matchPerformance
+            reportHardCopyUrl: savedPerf.reportHardCopyUrl
           };
 
           setSubmissions(prev => {
@@ -1161,48 +1127,7 @@ const Tests = () => {
                               </div>
                             )}
 
-                            {/* Sports Marks & Attendance Section */}
-                            <div className="pt-4 border-t border-slate-200/40">
-                              <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Sports Evaluation & Attendance</h5>
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div className="min-w-0">
-                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight">Attendance (%) *</label>
-                                  <input 
-                                    type="number" 
-                                    min="0"
-                                    max="100"
-                                    placeholder="e.g. 95"
-                                    value={input.attendance}
-                                    onChange={(e) => updateRowField(student._id, "attendance", e.target.value)}
-                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
-                                  />
-                                </div>
-                                <div className="min-w-0">
-                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight">Discipline (1-10) *</label>
-                                  <input 
-                                    type="number" 
-                                    min="1"
-                                    max="10"
-                                    placeholder="e.g. 9"
-                                    value={input.discipline}
-                                    onChange={(e) => updateRowField(student._id, "discipline", e.target.value)}
-                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
-                                  />
-                                </div>
-                                <div className="min-w-0">
-                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight">Match Performance (%) *</label>
-                                  <input 
-                                    type="number" 
-                                    min="0"
-                                    max="100"
-                                    placeholder="e.g. 85"
-                                    value={input.matchPerformance}
-                                    onChange={(e) => updateRowField(student._id, "matchPerformance", e.target.value)}
-                                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/25 transition-all shadow-sm bg-white hover:border-slate-300"
-                                  />
-                                </div>
-                              </div>
-                            </div>
+
 
                             {/* Observations / Notes Only */}
                             <div className="pt-3 border-t border-slate-200/40">
