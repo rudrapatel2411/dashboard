@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FileBarChart, ChevronDown, Download, Loader2, TrendingUp, TrendingDown, Users, Award } from 'lucide-react';
+import { FileBarChart, ChevronDown, Download, Loader2, TrendingUp, TrendingDown, Users, Award, FileText } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const STANDARDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
@@ -55,11 +56,11 @@ const InstituteReports = () => {
 
     // --- Header Section ---
     // Background header bar
-    doc.setFillColor(15, 23, 42); // slate-900
+    doc.setFillColor(27, 59, 43); // Deep Forest Green
     doc.rect(0, 0, pageWidth, 38, 'F');
 
     // Accent line
-    doc.setFillColor(37, 99, 235); // blue-600
+    doc.setFillColor(210, 180, 140); // Warm Sand/Gold accent stripe
     doc.rect(0, 38, pageWidth, 2, 'F');
 
     // Institute Name
@@ -71,48 +72,122 @@ const InstituteReports = () => {
     // Report Title
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
+    doc.setTextColor(240, 244, 240);
     doc.text(`Class ${selectedClass} Performance Report${selectedTerm ? ` — ${selectedTerm}` : ''}`, 14, 25);
 
     // Date on right
     doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255);
     doc.text(`Generated: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`, pageWidth - 14, 16, { align: 'right' });
     doc.text('SportSphere Platform', pageWidth - 14, 22, { align: 'right' });
 
     // --- Summary Stats ---
     const summary = reportData.summary;
-    const statsY = 48;
-    doc.setTextColor(15, 23, 42);
+    const statsY = 46;
+    doc.setTextColor(27, 59, 43);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('Performance Summary', 14, statsY);
+    doc.text('Performance Summary & Analytics', 14, statsY);
 
-    // Stats boxes
+    // Left grid stats boxes (3 cols x 2 rows)
     const statsData = [
       { label: 'Total Students', value: summary.totalStudents.toString() },
       { label: 'Average %', value: `${summary.averagePercentage}%` },
       { label: 'Highest %', value: `${summary.highestPercentage}%` },
       { label: 'Lowest %', value: `${summary.lowestPercentage}%` },
-      { label: 'Pass', value: summary.passCount.toString() },
-      { label: 'Fail', value: summary.failCount.toString() },
+      { label: 'Passed Count', value: summary.passCount.toString() },
+      { label: 'Failed Count', value: summary.failCount.toString() },
     ];
 
-    const boxWidth = (pageWidth - 28 - 5 * 6) / 6;
+    const boxWidth = 36;
+    const boxHeight = 13;
+    const boxSpacingX = 4;
+    const boxSpacingY = 4;
+
     statsData.forEach((stat, i) => {
-      const x = 14 + i * (boxWidth + 6);
-      const y = statsY + 4;
+      const col = i % 3;
+      const row = Math.floor(i / 3);
+      const x = 14 + col * (boxWidth + boxSpacingX);
+      const y = statsY + 5 + row * (boxHeight + boxSpacingY);
 
       doc.setFillColor(248, 250, 252); // slate-50
-      doc.roundedRect(x, y, boxWidth, 18, 2, 2, 'F');
+      doc.roundedRect(x, y, boxWidth, boxHeight, 1.5, 1.5, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.25);
+      doc.roundedRect(x, y, boxWidth, boxHeight, 1.5, 1.5, 'D');
 
-      doc.setFontSize(7);
+      doc.setFontSize(6.5);
       doc.setTextColor(100, 116, 139); // slate-500
       doc.setFont('helvetica', 'normal');
-      doc.text(stat.label, x + boxWidth / 2, y + 7, { align: 'center' });
+      doc.text(stat.label, x + boxWidth / 2, y + 5, { align: 'center' });
 
-      doc.setFontSize(12);
-      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(9.5);
+      doc.setTextColor(27, 59, 43); // Forest
       doc.setFont('helvetica', 'bold');
-      doc.text(stat.value, x + boxWidth / 2, y + 14, { align: 'center' });
+      doc.text(stat.value, x + boxWidth / 2, y + 11, { align: 'center' });
+    });
+
+    // Right grid: Vector Grade Distribution Bar Chart
+    const grades = ['A+', 'A', 'B+', 'B', 'C', 'D', 'F'];
+    const gradeCounts = {};
+    grades.forEach(g => { gradeCounts[g] = 0; });
+    reportData.records.forEach(rec => {
+      const g = rec.grade || 'F';
+      gradeCounts[g] = (gradeCounts[g] || 0) + 1;
+    });
+    const maxCount = Math.max(...Object.values(gradeCounts), 1);
+
+    // Draw chart outer container
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(140, statsY + 5, 143, 30, 2, 2, 'F');
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(140, statsY + 5, 143, 30, 2, 2, 'D');
+
+    // Chart title
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(27, 59, 43);
+    doc.text('GRADE PERFORMANCE DISTRIBUTION (ATHLETE COUNT)', 144, statsY + 10);
+
+    const barWidth = 12;
+    const barSpacingX = 6;
+    const barBaselineY = statsY + 30;
+    const maxBarHeight = 14;
+
+    grades.forEach((grade, idx) => {
+      const count = gradeCounts[grade] || 0;
+      const barHeight = (count / maxCount) * maxBarHeight;
+      const barX = 146 + idx * (barWidth + barSpacingX);
+      const barY = barBaselineY - barHeight;
+
+      // Select natural colors based on grade
+      if (grade === 'A+' || grade === 'A') {
+        doc.setFillColor(27, 59, 43); // Forest Green
+      } else if (grade === 'B+' || grade === 'B') {
+        doc.setFillColor(143, 188, 143); // Sage Green
+      } else if (grade === 'C') {
+        doc.setFillColor(210, 180, 140); // Sand/Ochre
+      } else if (grade === 'D') {
+        doc.setFillColor(112, 128, 144); // Slate Gray
+      } else {
+        doc.setFillColor(200, 100, 70); // Terracotta/Clay
+      }
+
+      if (barHeight > 0) {
+        doc.rect(barX, barY, barWidth, barHeight, 'F');
+      }
+
+      // Print count above bar
+      doc.setFontSize(6.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(51, 65, 85);
+      doc.text(count.toString(), barX + barWidth / 2, barY - 1, { align: 'center' });
+
+      // Print grade label below baseline
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 116, 139);
+      doc.text(grade, barX + barWidth / 2, barBaselineY + 3.5, { align: 'center' });
     });
 
     // --- Data Table ---
@@ -132,16 +207,16 @@ const InstituteReports = () => {
       ];
     });
 
-    doc.autoTable({
-      startY: statsY + 28,
+    autoTable(doc, {
+      startY: statsY + 38,
       head: [['#', 'Student Name', 'ID', 'Exam', 'Subjects (Marks)', 'Total', '%', 'Grade']],
       body: tableData,
       theme: 'grid',
       headStyles: {
-        fillColor: [15, 23, 42],
+        fillColor: [27, 59, 43],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 7,
+        fontSize: 7.5,
         halign: 'center',
         cellPadding: 3
       },
@@ -166,13 +241,13 @@ const InstituteReports = () => {
         7: { halign: 'center', cellWidth: 15, fontStyle: 'bold' }
       },
       margin: { left: 14, right: 14 },
-      didParseCell: function(data) {
+      didParseCell: function (data) {
         if (data.section === 'body' && data.column.index === 7) {
           const grade = data.cell.raw;
           if (grade === 'A+' || grade === 'A') {
-            data.cell.styles.textColor = [22, 163, 74]; // green
+            data.cell.styles.textColor = [27, 59, 43]; // forest green
           } else if (grade === 'F') {
-            data.cell.styles.textColor = [239, 68, 68]; // red
+            data.cell.styles.textColor = [200, 100, 70]; // terracotta/fail
           }
         }
       }
@@ -216,9 +291,10 @@ const InstituteReports = () => {
           {reportData && reportData.records && reportData.records.length > 0 && (
             <button
               onClick={exportPDF}
-              className="bg-accent hover:bg-[#9b6412] text-white border border-[#8a520f] px-5 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 shadow-sm active:scale-95 self-start"
+              className="group bg-gradient-to-r from-[#1B3B2B] to-[#2d5a44] hover:from-[#152e22] hover:to-[#1B3B2B] text-[#fbf7ee] border border-[#152e22]/50 px-6 py-3 rounded-xl font-black text-sm transition-all duration-300 flex items-center gap-2 shadow-lg shadow-[#1b3b2b]/30 hover:shadow-xl active:scale-95 hover:-translate-y-0.5 relative overflow-hidden self-start"
             >
-              <Download size={16} /> Export PDF
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out pointer-events-none rounded-xl"></div>
+              <Download size={18} className="group-hover:-translate-y-0.5 transition-transform duration-300" /> Export Professional PDF
             </button>
           )}
         </div>
@@ -286,6 +362,77 @@ const InstituteReports = () => {
         </div>
       )}
 
+      {/* Recharts Analytics Section */}
+      {reportData && reportData.records && reportData.records.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col items-center">
+            <h3 className="text-sm font-black text-[#1B3B2B] w-full text-center mb-6 uppercase tracking-wider">Pass / Fail Ratio</h3>
+            <div className="w-full h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Passed', value: summary.passCount },
+                      { name: 'Failed', value: summary.failCount }
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    <Cell fill="#1B3B2B" />
+                    <Cell fill="#C86446" />
+                  </Pie>
+                  <RechartsTooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }} 
+                    itemStyle={{ fontWeight: 'bold' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col items-center">
+            <h3 className="text-sm font-black text-[#1B3B2B] w-full text-center mb-6 uppercase tracking-wider">Grade Distribution</h3>
+            <div className="w-full h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={(() => {
+                    const gradeCounts = { 'A+': 0, 'A': 0, 'B+': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0 };
+                    reportData.records.forEach(r => { gradeCounts[r.grade || 'F']++; });
+                    return Object.entries(gradeCounts).map(([name, count]) => ({ name, count }));
+                  })()}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                >
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontWeight: 'bold' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} allowDecimals={false} />
+                  <RechartsTooltip 
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                    {(() => {
+                      const gradeCounts = { 'A+': 0, 'A': 0, 'B+': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0 };
+                      reportData.records.forEach(r => { gradeCounts[r.grade || 'F']++; });
+                      return Object.keys(gradeCounts).map((grade, index) => {
+                        let color = '#1B3B2B'; // Forest
+                        if (grade === 'B+' || grade === 'B') color = '#8FBC8F'; // Sage
+                        if (grade === 'C') color = '#D2B48C'; // Sand
+                        if (grade === 'D') color = '#708090'; // Stone
+                        if (grade === 'F') color = '#C86446'; // Terracotta
+                        return <Cell key={`cell-${index}`} fill={color} />;
+                      });
+                    })()}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Data Table */}
       <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
         {isLoading ? (
@@ -343,13 +490,12 @@ const InstituteReports = () => {
                     <td className="py-3 px-5 font-bold">{rec.totalMarks}/{rec.totalMaxMarks}</td>
                     <td className="py-3 px-5 font-black text-base">{rec.percentage}%</td>
                     <td className="py-3 px-5">
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-black ${
-                        rec.grade === 'A+' || rec.grade === 'A' ? 'bg-green-50 text-green-700' :
-                        rec.grade === 'B+' || rec.grade === 'B' ? 'bg-blue-50 text-blue-700' :
-                        rec.grade === 'C' ? 'bg-amber-50 text-amber-700' :
-                        rec.grade === 'D' ? 'bg-orange-50 text-orange-700' :
-                        'bg-red-50 text-red-700'
-                      }`}>
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-black ${rec.grade === 'A+' || rec.grade === 'A' ? 'bg-green-50 text-green-700' :
+                          rec.grade === 'B+' || rec.grade === 'B' ? 'bg-blue-50 text-blue-700' :
+                            rec.grade === 'C' ? 'bg-amber-50 text-amber-700' :
+                              rec.grade === 'D' ? 'bg-orange-50 text-orange-700' :
+                                'bg-red-50 text-red-700'
+                        }`}>
                         {rec.grade}
                       </span>
                     </td>

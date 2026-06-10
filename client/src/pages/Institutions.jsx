@@ -358,6 +358,7 @@ const Institutions = () => {
               phone: inst.mobile || inst.phone || '',
               registeredAt: new Date(inst.createdAt).toISOString().split('T')[0],
               students: [],
+              studentCount: inst.studentCount || 0,
               isDb: true
             };
           });
@@ -438,7 +439,8 @@ const Institutions = () => {
               if (inst.id === id) {
                 return {
                   ...inst,
-                  students: mappedStudents
+                  students: mappedStudents,
+                  studentCount: mappedStudents.length
                 };
               }
               return inst;
@@ -463,7 +465,10 @@ const Institutions = () => {
 
   // Statistics
   const totalInsts = institutions.length;
-  const totalStudentsCount = institutions.reduce((acc, curr) => acc + curr.students.length, 0);
+  const totalStudentsCount = institutions.reduce((acc, curr) => {
+    const count = curr.isDb && curr.students.length === 0 ? (curr.studentCount || 0) : curr.students.length;
+    return acc + count;
+  }, 0);
 
   // Total Sports Tracked
   const allStudents = institutions.flatMap(i => i.students);
@@ -658,7 +663,7 @@ const Institutions = () => {
                   <div className="flex items-center gap-4 self-end md:self-center">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-secondary text-xs font-bold rounded-full">
                       <Users size={14} />
-                      {inst.students.length} Students
+                      {inst.isDb && inst.students.length === 0 ? inst.studentCount || 0 : inst.students.length} Students
                     </span>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-600 text-xs font-bold rounded-full">
                       <BookOpen size={14} />

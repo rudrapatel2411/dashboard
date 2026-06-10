@@ -1281,9 +1281,9 @@ const Tests = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="bg-accent hover:bg-[#9b6412] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-md shadow-emerald-700/10 hover:shadow-emerald-700/20 active:scale-95 cursor-pointer group"
                 >
-                  <Printer size={14} /> Print / Save PDF
+                  <Printer size={14} className="group-hover:scale-110 transition-transform duration-200" /> Print / Save PDF
                 </button>
                 <button 
                   onClick={() => setActiveCertificate(null)}

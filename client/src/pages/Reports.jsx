@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Download, Printer, Share2, Award, Activity, Building2, Users, FileText, Search, 
-  User, CheckCircle, ChevronRight, ArrowLeft, Trophy, Calendar, Eye, 
+import {
+  Download, Printer, Share2, Award, Activity, Building2, Users, FileText, Search,
+  User, CheckCircle, ChevronRight, ArrowLeft, Trophy, Calendar, Eye,
   ShieldAlert, Sparkles, Zap, Target, AlertCircle, Plus
 } from 'lucide-react';
 import axios from 'axios';
+<<<<<<< HEAD
 import FitnessReportExportButton from '../components/FitnessReport';
+=======
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+>>>>>>> 4024aa865453648c1dac00ee71f88aaafb6c784c
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -241,9 +246,9 @@ const Reports = () => {
 
     const seed = student.id || student._id || "default";
     const sportName = (student.assignedSport || student.sport || "General Sports").toLowerCase();
-    
+
     let baseSpeed = 70, baseStrength = 65, baseStamina = 70, baseAgility = 70, baseFlex = 60, baseAcc = 65, baseEnd = 68, baseReact = 70;
-    
+
     if (sportName.includes("football")) {
       baseSpeed = 82; baseStamina = 80; baseAgility = 85; baseReact = 78;
     } else if (sportName.includes("basketball")) {
@@ -308,8 +313,361 @@ const Reports = () => {
     return null;
   })();
 
+<<<<<<< HEAD
   // PDF export is now fully handled by <FitnessReportExportButton />
   // which manages its own isExporting state, spinner, and try/catch/finally.
+=======
+  const handleExportPDF = () => {
+    if (!selectedInst) {
+      alert("Please select an institution or sports academy first!");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+      
+      if (selectedStudent) {
+        if (!selectedPerformance) {
+          alert("No performance records found for this student. Export disabled.");
+          return;
+        }
+        const perf = selectedPerformance;
+        
+        // --- Header Section ---
+        doc.setFillColor(27, 59, 43); // Deep Forest Green
+        doc.rect(0, 0, 210, 38, 'F');
+        
+        doc.setFillColor(210, 180, 140); // Warm Sand/Gold accent stripe
+        doc.rect(0, 38, 210, 3, 'F');
+        
+        // Title text in white
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('ATHLETIC PERFORMANCE REPORT', 15, 18);
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(240, 244, 240); // very soft green-white
+        doc.text(`Academic Year 2026 - ${perf.term === 'TERM-1' ? 'Term 1' : 'Term 2'} Evaluation Log`, 15, 27);
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SportSphere Hub', 195, 18, { align: 'right' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text('Analytics Center', 195, 24, { align: 'right' });
+        
+        // --- Student Profile details box ---
+        const profileY = 48;
+        doc.setFillColor(248, 250, 252); // soft gray-green background
+        doc.roundedRect(15, profileY, 180, 36, 2, 2, 'F');
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(15, profileY, 180, 36, 2, 2, 'D');
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(27, 59, 43);
+        doc.text('STUDENT PROFILE', 20, profileY + 8);
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(71, 85, 105);
+        doc.text(`Name: ${selectedStudent.name}`, 20, profileY + 16);
+        doc.text(`Athlete ID: ${selectedStudent.studentId || selectedStudent.id || 'STU-001'}`, 20, profileY + 23);
+        doc.text(`Class Grade: Class ${selectedStudent.class}th`, 20, profileY + 30);
+        
+        doc.text(`Assigned Sport: ${selectedStudent.assignedSport || selectedStudent.sport}`, 110, profileY + 16);
+        doc.text(`BMI Standard: ${selectedStudent.bmi} (${selectedStudent.bmiCategory})`, 110, profileY + 23);
+        doc.text(`Coach Mentor: ${selectedStudent.mentor || 'Coach Arthur'}`, 110, profileY + 30);
+        
+        // --- High Impact Stats Box Grid ---
+        const statsY = 92;
+        const colWidth = 56;
+        const colHeight = 20;
+        
+        // Card 1: Overall Score
+        doc.setFillColor(235, 242, 235); // Soft Forest Green tint
+        doc.roundedRect(15, statsY, colWidth, colHeight, 2, 2, 'F');
+        doc.setDrawColor(200, 220, 200);
+        doc.roundedRect(15, statsY, colWidth, colHeight, 2, 2, 'D');
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(45, 90, 60);
+        doc.text('OVERALL SCORE INDEX', 15 + colWidth/2, statsY + 6, { align: 'center' });
+        doc.setFontSize(11);
+        doc.text(`${perf.overallScore || 0}%`, 15 + colWidth/2, statsY + 14, { align: 'center' });
+        
+        // Card 2: Fitness Level
+        doc.setFillColor(251, 247, 238); // Soft Sand/Ivory tint
+        doc.roundedRect(77, statsY, colWidth, colHeight, 2, 2, 'F');
+        doc.setDrawColor(230, 220, 200);
+        doc.roundedRect(77, statsY, colWidth, colHeight, 2, 2, 'D');
+        doc.setFontSize(7.5);
+        doc.setTextColor(130, 100, 50);
+        doc.text('FITNESS STANDARD', 77 + colWidth/2, statsY + 6, { align: 'center' });
+        doc.setFontSize(11);
+        doc.text(`${perf.fitnessLevel || 'N/A'}`, 77 + colWidth/2, statsY + 14, { align: 'center' });
+        
+        // Card 3: Attendance Rate
+        doc.setFillColor(249, 239, 239); // Soft Terracotta tint
+        doc.roundedRect(139, statsY, colWidth, colHeight, 2, 2, 'F');
+        doc.setDrawColor(240, 220, 220);
+        doc.roundedRect(139, statsY, colWidth, colHeight, 2, 2, 'D');
+        doc.setFontSize(7.5);
+        doc.setTextColor(160, 60, 50);
+        doc.text('ATTENDANCE RATE', 139 + colWidth/2, statsY + 6, { align: 'center' });
+        doc.setFontSize(11);
+        doc.text(`${perf.attendance || 0}%`, 139 + colWidth/2, statsY + 14, { align: 'center' });
+        
+        // --- Physical Capacity Indicators (Vector Progress Bar Chart) ---
+        const chartY = 122;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(27, 59, 43);
+        doc.text('PHYSICAL CAPACITY DISTRIBUTION', 15, chartY);
+        
+        doc.setDrawColor(27, 59, 43);
+        doc.setLineWidth(0.5);
+        doc.line(15, chartY + 2, 195, chartY + 2);
+        
+        // Render 8 progress bars in a 2-column grid layout
+        const indicators = [
+          { label: 'Speed', val: perf.speed || 0 },
+          { label: 'Strength', val: perf.strength || 0 },
+          { label: 'Stamina', val: perf.stamina || 0 },
+          { label: 'Agility', val: perf.agility || 0 },
+          { label: 'Flexibility', val: perf.flexibility || 0 },
+          { label: 'Accuracy', val: perf.accuracy || 0 },
+          { label: 'Endurance', val: perf.endurance || 0 },
+          { label: 'Reaction Time', val: perf.reactionTime || 0 }
+        ];
+        
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        
+        indicators.forEach((ind, index) => {
+          const isSecondCol = index >= 4;
+          const x = isSecondCol ? 110 : 15;
+          const y = chartY + 12 + (index % 4) * 14;
+          
+          // Print label and value
+          doc.setTextColor(51, 65, 85);
+          doc.setFont('helvetica', 'bold');
+          doc.text(ind.label, x, y);
+          doc.setTextColor(71, 85, 105);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`${ind.val}%`, x + 58, y);
+          
+          // Draw empty progress bar track
+          doc.setFillColor(241, 245, 249);
+          doc.rect(x, y + 2, 65, 3.5, 'F');
+          
+          // Draw natural colored filled bar
+          // Forest green for values >= 75, Sage green for values >= 50, ochre for lower
+          if (ind.val >= 75) {
+            doc.setFillColor(27, 59, 43); // Forest
+          } else if (ind.val >= 50) {
+            doc.setFillColor(143, 188, 143); // Sage
+          } else {
+            doc.setFillColor(210, 180, 140); // Ochre
+          }
+          doc.rect(x, y + 2, (ind.val / 100) * 65, 3.5, 'F');
+        });
+        
+        // --- Professional AI Diagnostic Block ---
+        const diagY = 192;
+        doc.setFillColor(244, 247, 244); // soft green-slate
+        doc.roundedRect(15, diagY, 180, 26, 2, 2, 'F');
+        doc.setDrawColor(220, 230, 220);
+        doc.roundedRect(15, diagY, 180, 26, 2, 2, 'D');
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(27, 59, 43);
+        doc.text('Professional AI Diagnostics & Development Plan', 20, diagY + 7);
+        
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(71, 85, 105);
+        
+        // Wrap diagnosis text safely within 170mm width
+        const lines = doc.splitTextToSize(perf.aiInsight || 'No insights compiled.', 170);
+        doc.text(lines, 20, diagY + 14);
+        
+        // --- Official Signatures ---
+        const sigY = 238;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(148, 163, 184);
+        
+        // Signature Line 1
+        doc.line(15, sigY + 12, 60, sigY + 12);
+        doc.text('COACH MENTOR', 15, sigY + 17);
+        
+        // Signature Line 2
+        doc.line(85, sigY + 12, 130, sigY + 12);
+        doc.text('DIRECTOR AUTHORITY', 85, sigY + 17);
+        
+        // Signature Line 3
+        doc.line(150, sigY + 12, 195, sigY + 12);
+        doc.text('PRINCIPAL EXECUTIVE', 150, sigY + 17);
+        
+        // Footer signature labels
+        doc.setFontSize(8);
+        doc.text('Generated dynamically by SportSphere Analytics Center', 15, 280);
+      } else {
+        // Dynamic Roster Performance Report
+        const displayStudents = selectedClass ? getDisplayStudents() : getStudentsForInst();
+
+        // Header Section
+        doc.setFillColor(27, 59, 43); // Deep Forest Green
+        doc.rect(0, 0, 210, 38, 'F');
+        
+        doc.setFillColor(210, 180, 140); // Sand/Gold accent stripe
+        doc.rect(0, 38, 210, 3, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('ROSTER PERFORMANCE REPORT', 15, 18);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(240, 244, 240);
+        doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 15, 27);
+        doc.text('SportSphere Analytics Center', 195, 18, { align: 'right' });
+
+        // Entity details box
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(15, 48, 180, 26, 2, 2, 'F');
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(15, 48, 180, 26, 2, 2, 'D');
+
+        doc.setFontSize(9);
+        doc.setTextColor(71, 85, 105);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Entity Name: ${selectedInst.name || 'N/A'}`, 20, 56);
+        doc.text(`Category: ${activeCategory === 'academies' ? 'Sports Academy' : 'School/Institution'}`, 20, 63);
+        doc.text(`Location: ${selectedInst.location || 'N/A'}`, 110, 56);
+        doc.text(`Total Enrolled: ${displayStudents.length} Athletes`, 110, 63);
+
+        // Calculate class average and pass rate
+        let totalScoreSum = 0;
+        let passCount = 0;
+        let totalCount = 0;
+        displayStudents.forEach(s => {
+          const studentPerf = allPerformances.find(r => {
+            const rStudentId = r.studentId && (typeof r.studentId === 'object' ? r.studentId._id : r.studentId);
+            return (rStudentId === s.id || rStudentId === s._id) && r.term === selectedTerm;
+          });
+          if (studentPerf && typeof studentPerf.overallScore === 'number' && !isNaN(studentPerf.overallScore)) {
+            totalScoreSum += studentPerf.overallScore;
+            if (studentPerf.overallScore >= 50) passCount++;
+            totalCount++;
+          }
+        });
+        const classAvg = totalCount > 0 ? Math.round(totalScoreSum / totalCount) : 0;
+        const passRate = totalCount > 0 ? Math.round((passCount / totalCount) * 100) : 0;
+
+        const safeClassAvg = (typeof classAvg === 'number' && !isNaN(classAvg)) ? classAvg : 0;
+        const safePassRate = (typeof passRate === 'number' && !isNaN(passRate)) ? passRate : 0;
+
+        // Draw visual indicator box at Y=80
+        doc.setFillColor(244, 247, 244);
+        doc.roundedRect(15, 80, 180, 18, 2, 2, 'F');
+        doc.setDrawColor(220, 230, 220);
+        doc.roundedRect(15, 80, 180, 18, 2, 2, 'D');
+
+        doc.setFontSize(9);
+        doc.setTextColor(27, 59, 43);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Roster Performance Indexes:', 20, 91);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(71, 85, 105);
+        doc.text(`Class Average: ${safeClassAvg}%`, 75, 91);
+        doc.text(`Pass Rate: ${safePassRate}%`, 130, 91);
+
+        // Draw class average bar
+        doc.setFillColor(220, 225, 220);
+        doc.rect(160, 87, 28, 4, 'F');
+        doc.setFillColor(27, 59, 43);
+        doc.rect(160, 87, (safeClassAvg/100)*28, 4, 'F');
+
+        // Draw autoTable starting at Y=104
+        const tableBody = displayStudents.map((s, i) => {
+          const studentPerf = allPerformances.find(r => {
+            const rStudentId = r.studentId && (typeof r.studentId === 'object' ? r.studentId._id : r.studentId);
+            return (rStudentId === s.id || rStudentId === s._id) && r.term === selectedTerm;
+          });
+          const score = studentPerf ? `${studentPerf.overallScore}%` : "N/A";
+          const level = studentPerf ? (studentPerf.fitnessLevel || 'N/A') : "N/A";
+          return [
+            (i + 1).toString(),
+            s.name || 'Unknown',
+            `Class ${s.class || 'N/A'}`,
+            s.assignedSport || s.sport || 'General',
+            score,
+            level
+          ];
+        });
+
+        autoTable(doc, {
+          startY: 104,
+          head: [['#', 'Athlete Name', 'Class/Grade', 'Assigned Sport', 'Overall Score', 'Fitness Level']],
+          body: tableBody,
+          theme: 'grid',
+          headStyles: {
+            fillColor: [27, 59, 43],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 9,
+            cellPadding: 4
+          },
+          bodyStyles: {
+            fontSize: 8.5,
+            cellPadding: 3.5,
+            textColor: [30, 41, 59],
+            lineColor: [226, 232, 240],
+            lineWidth: 0.1
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252]
+          },
+          columnStyles: {
+            0: { halign: 'center', cellWidth: 12 },
+            1: { fontStyle: 'bold' },
+            2: { halign: 'center', cellWidth: 25 },
+            3: { cellWidth: 40 },
+            4: { halign: 'center', cellWidth: 30, fontStyle: 'bold' },
+            5: { halign: 'center', cellWidth: 30 }
+          },
+          margin: { left: 15, right: 15 }
+        });
+
+        // Add page numbers
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(148, 163, 184);
+          doc.text(`Page ${i} of ${pageCount}`, 195, 285, { align: 'right' });
+          doc.text('© SportSphere platform. Generated automatically.', 15, 285);
+        }
+      }
+
+      const fileName = selectedStudent
+        ? `${(selectedStudent.name || 'Student').replace(/\s+/g, '_')}_Report.pdf`
+        : `${(selectedInst.name || 'Institute').replace(/\s+/g, '_')}_Roster_Report.pdf`;
+      doc.save(fileName);
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      alert('Failed to generate PDF: ' + (error.message || error));
+    }
+  };
+>>>>>>> 4024aa865453648c1dac00ee71f88aaafb6c784c
 
   const handlePrint = () => {
     if (selectedStudent && !selectedPerformance) {
@@ -319,8 +677,8 @@ const Reports = () => {
     window.print();
   };
 
-  const filteredStudents = searchQuery.trim() === "" 
-    ? [] 
+  const filteredStudents = searchQuery.trim() === ""
+    ? []
     : students.filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleSelectSuggestion = (student) => {
@@ -345,12 +703,12 @@ const Reports = () => {
     setSelectedStudent(null);
   };
 
-  const filteredInstitutions = dbInstitutions.filter(inst => 
+  const filteredInstitutions = dbInstitutions.filter(inst =>
     inst.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     inst.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredAcademies = dbAcademies.filter(acad => 
+  const filteredAcademies = dbAcademies.filter(acad =>
     acad.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (acad.sport || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (acad.coach || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -358,7 +716,7 @@ const Reports = () => {
 
   return (
     <div className="space-y-8 font-sans pb-16">
-      
+
       {/* Printable Area CSS injection */}
       <style>{`
         @media print {
@@ -393,10 +751,11 @@ const Reports = () => {
           </h1>
           <p className="text-slate-400 text-xs mt-1 font-semibold">Generate, inspect, and export highly polished physical reports.</p>
         </div>
-        
+
         <div className="flex gap-3">
           {selectedInst && (
             <>
+<<<<<<< HEAD
               <button 
                 onClick={handlePrint}
                 disabled={selectedStudent && !selectedPerformance}
@@ -430,6 +789,20 @@ const Reports = () => {
                   disabled={true}
                 />
               )}
+=======
+
+              <button
+                onClick={handleExportPDF}
+                disabled={selectedStudent && !selectedPerformance}
+                className={`group px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all duration-300 flex items-center gap-2 font-black active:scale-95 cursor-pointer overflow-hidden relative ${(selectedStudent && !selectedPerformance)
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed opacity-50 shadow-none"
+                    : "bg-gradient-to-r from-[#1B3B2B] to-[#2d5a44] hover:from-[#152e22] hover:to-[#1B3B2B] text-[#fbf7ee] shadow-[#1b3b2b]/30 hover:shadow-xl hover:-translate-y-0.5 border border-[#152e22]/50"
+                  }`}
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out pointer-events-none rounded-xl"></div>
+                <Download size={15} className="group-hover:-translate-y-0.5 transition-transform duration-300" /> Export PDF
+              </button>
+>>>>>>> 4024aa865453648c1dac00ee71f88aaafb6c784c
             </>
           )}
         </div>
@@ -437,11 +810,11 @@ const Reports = () => {
 
       {/* Roster Type / Search Toggle Banner */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 non-printable flex items-center justify-between flex-wrap gap-4">
-        
+
         {/* Dynamic Breadcrumbs / Navigation Path */}
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
           {!isInstituteUser ? (
-            <span 
+            <span
               className="hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-1.5"
               onClick={handleResetNavigation}
             >
@@ -460,11 +833,11 @@ const Reports = () => {
               <Building2 size={16} className="text-indigo-600" /> {selectedInst?.name}
             </span>
           )}
-          
+
           {selectedInst && !isInstituteUser && (
             <>
               <ChevronRight size={14} className="text-slate-300" />
-              <span 
+              <span
                 className="hover:text-indigo-600 cursor-pointer transition-colors text-slate-700 font-extrabold"
                 onClick={() => { setSelectedClass(null); setSelectedStudent(null); }}
               >
@@ -476,7 +849,7 @@ const Reports = () => {
           {selectedClass && (
             <>
               <ChevronRight size={14} className="text-slate-300" />
-              <span 
+              <span
                 className="hover:text-indigo-600 cursor-pointer transition-colors text-slate-700 font-bold"
                 onClick={() => setSelectedStudent(null)}
               >
@@ -498,7 +871,7 @@ const Reports = () => {
         {/* Global Quick Search Shortcut */}
         <div className="relative max-w-sm w-full">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input 
+          <input
             type="text"
             placeholder="Global search athlete..."
             value={searchQuery}
@@ -510,7 +883,7 @@ const Reports = () => {
           {searchQuery.trim() !== "" && filteredStudents.length > 0 && (
             <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-100 rounded-xl shadow-xl z-30 max-h-48 overflow-y-auto divide-y divide-slate-100">
               {filteredStudents.map(s => (
-                <div 
+                <div
                   key={s.id}
                   onClick={() => handleSelectSuggestion(s)}
                   className="px-4 py-2.5 hover:bg-indigo-50/60 cursor-pointer text-xs font-bold text-slate-700 flex justify-between items-center transition-colors"
@@ -527,7 +900,7 @@ const Reports = () => {
 
       {/* Main Core Layout Grid */}
       <div className="space-y-8 non-printable">
-        
+
         {/* LEVEL 0: Category Segmented Control (Shown at Hub view) */}
         {!selectedInst && !isInstituteUser && (
           <div className="flex justify-center">
@@ -537,11 +910,10 @@ const Reports = () => {
                   setActiveCategory("institutions");
                   handleResetNavigation();
                 }}
-                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
-                  activeCategory === "institutions"
+                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeCategory === "institutions"
                     ? "bg-white text-indigo-600 shadow-md scale-[1.02]"
                     : "text-slate-500 hover:text-slate-800"
-                }`}
+                  }`}
               >
                 <Building2 size={16} />
                 Schools & Institutions
@@ -551,11 +923,10 @@ const Reports = () => {
                   setActiveCategory("academies");
                   handleResetNavigation();
                 }}
-                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
-                  activeCategory === "academies"
+                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeCategory === "academies"
                     ? "bg-white text-indigo-600 shadow-md scale-[1.02]"
                     : "text-slate-500 hover:text-slate-800"
-                }`}
+                  }`}
               >
                 <Trophy size={16} />
                 Sports Academies
@@ -594,7 +965,7 @@ const Reports = () => {
             {activeCategory === "institutions" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredInstitutions.map((inst) => (
-                  <div 
+                  <div
                     key={inst.id}
                     onClick={() => handleSelectInstitution(inst)}
                     className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden"
@@ -633,7 +1004,7 @@ const Reports = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredAcademies.map((acad) => (
-                  <div 
+                  <div
                     key={acad.id}
                     onClick={() => handleSelectInstitution(acad)}
                     className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden"
@@ -687,7 +1058,7 @@ const Reports = () => {
               {getAvailableClasses().map((classGrade) => {
                 const count = getStudentsForClassGrade(classGrade).length;
                 return (
-                  <div 
+                  <div
                     key={classGrade}
                     onClick={() => handleSelectClass(classGrade)}
                     className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-indigo-200 hover:scale-[1.02] transition-all duration-300 cursor-pointer text-center relative overflow-hidden"
@@ -697,7 +1068,7 @@ const Reports = () => {
                     </div>
                     <h4 className="font-extrabold text-slate-800 text-sm">Class {classGrade}th Grade</h4>
                     <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">{count} Registered Students</p>
-                    
+
                     <div className="border-t border-slate-100 mt-5 pt-3.5 flex justify-center items-center gap-1 text-xs font-bold text-indigo-600 group-hover:text-indigo-800">
                       Open Reports <ChevronRight size={14} />
                     </div>
@@ -720,13 +1091,13 @@ const Reports = () => {
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-lg font-black text-slate-800">
-                  {activeCategory === 'academies' 
-                    ? `Academy Roster • Class ${selectedClass}th Grade Reports` 
+                  {activeCategory === 'academies'
+                    ? `Academy Roster • Class ${selectedClass}th Grade Reports`
                     : `Students Roster • Class ${selectedClass}th Grade Reports`}
                 </h3>
                 <p className="text-xs text-slate-400 font-semibold mt-0.5">Showing student athletes registered in {selectedInst.name}.</p>
               </div>
-              <button 
+              <button
                 onClick={() => {
                   setSelectedClass(null);
                 }}
@@ -755,7 +1126,7 @@ const Reports = () => {
                       return (rStudentId === student.id || rStudentId === student._id) && r.term === selectedTerm;
                     });
                     const score = studentPerf ? `${studentPerf.overallScore}%` : "N/A";
-                    
+
                     return (
                       <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
                         <td className="py-4 px-4 flex items-center gap-3">
@@ -774,15 +1145,14 @@ const Reports = () => {
                           </span>
                         </td>
                         <td className="py-4 px-4 text-center">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            student.bmiCategory === 'Normal' ? 'bg-emerald-50 text-emerald-700' :
-                            student.bmiCategory === 'Underweight' ? 'bg-amber-50 text-amber-700' :
-                            'bg-red-50 text-red-700'
-                          }`}>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${student.bmiCategory === 'Normal' ? 'bg-emerald-50 text-emerald-700' :
+                              student.bmiCategory === 'Underweight' ? 'bg-amber-50 text-amber-700' :
+                                'bg-red-50 text-red-700'
+                            }`}>
                             {student.bmiCategory} ({student.bmi})
                           </span>
                         </td>
-                         <td className="py-4 px-4 text-slate-500 font-extrabold">{score}</td>
+                        <td className="py-4 px-4 text-slate-500 font-extrabold">{score}</td>
                         <td className="py-4 px-4 text-right">
                           <button
                             onClick={() => setSelectedStudent(student)}
@@ -849,19 +1219,17 @@ const Reports = () => {
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Viewing Term:</span>
                   <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
-                    <button 
+                    <button
                       onClick={() => setSelectedTerm("TERM-1")}
-                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${
-                        selectedTerm === "TERM-1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                      }`}
+                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${selectedTerm === "TERM-1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                        }`}
                     >
                       Term 1
                     </button>
-                    <button 
+                    <button
                       onClick={() => setSelectedTerm("TERM-2")}
-                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${
-                        selectedTerm === "TERM-2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                      }`}
+                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${selectedTerm === "TERM-2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                        }`}
                     >
                       Term 2
                     </button>
@@ -872,147 +1240,147 @@ const Reports = () => {
               {/* ===== LEVEL 4: ATHLETE DETAILED REPORT CARD ===== */}
               <div className="bg-white rounded-3xl p-8 shadow-md border border-slate-100 max-w-4xl mx-auto space-y-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-full pointer-events-none -z-0"></div>
-                
+
                 {/* Report Header */}
                 <div className="border-b-4 border-indigo-600 pb-6 mb-8 flex justify-between items-start relative z-10">
                   <div>
                     <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tight">Athletic Performance Report</h2>
                     <p className="text-slate-400 text-xs mt-1.5 font-bold uppercase tracking-wider">Academic Year 2026 - {selectedPerformance.term === 'TERM-1' ? 'Term 1' : 'Term 2'} Evaluation Log</p>
                   </div>
-              <div className="text-right">
-                <div className="w-12 h-12 bg-indigo-600 rounded-xl ml-auto mb-2 flex items-center justify-center shadow-lg shadow-indigo-500/10">
-                  <Award className="text-white" size={22} />
+                  <div className="text-right">
+                    <div className="w-12 h-12 bg-indigo-600 rounded-xl ml-auto mb-2 flex items-center justify-center shadow-lg shadow-indigo-500/10">
+                      <Award className="text-white" size={22} />
+                    </div>
+                    <p className="font-extrabold text-slate-800 text-sm">SportSphere Hub</p>
+                  </div>
                 </div>
-                <p className="font-extrabold text-slate-800 text-sm">SportSphere Hub</p>
-              </div>
-            </div>
 
-            {/* Student Profile Summary */}
-            <div className="flex flex-col sm:flex-row gap-8 mb-10 border-b border-slate-100 pb-8">
-              <div className="w-28 h-28 rounded-2xl bg-indigo-50 overflow-hidden shrink-0 border-2 border-indigo-100 shadow-sm flex items-center justify-center">
-                <div className="text-indigo-600 font-black text-2xl uppercase">
-                  {selectedStudent.name.substring(0, 2)}
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 flex-1 text-xs font-semibold">
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Athlete Name</span>
-                  <span className="text-base font-black text-slate-800">{selectedStudent.name}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Athlete ID</span>
-                  <span className="text-base font-black text-slate-800">{selectedStudent.studentId || selectedStudent.id || 'STU-001'}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Standard/Class</span>
-                  <span className="text-base font-black text-slate-800">Class {selectedStudent.class}th</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Associated Sport</span>
-                  <span className="text-base font-black text-indigo-600">{selectedStudent.assignedSport || selectedStudent.sport}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Height & Weight</span>
-                  <span className="text-base font-black text-slate-800">{selectedStudent.height}cm / {selectedStudent.weight}kg</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">BMI Composition</span>
-                  <span className="text-base font-black text-slate-800">{selectedStudent.bmi} ({selectedStudent.bmiCategory})</span>
-                </div>
-              </div>
-            </div>
+                {/* Student Profile Summary */}
+                <div className="flex flex-col sm:flex-row gap-8 mb-10 border-b border-slate-100 pb-8">
+                  <div className="w-28 h-28 rounded-2xl bg-indigo-50 overflow-hidden shrink-0 border-2 border-indigo-100 shadow-sm flex items-center justify-center">
+                    <div className="text-indigo-600 font-black text-2xl uppercase">
+                      {selectedStudent.name.substring(0, 2)}
+                    </div>
+                  </div>
 
-            {/* High impact index grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-              <div className="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100 text-center">
-                <p className="text-[10px] font-black text-indigo-800 uppercase tracking-widest mb-1.5">Overall Score Index</p>
-                <h3 className="text-4xl font-black text-indigo-600">{selectedPerformance?.overallScore || 85}%</h3>
-              </div>
-              <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 text-center">
-                <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-1.5">Fitness Level Standard</p>
-                <h3 className="text-3xl font-black text-emerald-600 mt-1 uppercase">{selectedPerformance?.fitnessLevel || 'Good'}</h3>
-              </div>
-              <div className="bg-amber-50/50 p-6 rounded-2xl border border-amber-100 text-center">
-                <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1.5">Roster Regularity Rate</p>
-                <h3 className="text-4xl font-black text-amber-600">{selectedPerformance?.attendance || 90}%</h3>
-              </div>
-            </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 flex-1 text-xs font-semibold">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Athlete Name</span>
+                      <span className="text-base font-black text-slate-800">{selectedStudent.name}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Athlete ID</span>
+                      <span className="text-base font-black text-slate-800">{selectedStudent.studentId || selectedStudent.id || 'STU-001'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Standard/Class</span>
+                      <span className="text-base font-black text-slate-800">Class {selectedStudent.class}th</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Associated Sport</span>
+                      <span className="text-base font-black text-indigo-600">{selectedStudent.assignedSport || selectedStudent.sport}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Height & Weight</span>
+                      <span className="text-base font-black text-slate-800">{selectedStudent.height}cm / {selectedStudent.weight}kg</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">BMI Composition</span>
+                      <span className="text-base font-black text-slate-800">{selectedStudent.bmi} ({selectedStudent.bmiCategory})</span>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Capacities Table */}
-            {selectedPerformance && (
-              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6">
-                <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">
-                  🏃‍♂️ Detailed Physical Capacities distribution
-                </h4>
+                {/* High impact index grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                  <div className="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100 text-center">
+                    <p className="text-[10px] font-black text-indigo-800 uppercase tracking-widest mb-1.5">Overall Score Index</p>
+                    <h3 className="text-4xl font-black text-indigo-600">{selectedPerformance?.overallScore || 85}%</h3>
+                  </div>
+                  <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 text-center">
+                    <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-1.5">Fitness Level Standard</p>
+                    <h3 className="text-3xl font-black text-emerald-600 mt-1 uppercase">{selectedPerformance?.fitnessLevel || 'Good'}</h3>
+                  </div>
+                  <div className="bg-amber-50/50 p-6 rounded-2xl border border-amber-100 text-center">
+                    <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1.5">Roster Regularity Rate</p>
+                    <h3 className="text-4xl font-black text-amber-600">{selectedPerformance?.attendance || 90}%</h3>
+                  </div>
+                </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-xs font-semibold">
+                {/* Capacities Table */}
+                {selectedPerformance && (
+                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6">
+                    <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">
+                      🏃‍♂️ Detailed Physical Capacities distribution
+                    </h4>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-xs font-semibold">
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase block">Speed Capacity</span>
+                        <span className="text-sm font-black text-slate-850">{selectedPerformance.speed}%</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase block">Strength Index</span>
+                        <span className="text-sm font-black text-slate-850">{selectedPerformance.strength}%</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase block">Stamina reserve</span>
+                        <span className="text-sm font-black text-slate-850">{selectedPerformance.stamina}%</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase block">Agility Displacement</span>
+                        <span className="text-sm font-black text-slate-850">{selectedPerformance.agility}%</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase block">Flexibility Ratio</span>
+                        <span className="text-sm font-black text-slate-850">{selectedPerformance.flexibility}%</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase block">Accuracy target</span>
+                        <span className="text-sm font-black text-slate-850">{selectedPerformance.accuracy}%</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase block">Endurance Marker</span>
+                        <span className="text-sm font-black text-slate-850">{selectedPerformance.endurance}%</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase block">Reaction speed</span>
+                        <span className="text-sm font-black text-slate-850">{selectedPerformance.reactionTime}%</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* AI insight */}
+                {selectedPerformance?.aiInsight && (
+                  <div className="bg-gradient-to-r from-indigo-50/50 via-slate-50 to-indigo-50/20 p-6 rounded-2xl border border-indigo-100/40">
+                    <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Activity size={15} className="text-indigo-600" /> Professional AI Diagnostics & Growth Plan
+                    </h4>
+                    <p className="text-slate-600 italic text-xs leading-relaxed">
+                      "{selectedPerformance.aiInsight}"
+                    </p>
+                  </div>
+                )}
+
+                {/* Signatures */}
+                <div className="border-t border-dashed border-slate-200 mt-12 pt-10 grid grid-cols-3 gap-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest relative">
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Speed Capacity</span>
-                    <span className="text-sm font-black text-slate-850">{selectedPerformance.speed}%</span>
+                    <div className="w-full border-b border-slate-200/80 h-10 mb-2"></div>
+                    <span>Coach Mentor Signature</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Strength Index</span>
-                    <span className="text-sm font-black text-slate-850">{selectedPerformance.strength}%</span>
+                    <div className="w-full border-b border-slate-200/80 h-10 mb-2"></div>
+                    <span>Director Authority</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Stamina reserve</span>
-                    <span className="text-sm font-black text-slate-850">{selectedPerformance.stamina}%</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Agility Displacement</span>
-                    <span className="text-sm font-black text-slate-850">{selectedPerformance.agility}%</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Flexibility Ratio</span>
-                    <span className="text-sm font-black text-slate-850">{selectedPerformance.flexibility}%</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Accuracy target</span>
-                    <span className="text-sm font-black text-slate-850">{selectedPerformance.accuracy}%</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Endurance Marker</span>
-                    <span className="text-sm font-black text-slate-850">{selectedPerformance.endurance}%</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Reaction speed</span>
-                    <span className="text-sm font-black text-slate-850">{selectedPerformance.reactionTime}%</span>
+                    <div className="w-full border-b border-slate-200/80 h-10 mb-2"></div>
+                    <span>Principal Executive</span>
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* AI insight */}
-            {selectedPerformance?.aiInsight && (
-              <div className="bg-gradient-to-r from-indigo-50/50 via-slate-50 to-indigo-50/20 p-6 rounded-2xl border border-indigo-100/40">
-                <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Activity size={15} className="text-indigo-600" /> Professional AI Diagnostics & Growth Plan
-                </h4>
-                <p className="text-slate-600 italic text-xs leading-relaxed">
-                  "{selectedPerformance.aiInsight}"
-                </p>
-              </div>
-            )}
-
-            {/* Signatures */}
-            <div className="border-t border-dashed border-slate-200 mt-12 pt-10 grid grid-cols-3 gap-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest relative">
-              <div>
-                <div className="w-full border-b border-slate-200/80 h-10 mb-2"></div>
-                <span>Coach Mentor Signature</span>
-              </div>
-              <div>
-                <div className="w-full border-b border-slate-200/80 h-10 mb-2"></div>
-                <span>Director Authority</span>
-              </div>
-              <div>
-                <div className="w-full border-b border-slate-200/80 h-10 mb-2"></div>
-                <span>Principal Executive</span>
-              </div>
-            </div>
-          </div>
-        </>
-      ) ) : (
+            </>
+          )) : (
           /* ===== NO STUDENT SELECTED PLACEOHLDER ===== */
           !selectedInst && (
             <div className="bg-white rounded-3xl p-12 text-center text-slate-400 text-xs font-semibold border border-slate-100 shadow-sm max-w-4xl mx-auto">

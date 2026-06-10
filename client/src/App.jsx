@@ -153,9 +153,7 @@ function App() {
           <Route path="physical-tests" element={<Tests />} />
           <Route path="performance" element={<Performance />} />
           <Route path="reports" element={<Reports />} />
-
           <Route path="profile" element={<Profile />} />
-
         </Route>
 
         {/* ========= Academy Protected Routes ========= */}
@@ -169,9 +167,7 @@ function App() {
           <Route path="physical-tests" element={<Tests />} />
           <Route path="performance" element={<Performance />} />
           <Route path="reports" element={<Reports />} />
-
           <Route path="profile" element={<Profile />} />
-
         </Route>
 
         {/* ========= Catch-all ========= */}
