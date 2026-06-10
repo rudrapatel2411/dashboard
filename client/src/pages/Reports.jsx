@@ -6,12 +6,9 @@ import {
   ShieldAlert, Sparkles, Zap, Target, AlertCircle, Plus
 } from 'lucide-react';
 import axios from 'axios';
-<<<<<<< HEAD
 import FitnessReportExportButton from '../components/FitnessReport';
-=======
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
->>>>>>> 4024aa865453648c1dac00ee71f88aaafb6c784c
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -313,10 +310,7 @@ const Reports = () => {
     return null;
   })();
 
-<<<<<<< HEAD
-  // PDF export is now fully handled by <FitnessReportExportButton />
-  // which manages its own isExporting state, spinner, and try/catch/finally.
-=======
+  // PDF export for Roster Reports or student reports fallback
   const handleExportPDF = () => {
     if (!selectedInst) {
       alert("Please select an institution or sports academy first!");
@@ -667,7 +661,6 @@ const Reports = () => {
       alert('Failed to generate PDF: ' + (error.message || error));
     }
   };
->>>>>>> 4024aa865453648c1dac00ee71f88aaafb6c784c
 
   const handlePrint = () => {
     if (selectedStudent && !selectedPerformance) {
@@ -755,7 +748,6 @@ const Reports = () => {
         <div className="flex gap-3">
           {selectedInst && (
             <>
-<<<<<<< HEAD
               <button 
                 onClick={handlePrint}
                 disabled={selectedStudent && !selectedPerformance}
@@ -767,42 +759,37 @@ const Reports = () => {
               >
                 <Printer size={15} /> Print Report
               </button>
-              {/* Phase 3+4+5: Self-managing PDF export button */}
-              {selectedStudent && selectedPerformance ? (
-                <FitnessReportExportButton
-                  student={selectedStudent}
-                  currentPerf={selectedPerformance}
-                  prevPerf={(() => {
-                    // Resolve previous term perf for comparison column
-                    const otherTerm = selectedTerm === 'TERM-1' ? 'TERM-2' : 'TERM-1';
-                    return dbPerformances.find(r => r.term === otherTerm) || null;
-                  })()}
-                  institute={selectedInst}
-                  disabled={false}
-                />
+              {selectedStudent ? (
+                selectedPerformance ? (
+                  <FitnessReportExportButton
+                    student={selectedStudent}
+                    currentPerf={selectedPerformance}
+                    prevPerf={(() => {
+                      // Resolve previous term perf for comparison column
+                      const otherTerm = selectedTerm === 'TERM-1' ? 'TERM-2' : 'TERM-1';
+                      return dbPerformances.find(r => r.term === otherTerm) || null;
+                    })()}
+                    institute={selectedInst}
+                    disabled={false}
+                  />
+                ) : (
+                  <FitnessReportExportButton
+                    student={null}
+                    currentPerf={null}
+                    prevPerf={null}
+                    institute={selectedInst}
+                    disabled={true}
+                  />
+                )
               ) : (
-                <FitnessReportExportButton
-                  student={null}
-                  currentPerf={null}
-                  prevPerf={null}
-                  institute={selectedInst}
-                  disabled={true}
-                />
+                <button
+                  onClick={handleExportPDF}
+                  className="group px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all duration-300 flex items-center gap-2 font-black active:scale-95 cursor-pointer overflow-hidden relative bg-gradient-to-r from-[#1B3B2B] to-[#2d5a44] hover:from-[#152e22] hover:to-[#1B3B2B] text-[#fbf7ee] shadow-[#1b3b2b]/30 hover:shadow-xl hover:-translate-y-0.5 border border-[#152e22]/50"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out pointer-events-none rounded-xl"></div>
+                  <Download size={15} className="group-hover:-translate-y-0.5 transition-transform duration-300" /> Export PDF
+                </button>
               )}
-=======
-
-              <button
-                onClick={handleExportPDF}
-                disabled={selectedStudent && !selectedPerformance}
-                className={`group px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all duration-300 flex items-center gap-2 font-black active:scale-95 cursor-pointer overflow-hidden relative ${(selectedStudent && !selectedPerformance)
-                    ? "bg-slate-200 text-slate-400 cursor-not-allowed opacity-50 shadow-none"
-                    : "bg-gradient-to-r from-[#1B3B2B] to-[#2d5a44] hover:from-[#152e22] hover:to-[#1B3B2B] text-[#fbf7ee] shadow-[#1b3b2b]/30 hover:shadow-xl hover:-translate-y-0.5 border border-[#152e22]/50"
-                  }`}
-              >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out pointer-events-none rounded-xl"></div>
-                <Download size={15} className="group-hover:-translate-y-0.5 transition-transform duration-300" /> Export PDF
-              </button>
->>>>>>> 4024aa865453648c1dac00ee71f88aaafb6c784c
             </>
           )}
         </div>
