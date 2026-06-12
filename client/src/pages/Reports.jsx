@@ -7,6 +7,11 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import FitnessReportExportButton from '../components/FitnessReport';
+<<<<<<< HEAD
+=======
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+>>>>>>> 5bbd1e1e2445986c6bf820145a31d2f47c4518cb
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -308,8 +313,362 @@ const Reports = () => {
     return null;
   })();
 
+<<<<<<< HEAD
   // PDF export is now fully handled by <FitnessReportExportButton />
   // which manages its own isExporting state, spinner, and try/catch/finally.
+=======
+  // PDF export for Roster Reports or student reports fallback
+  const handleExportPDF = () => {
+    if (!selectedInst) {
+      alert("Please select an institution or sports academy first!");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+      
+      if (selectedStudent) {
+        if (!selectedPerformance) {
+          alert("No performance records found for this student. Export disabled.");
+          return;
+        }
+        const perf = selectedPerformance;
+        
+        // --- Header Section ---
+        doc.setFillColor(27, 59, 43); // Deep Forest Green
+        doc.rect(0, 0, 210, 38, 'F');
+        
+        doc.setFillColor(210, 180, 140); // Warm Sand/Gold accent stripe
+        doc.rect(0, 38, 210, 3, 'F');
+        
+        // Title text in white
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('ATHLETIC PERFORMANCE REPORT', 15, 18);
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(240, 244, 240); // very soft green-white
+        doc.text(`Academic Year 2026 - ${perf.term === 'TERM-1' ? 'Term 1' : 'Term 2'} Evaluation Log`, 15, 27);
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SportSphere Hub', 195, 18, { align: 'right' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text('Analytics Center', 195, 24, { align: 'right' });
+        
+        // --- Student Profile details box ---
+        const profileY = 48;
+        doc.setFillColor(248, 250, 252); // soft gray-green background
+        doc.roundedRect(15, profileY, 180, 36, 2, 2, 'F');
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(15, profileY, 180, 36, 2, 2, 'D');
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(27, 59, 43);
+        doc.text('STUDENT PROFILE', 20, profileY + 8);
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(71, 85, 105);
+        doc.text(`Name: ${selectedStudent.name}`, 20, profileY + 16);
+        doc.text(`Athlete ID: ${selectedStudent.studentId || selectedStudent.id || 'STU-001'}`, 20, profileY + 23);
+        doc.text(`Class Grade: Class ${selectedStudent.class}th`, 20, profileY + 30);
+        
+        doc.text(`Assigned Sport: ${selectedStudent.assignedSport || selectedStudent.sport}`, 110, profileY + 16);
+        doc.text(`BMI Standard: ${selectedStudent.bmi} (${selectedStudent.bmiCategory})`, 110, profileY + 23);
+        doc.text(`Coach Mentor: ${selectedStudent.mentor || 'Coach Arthur'}`, 110, profileY + 30);
+        
+        // --- High Impact Stats Box Grid ---
+        const statsY = 92;
+        const colWidth = 56;
+        const colHeight = 20;
+        
+        // Card 1: Overall Score
+        doc.setFillColor(235, 242, 235); // Soft Forest Green tint
+        doc.roundedRect(15, statsY, colWidth, colHeight, 2, 2, 'F');
+        doc.setDrawColor(200, 220, 200);
+        doc.roundedRect(15, statsY, colWidth, colHeight, 2, 2, 'D');
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(45, 90, 60);
+        doc.text('OVERALL SCORE INDEX', 15 + colWidth/2, statsY + 6, { align: 'center' });
+        doc.setFontSize(11);
+        doc.text(`${perf.overallScore || 0}%`, 15 + colWidth/2, statsY + 14, { align: 'center' });
+        
+        // Card 2: Fitness Level
+        doc.setFillColor(251, 247, 238); // Soft Sand/Ivory tint
+        doc.roundedRect(77, statsY, colWidth, colHeight, 2, 2, 'F');
+        doc.setDrawColor(230, 220, 200);
+        doc.roundedRect(77, statsY, colWidth, colHeight, 2, 2, 'D');
+        doc.setFontSize(7.5);
+        doc.setTextColor(130, 100, 50);
+        doc.text('FITNESS STANDARD', 77 + colWidth/2, statsY + 6, { align: 'center' });
+        doc.setFontSize(11);
+        doc.text(`${perf.fitnessLevel || 'N/A'}`, 77 + colWidth/2, statsY + 14, { align: 'center' });
+        
+        // Card 3: Attendance Rate
+        doc.setFillColor(249, 239, 239); // Soft Terracotta tint
+        doc.roundedRect(139, statsY, colWidth, colHeight, 2, 2, 'F');
+        doc.setDrawColor(240, 220, 220);
+        doc.roundedRect(139, statsY, colWidth, colHeight, 2, 2, 'D');
+        doc.setFontSize(7.5);
+        doc.setTextColor(160, 60, 50);
+        doc.text('ATTENDANCE RATE', 139 + colWidth/2, statsY + 6, { align: 'center' });
+        doc.setFontSize(11);
+        doc.text(`${perf.attendance || 0}%`, 139 + colWidth/2, statsY + 14, { align: 'center' });
+        
+        // --- Physical Capacity Indicators (Vector Progress Bar Chart) ---
+        const chartY = 122;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(27, 59, 43);
+        doc.text('PHYSICAL CAPACITY DISTRIBUTION', 15, chartY);
+        
+        doc.setDrawColor(27, 59, 43);
+        doc.setLineWidth(0.5);
+        doc.line(15, chartY + 2, 195, chartY + 2);
+        
+        // Render 8 progress bars in a 2-column grid layout
+        const indicators = [
+          { label: 'Speed', val: perf.speed || 0 },
+          { label: 'Strength', val: perf.strength || 0 },
+          { label: 'Stamina', val: perf.stamina || 0 },
+          { label: 'Agility', val: perf.agility || 0 },
+          { label: 'Flexibility', val: perf.flexibility || 0 },
+          { label: 'Accuracy', val: perf.accuracy || 0 },
+          { label: 'Endurance', val: perf.endurance || 0 },
+          { label: 'Reaction Time', val: perf.reactionTime || 0 }
+        ];
+        
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        
+        indicators.forEach((ind, index) => {
+          const isSecondCol = index >= 4;
+          const x = isSecondCol ? 110 : 15;
+          const y = chartY + 12 + (index % 4) * 14;
+          
+          // Print label and value
+          doc.setTextColor(51, 65, 85);
+          doc.setFont('helvetica', 'bold');
+          doc.text(ind.label, x, y);
+          doc.setTextColor(71, 85, 105);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`${ind.val}%`, x + 58, y);
+          
+          // Draw empty progress bar track
+          doc.setFillColor(241, 245, 249);
+          doc.rect(x, y + 2, 65, 3.5, 'F');
+          
+          // Draw natural colored filled bar
+          // Forest green for values >= 75, Sage green for values >= 50, ochre for lower
+          if (ind.val >= 75) {
+            doc.setFillColor(27, 59, 43); // Forest
+          } else if (ind.val >= 50) {
+            doc.setFillColor(143, 188, 143); // Sage
+          } else {
+            doc.setFillColor(210, 180, 140); // Ochre
+          }
+          doc.rect(x, y + 2, (ind.val / 100) * 65, 3.5, 'F');
+        });
+        
+        // --- Professional AI Diagnostic Block ---
+        const diagY = 192;
+        doc.setFillColor(244, 247, 244); // soft green-slate
+        doc.roundedRect(15, diagY, 180, 26, 2, 2, 'F');
+        doc.setDrawColor(220, 230, 220);
+        doc.roundedRect(15, diagY, 180, 26, 2, 2, 'D');
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(27, 59, 43);
+        doc.text('Professional AI Diagnostics & Development Plan', 20, diagY + 7);
+        
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(71, 85, 105);
+        
+        // Wrap diagnosis text safely within 170mm width
+        const lines = doc.splitTextToSize(perf.aiInsight || 'No insights compiled.', 170);
+        doc.text(lines, 20, diagY + 14);
+        
+        // --- Official Signatures ---
+        const sigY = 238;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(148, 163, 184);
+        
+        // Signature Line 1
+        doc.line(15, sigY + 12, 60, sigY + 12);
+        doc.text('COACH MENTOR', 15, sigY + 17);
+        
+        // Signature Line 2
+        doc.line(85, sigY + 12, 130, sigY + 12);
+        doc.text('DIRECTOR AUTHORITY', 85, sigY + 17);
+        
+        // Signature Line 3
+        doc.line(150, sigY + 12, 195, sigY + 12);
+        doc.text('PRINCIPAL EXECUTIVE', 150, sigY + 17);
+        
+        // Footer signature labels
+        doc.setFontSize(8);
+        doc.text('Generated dynamically by SportSphere Analytics Center', 15, 280);
+      } else {
+        // Dynamic Roster Performance Report
+        const displayStudents = selectedClass ? getDisplayStudents() : getStudentsForInst();
+
+        // Header Section
+        doc.setFillColor(27, 59, 43); // Deep Forest Green
+        doc.rect(0, 0, 210, 38, 'F');
+        
+        doc.setFillColor(210, 180, 140); // Sand/Gold accent stripe
+        doc.rect(0, 38, 210, 3, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('ROSTER PERFORMANCE REPORT', 15, 18);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(240, 244, 240);
+        doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 15, 27);
+        doc.text('SportSphere Analytics Center', 195, 18, { align: 'right' });
+
+        // Entity details box
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(15, 48, 180, 26, 2, 2, 'F');
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(15, 48, 180, 26, 2, 2, 'D');
+
+        doc.setFontSize(9);
+        doc.setTextColor(71, 85, 105);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Entity Name: ${selectedInst.name || 'N/A'}`, 20, 56);
+        doc.text(`Category: ${activeCategory === 'academies' ? 'Sports Academy' : 'School/Institution'}`, 20, 63);
+        doc.text(`Location: ${selectedInst.location || 'N/A'}`, 110, 56);
+        doc.text(`Total Enrolled: ${displayStudents.length} Athletes`, 110, 63);
+
+        // Calculate class average and pass rate
+        let totalScoreSum = 0;
+        let passCount = 0;
+        let totalCount = 0;
+        displayStudents.forEach(s => {
+          const studentPerf = allPerformances.find(r => {
+            const rStudentId = r.studentId && (typeof r.studentId === 'object' ? r.studentId._id : r.studentId);
+            return (rStudentId === s.id || rStudentId === s._id) && r.term === selectedTerm;
+          });
+          if (studentPerf && typeof studentPerf.overallScore === 'number' && !isNaN(studentPerf.overallScore)) {
+            totalScoreSum += studentPerf.overallScore;
+            if (studentPerf.overallScore >= 50) passCount++;
+            totalCount++;
+          }
+        });
+        const classAvg = totalCount > 0 ? Math.round(totalScoreSum / totalCount) : 0;
+        const passRate = totalCount > 0 ? Math.round((passCount / totalCount) * 100) : 0;
+
+        const safeClassAvg = (typeof classAvg === 'number' && !isNaN(classAvg)) ? classAvg : 0;
+        const safePassRate = (typeof passRate === 'number' && !isNaN(passRate)) ? passRate : 0;
+
+        // Draw visual indicator box at Y=80
+        doc.setFillColor(244, 247, 244);
+        doc.roundedRect(15, 80, 180, 18, 2, 2, 'F');
+        doc.setDrawColor(220, 230, 220);
+        doc.roundedRect(15, 80, 180, 18, 2, 2, 'D');
+
+        doc.setFontSize(9);
+        doc.setTextColor(27, 59, 43);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Roster Performance Indexes:', 20, 91);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(71, 85, 105);
+        doc.text(`Class Average: ${safeClassAvg}%`, 75, 91);
+        doc.text(`Pass Rate: ${safePassRate}%`, 130, 91);
+
+        // Draw class average bar
+        doc.setFillColor(220, 225, 220);
+        doc.rect(160, 87, 28, 4, 'F');
+        doc.setFillColor(27, 59, 43);
+        doc.rect(160, 87, (safeClassAvg/100)*28, 4, 'F');
+
+        // Draw autoTable starting at Y=104
+        const tableBody = displayStudents.map((s, i) => {
+          const studentPerf = allPerformances.find(r => {
+            const rStudentId = r.studentId && (typeof r.studentId === 'object' ? r.studentId._id : r.studentId);
+            return (rStudentId === s.id || rStudentId === s._id) && r.term === selectedTerm;
+          });
+          const score = studentPerf ? `${studentPerf.overallScore}%` : "N/A";
+          const level = studentPerf ? (studentPerf.fitnessLevel || 'N/A') : "N/A";
+          return [
+            (i + 1).toString(),
+            s.name || 'Unknown',
+            `Class ${s.class || 'N/A'}`,
+            s.assignedSport || s.sport || 'General',
+            score,
+            level
+          ];
+        });
+
+        autoTable(doc, {
+          startY: 104,
+          head: [['#', 'Athlete Name', 'Class/Grade', 'Assigned Sport', 'Overall Score', 'Fitness Level']],
+          body: tableBody,
+          theme: 'grid',
+          headStyles: {
+            fillColor: [27, 59, 43],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 9,
+            cellPadding: 4
+          },
+          bodyStyles: {
+            fontSize: 8.5,
+            cellPadding: 3.5,
+            textColor: [30, 41, 59],
+            lineColor: [226, 232, 240],
+            lineWidth: 0.1
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252]
+          },
+          columnStyles: {
+            0: { halign: 'center', cellWidth: 12 },
+            1: { fontStyle: 'bold' },
+            2: { halign: 'center', cellWidth: 25 },
+            3: { cellWidth: 40 },
+            4: { halign: 'center', cellWidth: 30, fontStyle: 'bold' },
+            5: { halign: 'center', cellWidth: 30 }
+          },
+          margin: { left: 15, right: 15 }
+        });
+
+        // Add page numbers
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(148, 163, 184);
+          doc.text(`Page ${i} of ${pageCount}`, 195, 285, { align: 'right' });
+          doc.text('© SportSphere platform. Generated automatically.', 15, 285);
+        }
+      }
+
+      const fileName = selectedStudent
+        ? `${(selectedStudent.name || 'Student').replace(/\s+/g, '_')}_Report.pdf`
+        : `${(selectedInst.name || 'Institute').replace(/\s+/g, '_')}_Roster_Report.pdf`;
+      doc.save(fileName);
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      alert('Failed to generate PDF: ' + (error.message || error));
+    }
+  };
+>>>>>>> 5bbd1e1e2445986c6bf820145a31d2f47c4518cb
 
   const handlePrint = () => {
     if (selectedStudent && !selectedPerformance) {
@@ -408,27 +767,36 @@ const Reports = () => {
               >
                 <Printer size={15} /> Print Report
               </button>
-              {/* Phase 3+4+5: Self-managing PDF export button */}
-              {selectedStudent && selectedPerformance ? (
-                <FitnessReportExportButton
-                  student={selectedStudent}
-                  currentPerf={selectedPerformance}
-                  prevPerf={(() => {
-                    // Resolve previous term perf for comparison column
-                    const otherTerm = selectedTerm === 'TERM-1' ? 'TERM-2' : 'TERM-1';
-                    return dbPerformances.find(r => r.term === otherTerm) || null;
-                  })()}
-                  institute={selectedInst}
-                  disabled={false}
-                />
+              {selectedStudent ? (
+                selectedPerformance ? (
+                  <FitnessReportExportButton
+                    student={selectedStudent}
+                    currentPerf={selectedPerformance}
+                    prevPerf={(() => {
+                      // Resolve previous term perf for comparison column
+                      const otherTerm = selectedTerm === 'TERM-1' ? 'TERM-2' : 'TERM-1';
+                      return dbPerformances.find(r => r.term === otherTerm) || null;
+                    })()}
+                    institute={selectedInst}
+                    disabled={false}
+                  />
+                ) : (
+                  <FitnessReportExportButton
+                    student={null}
+                    currentPerf={null}
+                    prevPerf={null}
+                    institute={selectedInst}
+                    disabled={true}
+                  />
+                )
               ) : (
-                <FitnessReportExportButton
-                  student={null}
-                  currentPerf={null}
-                  prevPerf={null}
-                  institute={selectedInst}
-                  disabled={true}
-                />
+                <button
+                  onClick={handleExportPDF}
+                  className="group px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all duration-300 flex items-center gap-2 font-black active:scale-95 cursor-pointer overflow-hidden relative bg-gradient-to-r from-[#1B3B2B] to-[#2d5a44] hover:from-[#152e22] hover:to-[#1B3B2B] text-[#fbf7ee] shadow-[#1b3b2b]/30 hover:shadow-xl hover:-translate-y-0.5 border border-[#152e22]/50"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out pointer-events-none rounded-xl"></div>
+                  <Download size={15} className="group-hover:-translate-y-0.5 transition-transform duration-300" /> Export PDF
+                </button>
               )}
             </>
           )}

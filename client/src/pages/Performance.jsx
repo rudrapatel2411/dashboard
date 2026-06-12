@@ -828,6 +828,10 @@ const Performance = () => {
                   <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-600 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-500/10 uppercase">
                     {selectedStudent.name?.substring(0, 2) || ""}
                   </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5bbd1e1e2445986c6bf820145a31d2f47c4518cb
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="text-xl font-black text-slate-800">{selectedStudent.name || ""}</h3>
