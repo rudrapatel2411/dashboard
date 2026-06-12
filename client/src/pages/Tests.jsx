@@ -73,7 +73,7 @@ const Tests = () => {
   // Live students fetched from backend
   const [students, setStudents] = useState([]);
   const [selectedClass, setSelectedClass] = useState(initialClass); // Default standard select
-  const [selectedTerm, setSelectedTerm] = useState("TERM-2"); // Default evaluation term
+  const [selectedTerm, setSelectedTerm] = useState("TERM-1"); // Default evaluation term
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', title: '', isError: false });
   const [classPhotos, setClassPhotos] = useState({});

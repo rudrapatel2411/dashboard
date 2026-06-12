@@ -29,7 +29,7 @@ const Reports = () => {
   const [dbInstitutions, setDbInstitutions] = useState([]);
   const [dbAcademies, setDbAcademies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedTerm, setSelectedTerm] = useState("TERM-2");
+  const [selectedTerm, setSelectedTerm] = useState("TERM-1");
   const [dbPerformances, setDbPerformances] = useState([]);
   const [allPerformances, setAllPerformances] = useState([]);
 
@@ -298,7 +298,7 @@ const Reports = () => {
     if (!selectedStudent) return null;
     if (dbPerformances && dbPerformances.length > 0) {
       const match = dbPerformances.find(r => r.term === selectedTerm);
-      return match || dbPerformances[dbPerformances.length - 1];
+      return match || null;
     }
     return null;
   })();
@@ -1214,68 +1214,67 @@ const Reports = () => {
             </div>
           </div>
         )}
-
       </div>
 
       {/* Printable Report Display Panel */}
       <div className="printable-report-area">
         {selectedStudent ? (
-          !selectedPerformance ? (
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-12 text-center max-w-2xl mx-auto space-y-4 animate-fade-in">
-              <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 mx-auto text-slate-450">
-                <Activity className="w-8 h-8 text-slate-400" />
+          <>
+            {/* Term Selector (Non-Printable) */}
+            <div className="non-printable flex items-center justify-between gap-4 max-w-4xl mx-auto mb-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedStudent(null)}
+                  className="px-3.5 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                >
+                  <ArrowLeft size={14} /> Back to Roster
+                </button>
               </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-black text-slate-800">No Performance Data Found</h3>
-                <p className="text-sm text-slate-500 font-medium">
-                  No physical tests, sports scores, or attendance records have been entered for <span className="font-bold text-indigo-600">{selectedStudent.name}</span> yet.
-                </p>
-              </div>
-              {isInstituteUser && (
-                <div className="pt-2">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Viewing Term:</span>
+                <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
                   <button
-                    onClick={() => navigate(`${user.instituteType === 'academy' ? '/academy' : '/institute'}/physical-tests?class=${selectedStudent.class}&search=${encodeURIComponent(selectedStudent.name)}`)}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer"
+                    onClick={() => setSelectedTerm("TERM-1")}
+                    className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${selectedTerm === "TERM-1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-650"
+                      }`}
                   >
-                    <Plus size={14} /> Enter Sports Marks & Attendance
+                    Term 1
+                  </button>
+                  <button
+                    onClick={() => setSelectedTerm("TERM-2")}
+                    className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${selectedTerm === "TERM-2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-650"
+                      }`}
+                  >
+                    Term 2
                   </button>
                 </div>
-              )}
+              </div>
             </div>
-          ) : (
-            <>
-              {/* Term Selector (Non-Printable) */}
-              <div className="non-printable flex items-center justify-between gap-4 max-w-4xl mx-auto mb-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setSelectedStudent(null)}
-                    className="px-3.5 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
-                  >
-                    <ArrowLeft size={14} /> Back to Roster
-                  </button>
+
+            {!selectedPerformance ? (
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-12 text-center max-w-2xl mx-auto space-y-4 animate-fade-in">
+                <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 mx-auto text-slate-450">
+                  <Activity className="w-8 h-8 text-slate-400" />
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Viewing Term:</span>
-                  <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-black text-slate-800">No Performance Data Found</h3>
+                  <p className="text-sm text-slate-500 font-medium">
+                    No physical tests, sports scores, or attendance records have been entered for <span className="font-bold text-indigo-600">{selectedStudent.name}</span> in <span className="font-bold text-indigo-600">{selectedTerm === "TERM-1" ? "Term 1" : "Term 2"}</span> yet.
+                  </p>
+                </div>
+                {isInstituteUser && (
+                  <div className="pt-2">
                     <button
-                      onClick={() => setSelectedTerm("TERM-1")}
-                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${selectedTerm === "TERM-1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                        }`}
+                      onClick={() => navigate(`${user.instituteType === 'academy' ? '/academy' : '/institute'}/physical-tests?class=${selectedStudent.class}&search=${encodeURIComponent(selectedStudent.name)}`)}
+                      className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer"
                     >
-                      Term 1
-                    </button>
-                    <button
-                      onClick={() => setSelectedTerm("TERM-2")}
-                      className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${selectedTerm === "TERM-2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                        }`}
-                    >
-                      Term 2
+                      <Plus size={14} /> Enter Sports Marks & Attendance
                     </button>
                   </div>
-                </div>
+                )}
               </div>
-
-              {/* ===== LEVEL 4: ATHLETE DETAILED REPORT CARD ===== */}
+            ) : (
+              /* ===== LEVEL 4: ATHLETE DETAILED REPORT CARD ===== */
               <div className="bg-white rounded-3xl p-8 shadow-md border border-slate-100 max-w-4xl mx-auto space-y-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-full pointer-events-none -z-0"></div>
 
@@ -1437,8 +1436,9 @@ const Reports = () => {
                   </div>
                 </div>
               </div>
-            </>
-          )) : (
+            )}
+          </>
+        ) : (
           /* ===== NO STUDENT SELECTED PLACEOHLDER ===== */
           !selectedInst && (
             <div className="bg-white rounded-3xl p-12 text-center text-slate-400 text-xs font-semibold border border-slate-100 shadow-sm max-w-4xl mx-auto">
