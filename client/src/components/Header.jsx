@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Menu, Moon, Search, Sun, X } from 'lucide-react';
+import { Bell, Menu, Moon, Sun, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) => {
@@ -167,24 +167,14 @@ const Header = ({ toggleSidebar, searchTerm = "", setSearchTerm = () => {} }) =>
   return (
     <header className="h-[72px] bg-bg-card shadow-sm border-b border-[#d8cfc0] flex items-center justify-between px-4 md:px-7 z-30 relative shrink-0">
       
-      {/* Left Search Bar + Hamburger Trigger */}
-      <div className="flex items-center gap-2 flex-1 min-w-0 md:max-w-96 relative">
+      {/* Left Sidebar Hamburger Trigger */}
+      <div className="flex items-center gap-2 relative">
         <button 
           onClick={toggleSidebar}
           className="md:hidden text-slate-500 hover:text-slate-900 p-2 hover:bg-[#f3eadc] rounded-lg transition-all mr-1 shrink-0"
         >
           <Menu size={22} strokeWidth={2.4} />
         </button>
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-2.5 text-slate-500 w-4 h-4" />
-          <input 
-            type="text" 
-            placeholder="Search..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#fbf7ee] border border-[#d8cfc0] rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all text-xs font-semibold text-slate-800"
-          />
-        </div>
       </div>
 
       {/* Right User Bar */}
