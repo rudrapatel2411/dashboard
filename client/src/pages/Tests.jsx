@@ -39,10 +39,7 @@ const DRAFT_TEST_FIELDS = [
   "sitAndReach",
   "runWalk600m",
   "run50m",
-  "manualReportData",
-  "attendance",
-  "discipline",
-  "matchPerformance"
+  "manualReportData"
 ];
 
 const hasDraftTestData = (row) => {
@@ -61,10 +58,7 @@ const createEmptyRowInput = (status = "Present") => ({
   sitAndReach: "",
   runWalk600m: "",
   run50m: "",
-  manualReportData: "",
-  attendance: "",
-  discipline: "",
-  matchPerformance: ""
+  manualReportData: ""
 });
 
 const STANDARDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
@@ -160,6 +154,7 @@ const Tests = () => {
   // Fetch active students and existing test screenings from database
   const fetchStudentsAndSubmissions = async () => {
     setIsLoading(true);
+    setRowInputs({});
     try {
       const token = localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
@@ -299,9 +294,9 @@ const Tests = () => {
     if (isGroup1) {
       const tapping = parseFloat(row.plateTapping);
       const flamingo = parseFloat(row.flamingoBalance);
-      if (!tapping || !flamingo) return "Enter parameters...";
+      if (!tapping || isFieldEmpty(row.flamingoBalance)) return "Enter parameters...";
       
-      if (tapping < 12 && flamingo > 15) {
+      if (tapping < 12 && flamingo <= 4) {
         return "Gymnastics & Ballet (High Balance & Coordination)";
       } else {
         return "General Athletics & Coordination Drills";
@@ -902,9 +897,11 @@ const Tests = () => {
                                   <p className="font-black text-base text-slate-700 mt-1 leading-tight break-words">{matchedSub?.plateTapping}s</p>
                                 </div>
                                 <div className="bg-slate-50/50 border border-slate-100 p-3.5 rounded-xl text-center min-w-0">
-                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[26px] flex items-center justify-center">Flamingo Bal.</p>
-                                  <p className="font-black text-base text-slate-700 mt-1 leading-tight break-words">{matchedSub?.flamingoBalance}s</p>
-                                </div>
+                                   <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight min-h-[26px] flex items-center justify-center">Flamingo Bal.</p>
+                                   <p className="font-black text-base text-slate-700 mt-1 leading-tight break-words">
+                                     {matchedSub?.flamingoBalance} {matchedSub?.flamingoBalance === 1 ? 'fall' : 'falls'}
+                                   </p>
+                                 </div>
                               </div>
                             ) : (
                               <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2.5">
@@ -938,21 +935,7 @@ const Tests = () => {
                               </div>
                             )}
 
-                            {/* Attendance, Discipline, Match Performance saved details */}
-                            <div className="grid grid-cols-3 gap-3 pt-3 border-t border-dashed border-slate-200">
-                              <div className="bg-slate-50/50 border border-slate-100 p-2.5 rounded-xl text-center min-w-0">
-                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight">Attendance</p>
-                                <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words">{matchedSub?.attendance !== null ? `${matchedSub?.attendance}%` : "N/A"}</p>
-                              </div>
-                              <div className="bg-slate-50/50 border border-slate-100 p-2.5 rounded-xl text-center min-w-0">
-                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight">Discipline</p>
-                                <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words">{matchedSub?.discipline !== null ? `${matchedSub?.discipline}/10` : "N/A"}</p>
-                              </div>
-                              <div className="bg-slate-50/50 border border-slate-100 p-2.5 rounded-xl text-center min-w-0">
-                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight">Match Perf.</p>
-                                <p className="font-black text-sm text-slate-700 mt-1 leading-tight break-words">{matchedSub?.matchPerformance !== null ? `${matchedSub?.matchPerformance}%` : "N/A"}</p>
-                              </div>
-                            </div>
+
 
                             {/* Additional Info: Sport & Observations & Proof */}
                             <div className="flex flex-col sm:flex-row items-start gap-4 pt-3 border-t border-slate-100 text-sm font-semibold justify-between min-w-0">
@@ -1034,7 +1017,7 @@ const Tests = () => {
                                   />
                                 </div>
                                 <div className="min-w-0">
-                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Flamingo Bal. (s) *</label>
+                                  <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5 tracking-wide leading-tight min-h-[30px]">Flamingo Bal. (falls) *</label>
                                   <input 
                                     type="number" 
                                     placeholder="e.g. 12"
@@ -1332,7 +1315,9 @@ const Tests = () => {
                         </div>
                         <div className="border-l border-slate-200">
                           <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Flamingo Balance</p>
-                          <p className="font-extrabold text-slate-800 text-sm mt-0.5">{activeCertificate.flamingoBalance}s</p>
+                          <p className="font-extrabold text-slate-800 text-sm mt-0.5">
+                            {activeCertificate.flamingoBalance} {activeCertificate.flamingoBalance === 1 ? 'fall' : 'falls'}
+                          </p>
                         </div>
                       </div>
                     ) : (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useOutletContext } from 'react-router-dom';
 import { 
   Building2, Users, Search, 
@@ -69,268 +70,6 @@ const generateMockStudentsForMissingClasses = (institutionsList) => {
 
 const Institutions = () => {
   const [institutions, setInstitutions] = useState([]);
-  
-  useEffect(() => {
-    const initialData = [
-    {
-      id: "inst-101",
-      name: "St. Xavier's High School",
-      email: "principal@stxaviers.edu",
-      phone: "+91 98765 43210",
-      registeredAt: "2026-04-15",
-      studentCount: 8,
-      students: [
-        { 
-          id: "stu-1", 
-          name: "Rahul Sharma", 
-          age: 15, 
-          class: "9", 
-          sport: "Badminton", 
-          performance: "Excellent",
-          sprintTime: 12.8,
-          broadJump: 210,
-          pushups: 26,
-          attendance: "Present",
-          recommendedSport: "Athletics & Badminton",
-          manualReportData: "Fast court movement, superior agility scores. Excellent lateral displacement velocity.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop"
-        },
-        { id: "stu-14", name: "Manan Desai", age: 16, class: "10", sport: "Football", performance: "Average", attendance: "Present" },
-        { id: "stu-p1", name: "Aarav Kumar", age: 6, class: "1", sport: "Gymnastics", performance: "Excellent", attendance: "Present", recommendedSport: "Gymnastics & Athletics", manualReportData: "Highly flexible joints and excellent balance control. Very active.", dob: "12th March 2020", gender: "Male", contact: "+91 99001 12233", address: "Sector 4, Gandhinagar", taluka: "Gandhinagar", city: "Gandhinagar", pincode: "382010" },
-        { id: "stu-p2", name: "Riya Sharma", age: 7, class: "2", sport: "Athletics", performance: "Good", attendance: "Present", dob: "18th August 2019", gender: "Female", contact: "+91 99001 12234", address: "Ghatlodia, Ahmedabad", taluka: "Ghatlodia", city: "Ahmedabad", pincode: "380061" },
-        { id: "stu-p3", name: "Kunal Gupta", age: 8, class: "3", sport: "Swimming", performance: "Excellent", attendance: "Present", recommendedSport: "Swimming", manualReportData: "Natural aquatic comfort. High endurance potential.", dob: "25th December 2018", gender: "Male", contact: "+91 99001 12235", address: "Satellite, Ahmedabad", taluka: "Vejalpur", city: "Ahmedabad", pincode: "380015" },
-        { id: "stu-p4", name: "Ishita Patel", age: 9, class: "4", sport: "Football", performance: "Average", attendance: "Absent", dob: "03th January 2017", gender: "Female", contact: "+91 99001 12236", address: "Naranpura, Ahmedabad", taluka: "Naranpura", city: "Ahmedabad", pincode: "380013" },
-        { id: "stu-p5", name: "Manav Shah", age: 10, class: "5", sport: "Basketball", performance: "Good", attendance: "Present", dob: "14th June 2016", gender: "Male", contact: "+91 99001 12237", address: "Paldi, Ahmedabad", taluka: "Paldi", city: "Ahmedabad", pincode: "380007" },
-        { id: "stu-p6", name: "Kavya Desai", age: 11, class: "6", sport: "Badminton", performance: "Excellent", attendance: "Present", recommendedSport: "Badminton & Tennis", manualReportData: "Excellent hand-eye coordination and racket acceleration.", dob: "22nd February 2015", gender: "Female", contact: "+91 99001 12238", address: "Vastrapur, Ahmedabad", taluka: "Vejalpur", city: "Ahmedabad", pincode: "380015" },
-        { id: "stu-p7", name: "Preet Mehta", age: 12, class: "7", sport: "Cricket", performance: "Good", attendance: "Present", dob: "09th September 2014", gender: "Male", contact: "+91 99001 12239", address: "Bopal, Ahmedabad", taluka: "Daskroi", city: "Ahmedabad", pincode: "380058" },
-        { id: "stu-p12", name: "Harshil Vyas", age: 18, class: "12", sport: "Volleyball", performance: "Excellent", attendance: "Present", recommendedSport: "Volleyball", manualReportData: "Outstanding height advantage, quick reflexes, high vertical jump clearance.", dob: "11th July 2008", gender: "Male", contact: "+91 99001 12240", address: "Gota, Ahmedabad", taluka: "Gota", city: "Ahmedabad", pincode: "382481" }
-      ]
-    },
-    {
-      id: "inst-102",
-      name: "Delhi Public Sports Academy",
-      email: "sports@dpsdelhi.edu",
-      phone: "+91 91234 56789",
-      registeredAt: "2026-05-01",
-      studentCount: 6,
-      students: [
-        { 
-          id: "stu-5", 
-          name: "Kabir Singh", 
-          age: 16, 
-          class: "10", 
-          sport: "Cricket", 
-          performance: "Excellent",
-          sprintTime: 12.0,
-          broadJump: 242,
-          pushups: 35,
-          attendance: "Present",
-          recommendedSport: "Athletics & Cricket",
-          manualReportData: "Highly cohesive dynamic reaction time. Upper muscle stamina indexes are superior. Exhibits perfect stamina levels.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop"
-        },
-        { 
-          id: "stu-6", 
-          name: "Ananya Iyer", 
-          age: 17, 
-          class: "11", 
-          sport: "Swimming", 
-          performance: "Excellent",
-          sprintTime: 12.5,
-          broadJump: 215,
-          pushups: 30,
-          attendance: "Present",
-          recommendedSport: "Swimming & General Sports",
-          manualReportData: "Superb breathing rhythm and lung stamina capacity. Ideal buoyancy indicators and flexibility markers.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop"
-        },
-        { id: "stu-7", name: "Ishaan Verma", age: 15, class: "9", sport: "Football", performance: "Average", attendance: "Absent" },
-        { id: "stu-30", name: "Manish Kumar", age: 16, class: "10", sport: "Cricket", performance: "Good", attendance: "Present" },
-        { id: "stu-31", name: "Divya Teja", age: 14, class: "8", sport: "Athletics", performance: "Average", attendance: "Present" },
-        { id: "stu-32", name: "Preeti Shenoy", age: 15, class: "9", sport: "Basketball", performance: "Good", attendance: "Present" }
-      ]
-    },
-    {
-      id: "inst-103",
-      name: "Ryan Elite High School",
-      email: "info@ryanelite.org",
-      phone: "+91 88776 65544",
-      registeredAt: "2026-05-18",
-      studentCount: 5,
-      students: [
-        { id: "stu-8", name: "Aditya Roy", age: 14, class: "8", sport: "Basketball", performance: "Good", attendance: "Present" },
-        { 
-          id: "stu-9", 
-          name: "Diya Sen", 
-          age: 16, 
-          class: "10", 
-          sport: "Athletics", 
-          performance: "Excellent",
-          sprintTime: 12.4,
-          broadJump: 232,
-          pushups: 27,
-          attendance: "Present",
-          recommendedSport: "Athletics & Long Jump",
-          manualReportData: "Great core stability. Quick explosive starts observed. High levels of physical fitness and joint flexibility.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop"
-        },
-        { id: "stu-33", name: "Arjun Rampal", age: 15, class: "9", sport: "Football", performance: "Good", attendance: "Present" },
-        { id: "stu-34", name: "Kareena Kapoor", age: 16, class: "10", sport: "Badminton", performance: "Average", attendance: "Absent" },
-        { id: "stu-35", name: "Saif Khan", age: 17, class: "11", sport: "Volleyball", performance: "Good", attendance: "Present" }
-      ]
-    },
-    {
-      id: "inst-104",
-      name: "Oakridge International Sports Hub",
-      email: "oakridge@oakridge.in",
-      phone: "+91 77665 54433",
-      registeredAt: "2026-05-19",
-      studentCount: 5,
-      students: [
-        { id: "stu-10", name: "Varun Dhawan", age: 15, class: "9", sport: "Cricket", performance: "Good", attendance: "Present" },
-        { id: "stu-11", name: "Kiara Advani", age: 14, class: "8", sport: "Swimming", performance: "Average", attendance: "Present" },
-        { id: "stu-36", name: "Siddharth Malhotra", age: 16, class: "10", sport: "Football", performance: "Excellent", sprintTime: 12.1, broadJump: 240, pushups: 32, attendance: "Present", recommendedSport: "Football & Sprint", manualReportData: "Outstanding agility and speed. Perfect for field sports.", reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop" },
-        { id: "stu-37", name: "Alia Bhatt", age: 15, class: "9", sport: "Gymnastics", performance: "Excellent", sprintTime: 13.0, broadJump: 205, pushups: 28, attendance: "Present", recommendedSport: "Gymnastics & Athletics", manualReportData: "Exceptional flexibility and core strength.", reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop" },
-        { id: "stu-38", name: "Katrina Kaif", age: 14, class: "8", sport: "Athletics", performance: "Good", attendance: "Absent" }
-      ]
-    },
-    {
-      id: "inst-105",
-      name: "DAV Public School, Gandhinagar",
-      email: "info@davgandhinagar.org",
-      phone: "+91 94567 12345",
-      registeredAt: "2026-03-24",
-      studentCount: 6,
-      students: [
-        { id: "stu-12b", name: "Rohan Patel", age: 14, class: "8", sport: "Athletics", performance: "Good", attendance: "Present" },
-        { 
-          id: "stu-13b", 
-          name: "Jiya Shah", 
-          age: 15, 
-          class: "9", 
-          sport: "Badminton", 
-          performance: "Excellent",
-          sprintTime: 12.8,
-          broadJump: 210,
-          pushups: 26,
-          attendance: "Present",
-          recommendedSport: "Athletics & Badminton",
-          manualReportData: "Fast court movement, superior agility scores. Excellent lateral displacement velocity.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop"
-        },
-        { id: "stu-14b", name: "Manan Desai", age: 16, class: "10", sport: "Football", performance: "Average", attendance: "Present" },
-        { id: "stu-39", name: "Neil Nitin", age: 15, class: "9", sport: "Volleyball", performance: "Average", attendance: "Absent" },
-        { id: "stu-40", name: "Mukesh Ambani", age: 16, class: "10", sport: "Cricket", performance: "Good", attendance: "Present" },
-        { id: "stu-41", name: "Nita Shah", age: 14, class: "8", sport: "Swimming", performance: "Excellent", sprintTime: 13.1, broadJump: 195, pushups: 22, attendance: "Present", recommendedSport: "Swimming & Diving", manualReportData: "Excellent buoyancy and endurance.", reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop" }
-      ]
-    },
-    {
-      id: "inst-106",
-      name: "Lotus Valley Athletics Academy",
-      email: "athletics@lotusvalley.edu",
-      phone: "+91 81234 98765",
-      registeredAt: "2026-04-05",
-      studentCount: 5,
-      students: [
-        { 
-          id: "stu-15", 
-          name: "Arpit Gupta", 
-          age: 17, 
-          class: "11", 
-          sport: "Cricket", 
-          performance: "Excellent",
-          sprintTime: 12.3,
-          broadJump: 236,
-          pushups: 31,
-          attendance: "Present",
-          recommendedSport: "Cricket & Athletics",
-          manualReportData: "Strong batting stance and wrist coordination. Exceptional physical power output indexes.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop"
-        },
-        { id: "stu-16", name: "Meera Joshi", age: 16, class: "10", sport: "Basketball", performance: "Good", attendance: "Present" },
-        { id: "stu-17", name: "Devansh Vyas", age: 15, class: "9", sport: "Athletics", performance: "Good", attendance: "Present" },
-        { id: "stu-42", name: "Gautam Adani", age: 16, class: "10", sport: "Swimming", performance: "Excellent", sprintTime: 12.0, broadJump: 230, pushups: 33, attendance: "Present", recommendedSport: "Swimming & Athletics", manualReportData: "Outstanding endurance metrics.", reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop" },
-        { id: "stu-43", name: "Kunal Shah", age: 14, class: "8", sport: "Football", performance: "Average", attendance: "Absent" }
-      ]
-    },
-    {
-      id: "inst-107",
-      name: "Silver Oak Sports High",
-      email: "admin@silveroakhigh.com",
-      phone: "+91 79988 66554",
-      registeredAt: "2026-05-19",
-      studentCount: 5,
-      students: [
-        { id: "stu-18", name: "Shreya Ghoshal", age: 14, class: "8", sport: "Swimming", performance: "Average", attendance: "Present" },
-        { id: "stu-19", name: "Arijit Roy", age: 15, class: "9", sport: "Tennis", performance: "Good", attendance: "Present" },
-        { id: "stu-44", name: "Sonu Nigam", age: 16, class: "10", sport: "Cricket", performance: "Good", attendance: "Present" },
-        { id: "stu-45", name: "Sunidhi Chauhan", age: 15, class: "9", sport: "Athletics", performance: "Excellent", sprintTime: 11.5, broadJump: 248, pushups: 36, attendance: "Present", recommendedSport: "Sprint & Long Jump", manualReportData: "Fastest sprint time in school history. Explosive power.", reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop" },
-        { id: "stu-46", name: "Badshah Singh", age: 17, class: "11", sport: "Football", performance: "Average", attendance: "Absent" }
-      ]
-    },
-    {
-      id: "inst-108",
-      name: "Shanti Asiatic School, Ahmedabad",
-      email: "contact@shantiasiatic.edu.in",
-      phone: "+91 90088 77665",
-      registeredAt: "2026-04-20",
-      studentCount: 6,
-      students: [
-        { 
-          id: "stu-20", 
-          name: "Parth Shah", 
-          age: 16, 
-          class: "10", 
-          sport: "Volleyball", 
-          performance: "Excellent",
-          sprintTime: 12.6,
-          broadJump: 238,
-          pushups: 29,
-          attendance: "Present",
-          recommendedSport: "Basketball & Volleyball",
-          manualReportData: "Great arm swing velocities. Lower body explosive metrics are superior. Excellent jumping response indices.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop"
-        },
-        { id: "stu-21", name: "Krisha Mehta", age: 15, class: "9", sport: "Football", performance: "Good", attendance: "Present" },
-        { id: "stu-22", name: "Naman Pandya", age: 17, class: "11", sport: "Cricket", performance: "Average", attendance: "Present" },
-        { id: "stu-47", name: "Hardik Pandya", age: 16, class: "10", sport: "Athletics", performance: "Excellent", sprintTime: 11.7, broadJump: 250, pushups: 38, attendance: "Present", recommendedSport: "Athletics & Cricket", manualReportData: "Exceptional all-round physical prowess.", reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop" },
-        { id: "stu-48", name: "Krunal Pandya", age: 15, class: "9", sport: "Volleyball", performance: "Average", attendance: "Absent" },
-        { id: "stu-49", name: "Rashmika Mandanna", age: 14, class: "8", sport: "Badminton", performance: "Excellent", sprintTime: 13.5, broadJump: 190, pushups: 20, attendance: "Present", recommendedSport: "Badminton & Table Tennis", manualReportData: "Superior reflexes and hand-eye coordination.", reportHardCopyUrl: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop" }
-      ]
-    },
-    {
-      id: "inst-109",
-      name: "Greenwood Sports Alliance",
-      email: "alliance@greenwood.in",
-      phone: "+91 80011 22334",
-      registeredAt: "2026-05-20",
-      studentCount: 5,
-      students: [
-        { id: "stu-23", name: "Yashvi Patel", age: 14, class: "8", sport: "Athletics", performance: "Good", attendance: "Present" },
-        { 
-          id: "stu-24", 
-          name: "Het Trivedi", 
-          age: 16, 
-          class: "10", 
-          sport: "Swimming", 
-          performance: "Excellent",
-          sprintTime: 11.8,
-          broadJump: 245,
-          pushups: 33,
-          attendance: "Present",
-          recommendedSport: "Swimming & Sprinting",
-          manualReportData: "Fastest response index recorded in standard 10th. Dynamic physical form and heart recovery factors are flawless.",
-          reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop"
-        },
-        { id: "stu-50", name: "Vijay Deverakonda", age: 15, class: "9", sport: "Football", performance: "Good", attendance: "Present" },
-        { id: "stu-51", name: "Samantha Ruth", age: 14, class: "8", sport: "Athletics", performance: "Average", attendance: "Absent" },
-        { id: "stu-52", name: "Allu Arjun", age: 16, class: "10", sport: "Cricket", performance: "Excellent", sprintTime: 12.2, broadJump: 238, pushups: 30, attendance: "Present", recommendedSport: "Cricket & Athletics", manualReportData: "Strong physical endurance and reaction time.", reportHardCopyUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=600&auto=format&fit=crop" }
-      ]
-    }
-  ];
-  setInstitutions(generateMockStudentsForMissingClasses(initialData));
-}, []);
-
   const [expandedId, setExpandedId] = useState(null);
   
   // Track which class is selected inside an expanded institute
@@ -341,7 +80,7 @@ const Institutions = () => {
   useEffect(() => {
     const fetchApprovedInstitutes = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/institutes?status=approved&type=institute`, {
+        const res = await fetch(`http://localhost:5000/api/institutes?status=approved&type=institute&limit=1000`, {
           headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token'),
             'Content-Type': 'application/json',
@@ -363,11 +102,7 @@ const Institutions = () => {
             };
           });
           
-          setInstitutions(prev => {
-            // Avoid duplicate name or ID entries
-            const filteredDb = formatted.filter(db => !prev.some(p => p.id === db.id || p.name.toLowerCase() === db.name.toLowerCase()));
-            return [...filteredDb, ...prev];
-          });
+          setInstitutions(formatted);
         }
       } catch (err) {
         console.error("Error fetching approved institutes:", err);
@@ -384,6 +119,22 @@ const Institutions = () => {
 
   // State for active student portfolio report modal
   const [selectedStudentReport, setSelectedStudentReport] = useState(null);
+
+  // Freeze background scrolling when student report modal is open
+  useEffect(() => {
+    const mainEl = document.querySelector('main');
+    if (selectedStudentReport) {
+      if (mainEl) mainEl.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (mainEl) mainEl.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    return () => {
+      if (mainEl) mainEl.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [selectedStudentReport]);
 
   // Toggle accordion expand/collapse
   const toggleExpand = async (id) => {
@@ -815,34 +566,25 @@ const Institutions = () => {
           })}
       </div>
 
-      {/* ═══════════════ STUDENT REPORT MODAL (preserved) ═══════════════ */}
-      {selectedStudentReport && (
+      {selectedStudentReport && createPortal(
         <div 
-          className="fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-50 bg-white/40 flex items-center justify-center p-4 backdrop-blur-md animate-fade-in"
           onClick={() => setSelectedStudentReport(null)}
         >
           <div 
-            className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl relative border border-white/10 flex flex-col justify-between overflow-hidden"
+            className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl relative border border-slate-150 flex flex-col justify-between overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="px-6 py-4 bg-slate-900 text-white flex justify-between items-center">
               <span className="font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
-                <Trophy size={18} className="text-accent animate-pulse" />
-                Physical Screening Portfolio
+                <User size={18} className="text-indigo-400" />
+                Student Profile Information
               </span>
               <div className="flex gap-2">
-                {selectedStudentReport.sprintTime && (
-                  <button
-                    onClick={() => window.print()}
-                    className="bg-accent hover:bg-orange-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-orange-500/10"
-                  >
-                    <Printer size={14} /> Print Certificate
-                  </button>
-                )}
                 <button 
                   onClick={() => setSelectedStudentReport(null)}
-                  className="text-slate-400 hover:text-white text-xs font-bold uppercase bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-all"
+                  className="text-slate-400 hover:text-white text-xs font-bold uppercase bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
                 >
                   ✕ Close
                 </button>
@@ -940,134 +682,6 @@ const Institutions = () => {
                 </div>
               </div>
 
-              {selectedStudentReport.sprintTime ? (
-                <div id="print-athlete-card" className="mt-6 space-y-6">
-                  
-                  {/* Printing Header Overlay */}
-                  <div className="hidden print:block text-center pb-4 border-b border-slate-200">
-                    <span className="text-[10px] font-black text-amber-600 tracking-[0.2em] uppercase">SportSphere Athletic Alliance</span>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase mt-1">Official Screening Certificate</h2>
-                    <p className="text-[9px] text-slate-500 mt-0.5">School: {selectedStudentReport.schoolName}</p>
-                  </div>
-
-                  {/* Print Card Body */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-slate-700 font-extrabold text-sm border-b border-slate-150 pb-2">
-                      <Activity size={16} className="text-secondary" />
-                      Physical Assessment Parameters
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {/* Sprint Panel */}
-                      <div className="bg-white border border-slate-100 rounded-xl p-4 text-center shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-8 h-8 bg-blue-50 rounded-bl-full flex items-center justify-center text-[10px] font-bold text-secondary">
-                          ⚡
-                        </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">50m Sprint</p>
-                        <p className="font-extrabold text-slate-800 text-lg mt-1">{selectedStudentReport.sprintTime}s</p>
-                        <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
-                          <div 
-                            className="bg-secondary h-full rounded-full" 
-                            style={{ width: `${Math.min(100, Math.max(10, (15 - selectedStudentReport.sprintTime) * 20))}%` }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      {/* Jump Panel */}
-                      <div className="bg-white border border-slate-100 rounded-xl p-4 text-center shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-8 h-8 bg-emerald-50 rounded-bl-full flex items-center justify-center text-[10px] font-bold text-emerald-600">
-                          📏
-                        </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Broad Jump</p>
-                        <p className="font-extrabold text-slate-800 text-lg mt-1">{selectedStudentReport.broadJump}cm</p>
-                        <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
-                          <div 
-                            className="bg-emerald-500 h-full rounded-full" 
-                            style={{ width: `${Math.min(100, (selectedStudentReport.broadJump / 300) * 100)}%` }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      {/* Pushups Panel */}
-                      <div className="bg-white border border-slate-100 rounded-xl p-4 text-center shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-8 h-8 bg-amber-50 rounded-bl-full flex items-center justify-center text-[10px] font-bold text-amber-600">
-                          💪
-                        </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Pushups</p>
-                        <p className="font-extrabold text-slate-800 text-lg mt-1">{selectedStudentReport.pushups}</p>
-                        <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
-                          <div 
-                            className="bg-amber-500 h-full rounded-full" 
-                            style={{ width: `${Math.min(100, (selectedStudentReport.pushups / 50) * 100)}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Sport Endorsement details */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-slate-700 font-extrabold text-sm border-b border-slate-150 pb-2">
-                      <Award size={16} className="text-secondary" />
-                      AI Sport Recommendation Endorsement
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 text-white font-black text-xs tracking-wider uppercase rounded-xl shadow-md shadow-emerald-500/25">
-                        <Trophy size={14} className="text-amber-300" />
-                        {selectedStudentReport.recommendedSport}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-bold">Recommended automatically by SportSphere</span>
-                    </div>
-                  </div>
-
-                  {/* Manual Observations */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-slate-700 font-extrabold text-sm border-b border-slate-150 pb-2">
-                      <FileText size={16} className="text-secondary" />
-                      Manual Screening Remarks & Observations
-                    </div>
-                    <p className="text-xs text-slate-600 leading-relaxed font-semibold italic bg-slate-100 p-3 rounded-xl border border-slate-200 border-l-4 border-l-secondary">
-                      "{selectedStudentReport.manualReportData}"
-                    </p>
-                  </div>
-
-
-
-                  {/* Print Signatures */}
-                  <div className="hidden print:grid grid-cols-2 gap-12 pt-8 border-t border-slate-200 mt-12">
-                    <div className="text-center">
-                      <p className="h-6 font-signature text-amber-700 italic font-bold">Coach Arthur</p>
-                      <div className="w-full h-px bg-slate-350 mt-1"></div>
-                      <span className="text-[8px] font-bold text-slate-400 uppercase mt-1 block">Athletic Director</span>
-                    </div>
-                    <div className="text-center">
-                      <p className="h-6 font-signature text-secondary italic font-bold">Board Office</p>
-                      <div className="w-full h-px bg-slate-350 mt-1"></div>
-                      <span className="text-[8px] font-bold text-slate-400 uppercase mt-1 block">SportSphere Alliance Representative</span>
-                    </div>
-                  </div>
-
-                </div>
-              ) : (
-                <div className="mt-8 py-12 text-center bg-white border border-slate-100 rounded-2xl">
-                  <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 mx-auto mb-4 border border-slate-100 animate-bounce">
-                    <Activity size={32} />
-                  </div>
-                  <h4 className="font-extrabold text-slate-800 text-base">Test Not Yet Conducted</h4>
-                  <p className="text-xs text-slate-400 font-semibold max-w-sm mx-auto mt-2 leading-relaxed">
-                    {selectedStudentReport.name} has not undergone physical test screening yet in the current session.
-                  </p>
-                  <div className="mt-6 flex justify-center">
-                    <button
-                      onClick={() => setSelectedStudentReport(null)}
-                      className="bg-secondary hover:bg-blue-600 text-white font-black text-xs uppercase px-5 py-2.5 rounded-xl shadow-md shadow-blue-500/10 tracking-wide transition-all"
-                    >
-                      Go to Physical Tests Sheet
-                    </button>
-                  </div>
-                </div>
-              )}
-
             </div>
 
             {/* Modal Footer */}
@@ -1075,7 +689,8 @@ const Institutions = () => {
               Verification Code: {selectedStudentReport.id.toUpperCase()}-VERIFIED
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
 

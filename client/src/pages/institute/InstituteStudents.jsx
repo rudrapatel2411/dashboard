@@ -34,6 +34,23 @@ const InstituteStudents = () => {
   const [promoteTargetClass, setPromoteTargetClass] = useState('');
   const [promoteLoading, setPromoteLoading] = useState(false);
 
+  // Freeze background scrolling when any modal is open
+  useEffect(() => {
+    const mainEl = document.querySelector('main');
+    const isAnyModalOpen = !!(showModal || deleteConfirm || showPromoteModal || printStudentIdCard);
+    if (isAnyModalOpen) {
+      if (mainEl) mainEl.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (mainEl) mainEl.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    return () => {
+      if (mainEl) mainEl.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [showModal, deleteConfirm, showPromoteModal, printStudentIdCard]);
+
 
   const authHeaders = {
     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -487,9 +504,9 @@ const InstituteStudents = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => setDeleteConfirm(null)}>
-          <div className="gov-card p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+      {deleteConfirm && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-md p-4 animate-fade-in" onClick={() => setDeleteConfirm(null)}>
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-150" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-black text-slate-800 mb-2">Delete Student?</h3>
             <p className="text-sm text-slate-500 mb-6">This action cannot be undone. The student and their data will be permanently removed.</p>
             <div className="flex justify-end gap-3">
@@ -501,13 +518,14 @@ const InstituteStudents = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Add/Edit Student Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => { setShowModal(false); setEditingStudent(null); }}>
-          <div className="no-scrollbar gov-card w-full max-w-2xl max-h-[92vh] overflow-y-auto no-scrollbar" onClick={e => e.stopPropagation()}>
+      {showModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-md p-4 animate-fade-in" onClick={() => { setShowModal(false); setEditingStudent(null); }}>
+          <div className="no-scrollbar bg-white rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-150" onClick={e => e.stopPropagation()}>
 
             {/* Modal Header */}
             <div className="gov-panel-title p-6 relative overflow-hidden">
@@ -605,13 +623,14 @@ const InstituteStudents = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       {/* Bulk Promotion Modal */}
 
-      {showPromoteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => setShowPromoteModal(false)}>
-          <div className="gov-card p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
+      {showPromoteModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-md p-4 animate-fade-in" onClick={() => setShowPromoteModal(false)}>
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-150" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
                 <Sparkles className="text-amber-500 w-5 h-5 animate-pulse" /> Bulk Promote Students
@@ -660,12 +679,13 @@ const InstituteStudents = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Print ID Card Modal */}
       {printStudentIdCard && createPortal(
-        <div id="print-modal-overlay" className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setPrintStudentIdCard(null)}>
+        <div id="print-modal-overlay" className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-md p-4 animate-fade-in" onClick={() => setPrintStudentIdCard(null)}>
           <div id="print-modal-container" className="gov-card max-w-sm w-full relative flex flex-col justify-between overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
             
             {/* Modal Header Controls */}
@@ -706,7 +726,6 @@ const InstituteStudents = () => {
 
                   {/* ID Card Branding */}
                   <div className="text-center pt-3 px-3">
-                    <span className="text-[7px] font-black text-[#ff9933] uppercase tracking-[0.2em] block">FIT INDIA • KHELO INDIA</span>
                     <h3 className="text-xs font-black tracking-wide uppercase text-slate-800 mt-0.5">National Physical Fitness</h3>
                     <span className="text-[6px] text-slate-400 font-extrabold tracking-widest uppercase block mt-0.5">SportSphere Roster ID Card</span>
                   </div>
@@ -787,7 +806,7 @@ const InstituteStudents = () => {
 
             {/* Print Help Footer info */}
             <div id="print-help-footer" className="px-6 py-3 bg-slate-50 border-t border-slate-100 text-center text-[9px] text-slate-400 font-bold">
-              Verification Card • Fit India School Roster
+              Verification Card • SportSphere Assessment Roster
             </div>
           </div>
         </div>,

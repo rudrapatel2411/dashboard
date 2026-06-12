@@ -85,52 +85,321 @@ const getBMICategory = (bmi, age = 14) => {
 
 // ─── National Fitness Standard Benchmark Tables ───────────────────────────────
 //
-// Each benchmark is keyed by ageGroup+gender and defines L1–L7 thresholds.
-// Source layout mirrors the reference PDF (11 year Boy shown in screenshot).
+// Group 2 (age 9-18): runWalk600m, run50m, partialCurlUp, pushups, sitAndReach
+// Group 1 (age 5-8):  plateTapping, flamingoBalance
 //
 // Test scores interpretation:
-//   runWalk600m  → LOWER  is better (seconds)
-//   run50m       → LOWER  is better (seconds)
-//   partialCurlUp → HIGHER is better (reps)
-//   pushups      → HIGHER is better (reps)
-//   sitAndReach  → HIGHER is better (cm)
+//   runWalk600m      → LOWER  is better (seconds)
+//   run50m           → LOWER  is better (seconds)
+//   plateTapping     → LOWER  is better (seconds for 25 taps)
+//   partialCurlUp    → HIGHER is better (reps)
+//   pushups          → HIGHER is better (reps)
+//   sitAndReach      → HIGHER is better (cm)
+//   flamingoBalance  → LOWER  is better (number of falls in 60s)
 
 const BENCHMARKS = {
-  // ─── 11-year Boy example (matches reference image exactly) ───
-  // Thresholds: [L1_max, L2_max, L3_max, L4_max, L5_max, L6_max] → L7 is above L6
+  // Legacy default structure to prevent imports breaking (e.g. tests or external files)
   default: {
     runWalk600m: {
-      label: '600m run/walk',
+      label: '600m run/walk (Endurance)',
       unit: 'sec',
       lowerIsBetter: true,
-      // L1(<20), L2(<20), L3(<18), L4(<11), L5(<9), L6(<6), L7(fastest)
-      thresholds: [207, 202, 196, 191, 189, 186] // seconds (3m27s etc)
+      thresholds: [207, 202, 196, 191, 189, 186]
     },
     run50m: {
-      label: '50m dash',
+      label: '50m dash (Speed)',
       unit: 'sec',
       lowerIsBetter: true,
       thresholds: [10.1, 9.7, 9.3, 8.9, 8.5, 8.1]
     },
     partialCurlUp: {
-      label: 'Partial curl up 30 sec',
+      label: 'Partial curl up 30 sec (Core Strength)',
       unit: 'times',
       lowerIsBetter: false,
       thresholds: [13, 16, 19, 22, 23, 24]
     },
     pushups: {
-      label: 'Push up',
+      label: 'Push up (Strength)',
       unit: 'times',
       lowerIsBetter: false,
       thresholds: [6, 7, 8, 9, 10, 11]
     },
     sitAndReach: {
-      label: 'Sit and reach',
+      label: 'Sit and reach (Flexibility)',
       unit: 'cm',
       lowerIsBetter: false,
       thresholds: [6.0, 10.8, 14.4, 17.7, 18.4, 21.8]
     }
+  },
+
+  group1Legacy: {
+    plateTapping: {
+      label: 'Plate Tapping (Coordination)',
+      unit: 'sec',
+      lowerIsBetter: true,
+      thresholds: [18.0, 16.5, 15.0, 13.5, 12.5, 11.5]
+    },
+    flamingoBalance: {
+      label: 'Flamingo Balance (Balance)',
+      unit: 'sec',
+      lowerIsBetter: false,
+      thresholds: [5, 8, 12, 16, 20, 25]
+    }
+  },
+
+  // Real-world dynamic cohorts
+  cohorts: {
+    '9-11': {
+      Male: {
+        runWalk600m: {
+          label: '600m run/walk (Endurance)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [250, 235, 220, 205, 190, 175]
+        },
+        run50m: {
+          label: '50m dash (Speed)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [11.5, 10.8, 10.1, 9.5, 8.9, 8.3]
+        },
+        partialCurlUp: {
+          label: 'Partial curl up 30 sec (Core Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [6, 9, 12, 15, 18, 21]
+        },
+        pushups: {
+          label: 'Push up (Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [4, 6, 9, 12, 15, 18]
+        },
+        sitAndReach: {
+          label: 'Sit and reach (Flexibility)',
+          unit: 'cm',
+          lowerIsBetter: false,
+          thresholds: [8.0, 12.0, 16.0, 20.0, 23.0, 26.0]
+        }
+      },
+      Female: {
+        runWalk600m: {
+          label: '600m run/walk (Endurance)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [270, 255, 240, 225, 210, 195]
+        },
+        run50m: {
+          label: '50m dash (Speed)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [12.0, 11.3, 10.6, 10.0, 9.4, 8.8]
+        },
+        partialCurlUp: {
+          label: 'Partial curl up 30 sec (Core Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [5, 8, 11, 14, 17, 20]
+        },
+        pushups: {
+          label: 'Modified Push up (Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [3, 5, 7, 10, 13, 16]
+        },
+        sitAndReach: {
+          label: 'Sit and reach (Flexibility)',
+          unit: 'cm',
+          lowerIsBetter: false,
+          thresholds: [10.0, 14.0, 18.0, 22.0, 25.0, 28.0]
+        }
+      }
+    },
+    '12-14': {
+      Male: {
+        runWalk600m: {
+          label: '600m run/walk (Endurance)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [220, 205, 190, 175, 160, 145]
+        },
+        run50m: {
+          label: '50m dash (Speed)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [10.2, 9.6, 9.0, 8.4, 7.8, 7.2]
+        },
+        partialCurlUp: {
+          label: 'Partial curl up 30 sec (Core Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [10, 14, 18, 22, 25, 28]
+        },
+        pushups: {
+          label: 'Push up (Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [8, 12, 16, 20, 24, 28]
+        },
+        sitAndReach: {
+          label: 'Sit and reach (Flexibility)',
+          unit: 'cm',
+          lowerIsBetter: false,
+          thresholds: [12.0, 16.0, 20.0, 24.0, 28.0, 32.0]
+        }
+      },
+      Female: {
+        runWalk600m: {
+          label: '600m run/walk (Endurance)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [250, 235, 220, 205, 190, 175]
+        },
+        run50m: {
+          label: '50m dash (Speed)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [11.0, 10.4, 9.8, 9.2, 8.6, 8.0]
+        },
+        partialCurlUp: {
+          label: 'Partial curl up 30 sec (Core Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [8, 11, 15, 19, 22, 25]
+        },
+        pushups: {
+          label: 'Modified Push up (Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [6, 9, 12, 16, 20, 24]
+        },
+        sitAndReach: {
+          label: 'Sit and reach (Flexibility)',
+          unit: 'cm',
+          lowerIsBetter: false,
+          thresholds: [15.0, 19.0, 23.0, 27.0, 31.0, 35.0]
+        }
+      }
+    },
+    '15-18': {
+      Male: {
+        runWalk600m: {
+          label: '600m run/walk (Endurance)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [190, 175, 160, 145, 130, 115]
+        },
+        run50m: {
+          label: '50m dash (Speed)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [9.0, 8.4, 7.8, 7.2, 6.6, 6.0]
+        },
+        partialCurlUp: {
+          label: 'Partial curl up 30 sec (Core Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [15, 20, 25, 30, 34, 38]
+        },
+        pushups: {
+          label: 'Push up (Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [12, 17, 22, 27, 32, 37]
+        },
+        sitAndReach: {
+          label: 'Sit and reach (Flexibility)',
+          unit: 'cm',
+          lowerIsBetter: false,
+          thresholds: [16.0, 20.0, 25.0, 30.0, 34.0, 38.0]
+        }
+      },
+      Female: {
+        runWalk600m: {
+          label: '600m run/walk (Endurance)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [230, 215, 200, 185, 170, 155]
+        },
+        run50m: {
+          label: '50m dash (Speed)',
+          unit: 'sec',
+          lowerIsBetter: true,
+          thresholds: [10.2, 9.6, 9.0, 8.4, 7.8, 7.2]
+        },
+        partialCurlUp: {
+          label: 'Partial curl up 30 sec (Core Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [12, 16, 20, 24, 28, 32]
+        },
+        pushups: {
+          label: 'Modified Push up (Strength)',
+          unit: 'times',
+          lowerIsBetter: false,
+          thresholds: [8, 12, 16, 21, 26, 30]
+        },
+        sitAndReach: {
+          label: 'Sit and reach (Flexibility)',
+          unit: 'cm',
+          lowerIsBetter: false,
+          thresholds: [20.0, 24.0, 28.0, 33.0, 37.0, 41.0]
+        }
+      }
+    }
+  },
+
+  // Group 1: 5-8 year benchmarks
+  group1: {
+    Male: {
+      plateTapping: {
+        label: 'Plate Tapping (Coordination)',
+        unit: 'sec',
+        lowerIsBetter: true,
+        thresholds: [17.5, 16.0, 14.5, 13.0, 12.0, 11.0]
+      },
+      flamingoBalance: {
+        label: 'Flamingo Balance (Balance)',
+        unit: 'falls',
+        lowerIsBetter: true,
+        thresholds: [15, 12, 9, 6, 4, 2]
+      }
+    },
+    Female: {
+      plateTapping: {
+        label: 'Plate Tapping (Coordination)',
+        unit: 'sec',
+        lowerIsBetter: true,
+        thresholds: [18.5, 17.0, 15.5, 14.0, 13.0, 12.0]
+      },
+      flamingoBalance: {
+        label: 'Flamingo Balance (Balance)',
+        unit: 'falls',
+        lowerIsBetter: true,
+        thresholds: [15, 12, 9, 6, 4, 2]
+      }
+    }
   }
+};
+
+/**
+ * Resolves the appropriate benchmarks for a student based on age and gender.
+ * @param {number} age
+ * @param {string} gender
+ * @returns {Object}
+ */
+export const getStudentBenchmarks = (age, gender = 'Male') => {
+  const cleanGender = String(gender).toLowerCase().includes('female') ? 'Female' : 'Male';
+  if (age >= 5 && age <= 8) {
+    return BENCHMARKS.group1[cleanGender];
+  }
+  let cohortKey = '15-18';
+  if (age <= 11) {
+    cohortKey = '9-11';
+  } else if (age <= 14) {
+    cohortKey = '12-14';
+  }
+  return BENCHMARKS.cohorts[cohortKey][cleanGender];
 };
 
 // ─── Level Label Map ──────────────────────────────────────────────────────────
@@ -154,8 +423,9 @@ const LEVEL_LABELS = {
  * @param {number|string} rawScore  - The student's actual score
  * @returns {{ level: string, indicator: string, feedback: string }}
  */
-const getFitnessIndicator = (testKey, rawScore) => {
-  const bench = BENCHMARKS.default[testKey];
+const getFitnessIndicator = (testKey, rawScore, age = 14, gender = 'Male') => {
+  const activeBenchmarks = getStudentBenchmarks(age, gender);
+  const bench = activeBenchmarks[testKey] || BENCHMARKS.default[testKey];
   if (!bench || rawScore === null || rawScore === undefined || rawScore === '' || rawScore === 'N/A') {
     return { level: 'N/A', indicator: 'N/A', feedback: 'No data recorded for this test.' };
   }
@@ -234,13 +504,16 @@ const getFitnessIndicator = (testKey, rawScore) => {
  * Formats a raw test score into a display-friendly string with unit.
  * @param {string}        testKey
  * @param {number|string} rawScore
+ * @param {number}        age
+ * @param {string}        gender
  * @returns {string}
  */
-const formatScore = (testKey, rawScore) => {
+const formatScore = (testKey, rawScore, age = 14, gender = 'Male') => {
   if (rawScore === null || rawScore === undefined || rawScore === '' || rawScore === 0) {
     return 'N/A';
   }
-  const bench = BENCHMARKS.default[testKey];
+  const activeBenchmarks = getStudentBenchmarks(age, gender);
+  const bench = activeBenchmarks[testKey] || BENCHMARKS.default[testKey];
   const unit  = bench?.unit || '';
 
   // 600m: keep as-is if string (e.g., "7:05 min"), append "sec" if numeric
@@ -352,16 +625,19 @@ const formatReportPayload = (student, currentPerf, prevPerf = null, institute = 
   }
 
   // ── 1. Student Demographics ─────────────────────────────────────────────
-  const age    = computeAge(student.dob);
+  const age    = computeAge(student.dob) || student.age || 0;
   const gender = student.gender || 'Male';
+
+  const dobVal = student.dob || currentPerf?.studentId?.dob;
+  const dobDisplay = dobVal ? formatDate(dobVal) : (age ? `Age ${age}` : 'N/A');
 
   const studentInfo = {
     name:       student.name        || 'N/A',
     class:      student.class       || 'N/A',
     regNo:      student.studentId   || 'N/A',
     rollNo:     student.rollNo      || (student.studentId || 'N/A'),
-    gender:     `${gender} / ${formatDate(student.dob)}`,
-    dob:        formatDate(student.dob),
+    gender:     `${gender} / ${dobDisplay}`,
+    dob:        dobDisplay,
     school:     institute.name      || 'N/A',
     age
   };
@@ -388,10 +664,7 @@ const formatReportPayload = (student, currentPerf, prevPerf = null, institute = 
     bmi:    prevPerf.bmi    > 0 ? `${parseFloat(prevPerf.bmi.toFixed(2))}` : 'N/A'
   } : null;
 
-  // ── 3. The 5 Fitness Test Scores ────────────────────────────────────────
-  //
-  // Only Group 2 (age 9–18) runs these 5 tests.
-  // If the student is Group 1 (age 5–8) or status=Absent, scores will be 0 → shown as N/A.
+  // ── 3. The 5 Fitness Test Scores (Group 2: 9-18 yrs) ───────────────────
 
   const TEST_KEYS = [
     'sitAndReach',
@@ -401,17 +674,19 @@ const formatReportPayload = (student, currentPerf, prevPerf = null, institute = 
     'pushups'
   ];
 
+  const studentBenchmarks = getStudentBenchmarks(age, gender);
+
   const fitnessScores = TEST_KEYS.map((key) => {
-    const bench       = BENCHMARKS.default[key];
+    const bench       = studentBenchmarks[key] || BENCHMARKS.default[key];
     const currRaw     = currentPerf[key] ?? null;
     const prevRaw     = prevPerf?.[key]  ?? null;
 
-    const currDisplay = formatScore(key, currRaw);
+    const currDisplay = formatScore(key, currRaw, age, gender);
     const prevDisplay = prevRaw !== null && prevRaw !== undefined
-      ? formatScore(key, prevRaw)
+      ? formatScore(key, prevRaw, age, gender)
       : 'N/A';
 
-    const { level, indicator, color, feedback } = getFitnessIndicator(key, currRaw);
+    const { level, indicator, color, feedback } = getFitnessIndicator(key, currRaw, age, gender);
 
     return {
       testName:      bench.label,
@@ -456,7 +731,7 @@ const formatReportPayload = (student, currentPerf, prevPerf = null, institute = 
   const recommendations = generateRecommendations(bmiRounded, weightKg, bmiLabel);
 
   // ── 6. Benchmark Table (for the PDF reference table) ───────────────────
-  const benchmarkTable = Object.entries(BENCHMARKS.default).map(([key, bench]) => ({
+  const benchmarkTable = Object.entries(studentBenchmarks).map(([key, bench]) => ({
     testName:   bench.label,
     unit:       bench.unit,
     thresholds: bench.thresholds,
@@ -476,6 +751,189 @@ const formatReportPayload = (student, currentPerf, prevPerf = null, institute = 
     recommendations,
     benchmarkTable,
     term: currentPerf.term    || 'TERM-2',
+    status: currentPerf.status || 'Present',
+    generatedAt: formatDate(new Date())
+  };
+};
+
+// ─── Group 1 (5-8 years) Payload Formatter ───────────────────────────────────
+
+/**
+ * Builds a PDF-ready payload for Group 1 students (age 5-8).
+ * Tests: Plate Tapping (Coordination) + Flamingo Balance (Balance).
+ *
+ * @param {Object} student       - Raw Student document
+ * @param {Object} currentPerf   - Current term Performance document
+ * @param {Object|null} prevPerf - Previous term Performance (may be null)
+ * @param {Object} institute     - { name, city, state }
+ * @returns {Object}
+ */
+export const formatGroup1ReportPayload = (student, currentPerf, prevPerf = null, institute = {}) => {
+  if (!student || !currentPerf) {
+    throw new Error('formatGroup1ReportPayload: student and currentPerf are required.');
+  }
+
+  // ── Demographics ─────────────────────────────────────────────────────────
+  const age    = computeAge(student.dob) || student.age || 0;
+  const gender = student.gender || 'Male';
+  const dobVal = student.dob || currentPerf?.studentId?.dob;
+  const dobDisplay = dobVal ? formatDate(dobVal) : (age ? `Age ${age}` : 'N/A');
+
+  const studentInfo = {
+    name:   student.name      || 'N/A',
+    class:  student.class     || 'N/A',
+    regNo:  student.studentId || 'N/A',
+    rollNo: student.rollNo    || (student.studentId || 'N/A'),
+    gender: `${gender} / ${dobDisplay}`,
+    dob:    dobDisplay,
+    school: institute.name    || 'N/A',
+    age
+  };
+
+  const cleanGender = gender.toLowerCase().includes('female') ? 'Female' : 'Male';
+
+  // ── Physical Metrics ──────────────────────────────────────────────────────
+  const heightCm   = currentPerf.height || 0;
+  const weightKg   = currentPerf.weight || 0;
+  const bmi        = currentPerf.bmi || calcBMI(heightCm, weightKg);
+  const bmiRounded = parseFloat(bmi.toFixed(2));
+  const { category: bmiCategory, label: bmiLabel } = getBMICategory(bmiRounded, age);
+
+  const currentMetrics = {
+    date:   formatDate(currentPerf.createdAt || new Date()),
+    weight: weightKg > 0 ? `${weightKg} kg` : 'N/A',
+    height: heightCm > 0 ? `${heightCm} cm` : 'N/A',
+    bmi:    bmiRounded > 0 ? `${bmiRounded}` : 'N/A'
+  };
+
+  const prevMetrics = prevPerf ? {
+    date:   formatDate(prevPerf.createdAt || null),
+    weight: prevPerf.weight > 0 ? `${prevPerf.weight} kg`                       : 'N/A',
+    height: prevPerf.height > 0 ? `${prevPerf.height} cm`                       : 'N/A',
+    bmi:    prevPerf.bmi    > 0 ? `${parseFloat(prevPerf.bmi.toFixed(2))}`      : 'N/A'
+  } : null;
+
+  // ── Group 1 Test Scores ───────────────────────────────────────────────────
+  const GROUP1_KEYS = ['plateTapping', 'flamingoBalance'];
+
+  const getFitnessIndicatorG1 = (testKey, rawScore) => {
+    const bench = BENCHMARKS.group1[cleanGender][testKey] || BENCHMARKS.group1Legacy[testKey];
+    if (!bench || rawScore === null || rawScore === undefined || rawScore === '' || rawScore === 'N/A') {
+      return { level: 'N/A', indicator: 'N/A', feedback: 'No data recorded for this test.' };
+    }
+    const numericScore = parseFloat(rawScore);
+    if (isNaN(numericScore)) return { level: 'N/A', indicator: 'N/A', feedback: 'Invalid score format.' };
+
+    const { thresholds, lowerIsBetter } = bench;
+    let levelIndex;
+    if (lowerIsBetter) {
+      if      (numericScore > thresholds[0]) levelIndex = 0;
+      else if (numericScore > thresholds[1]) levelIndex = 1;
+      else if (numericScore > thresholds[2]) levelIndex = 2;
+      else if (numericScore > thresholds[3]) levelIndex = 3;
+      else if (numericScore > thresholds[4]) levelIndex = 4;
+      else if (numericScore > thresholds[5]) levelIndex = 5;
+      else                                   levelIndex = 6;
+    } else {
+      if      (numericScore <= thresholds[0]) levelIndex = 0;
+      else if (numericScore <= thresholds[1]) levelIndex = 1;
+      else if (numericScore <= thresholds[2]) levelIndex = 2;
+      else if (numericScore <= thresholds[3]) levelIndex = 3;
+      else if (numericScore <= thresholds[4]) levelIndex = 4;
+      else if (numericScore <= thresholds[5]) levelIndex = 5;
+      else                                    levelIndex = 6;
+    }
+
+    const level     = `L${levelIndex + 1}`;
+    const levelInfo = LEVEL_LABELS[level];
+
+    const feedbackMap = [
+      'Performance is significantly below standard. Structured daily coordination practice is strongly recommended.',
+      'Needs noticeable improvement. Regular practice and basic movement drills are advised.',
+      'Below average. Consistent training and guided exercises can improve results.',
+      'Good performance. Continue current activities and aim for steady improvement.',
+      'Very good. Student shows strong motor skills for their age group.',
+      'Athletic performance. Excellent physical development; advanced drills recommended.',
+      'Exceptional! Sports-fit level reached. Student is ready for competitive-level activities.'
+    ];
+
+    return {
+      level,
+      indicator: levelInfo.label,
+      color:     levelInfo.color,
+      feedback:  feedbackMap[levelIndex]
+    };
+  };
+
+  const formatScoreG1 = (testKey, rawScore) => {
+    if (rawScore === null || rawScore === undefined || rawScore === '') return 'N/A';
+    if (rawScore === 0 && testKey !== 'flamingoBalance') return 'N/A';
+    const bench = BENCHMARKS.group1[cleanGender][testKey] || BENCHMARKS.group1Legacy[testKey];
+    const unit  = bench?.unit || '';
+    const n = parseFloat(rawScore);
+    if (isNaN(n)) return 'N/A';
+    if (n === 0 && testKey !== 'flamingoBalance') return 'N/A';
+    return `${n} ${unit}`.trim();
+  };
+
+  const fitnessScores = GROUP1_KEYS.map((key) => {
+    const bench       = BENCHMARKS.group1[cleanGender][key] || BENCHMARKS.group1Legacy[key];
+    const currRaw     = currentPerf[key] ?? null;
+    const prevRaw     = prevPerf?.[key]  ?? null;
+    const currDisplay = formatScoreG1(key, currRaw);
+    const prevDisplay = prevRaw !== null && prevRaw !== undefined ? formatScoreG1(key, prevRaw) : 'N/A';
+    const { level, indicator, color, feedback } = getFitnessIndicatorG1(key, currRaw);
+
+    return {
+      testName:      bench.label,
+      unit:          bench.unit,
+      currentScore:  currDisplay,
+      previousScore: prevDisplay,
+      level,
+      indicator,
+      color,
+      feedback
+    };
+  });
+
+  // ── BMI Bar ───────────────────────────────────────────────────────────────
+  const BMI_THRESHOLDS = { uw: 14.60, n: 17.20, ow: 20.20, ob: 23.20 };
+  const bmiBarPercent  = bmiRounded > 0
+    ? Math.min(100, parseFloat(((bmiRounded / BMI_THRESHOLDS.ob) * 100).toFixed(1)))
+    : 0;
+  const bmiBar = { value: bmiRounded, percent: bmiBarPercent, category: bmiCategory, label: bmiLabel, thresholds: BMI_THRESHOLDS };
+  const prevBmiRaw   = prevPerf?.bmi || 0;
+  const prevBmiValue = prevBmiRaw > 0 ? parseFloat(prevBmiRaw.toFixed(2)) : null;
+  const prevBmiBar   = prevBmiValue ? {
+    value:   prevBmiValue,
+    percent: Math.min(100, parseFloat(((prevBmiValue / BMI_THRESHOLDS.ob) * 100).toFixed(1))),
+    date:    formatDate(prevPerf?.createdAt || null)
+  } : null;
+
+  // ── Recommendations ───────────────────────────────────────────────────────
+  const recommendations = generateRecommendations(bmiRounded, weightKg, bmiLabel);
+
+  // ── Benchmark Table (Group 1 tests only) ─────────────────────────────────
+  const benchmarkTable = Object.entries(BENCHMARKS.group1[cleanGender]).map(([key, bench]) => ({
+    testName:      bench.label,
+    unit:          bench.unit,
+    thresholds:    bench.thresholds,
+    lowerIsBetter: bench.lowerIsBetter
+  }));
+
+  return {
+    studentInfo,
+    currentMetrics,
+    prevMetrics,
+    fitnessScores,
+    bmiBar,
+    prevBmiBar,
+    bmiLabel,
+    bmiCategory,
+    recommendations,
+    benchmarkTable,
+    ageGroup: 1,
+    term: currentPerf.term || 'TERM-2',
     status: currentPerf.status || 'Present',
     generatedAt: formatDate(new Date())
   };

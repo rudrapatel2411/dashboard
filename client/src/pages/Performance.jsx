@@ -828,10 +828,6 @@ const Performance = () => {
                   <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-600 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-500/10 uppercase">
                     {selectedStudent.name?.substring(0, 2) || ""}
                   </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> 5bbd1e1e2445986c6bf820145a31d2f47c4518cb
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="text-xl font-black text-slate-800">{selectedStudent.name || ""}</h3>
@@ -893,41 +889,41 @@ const Performance = () => {
 
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-teal-50 rounded-bl-full pointer-events-none flex items-center justify-center">
-                    <CheckCircle className="text-teal-600/30 w-5 h-5" />
+                    <Zap className="text-teal-600/30 w-5 h-5" />
                   </div>
-                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Attendance Rate</span>
-                  <span className="text-3xl font-black text-slate-800">{activeRecord?.attendance || 0}%</span>
+                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Speed Index</span>
+                  <span className="text-3xl font-black text-slate-800">{activeRecord?.speed || 0}%</span>
 
                   {/* Visual score slider */}
                   <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
                     <div
                       className="bg-teal-500 h-full rounded-full transition-all duration-1000"
-                      style={{ width: `${activeRecord?.attendance || 0}%` }}
+                      style={{ width: `${activeRecord?.speed || 0}%` }}
                     ></div>
                   </div>
                   <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                    <span>Regularity Target</span>
-                    <span className="text-teal-600 font-extrabold">{activeRecord?.attendance >= 90 ? 'Excellent' : 'Average'}</span>
+                    <span>Sprint Capability</span>
+                    <span className="text-teal-600 font-extrabold">{activeRecord?.speed >= 75 ? 'Excellent' : 'Average'}</span>
                   </div>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-bl-full pointer-events-none flex items-center justify-center">
-                    <Zap className="text-purple-600/30 w-5 h-5" />
+                    <Activity className="text-purple-600/30 w-5 h-5" />
                   </div>
-                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Discipline Index</span>
-                  <span className="text-3xl font-black text-slate-800">{activeRecord?.discipline || 0} / 10</span>
+                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Stamina Index</span>
+                  <span className="text-3xl font-black text-slate-800">{activeRecord?.stamina || 0}%</span>
 
                   {/* Visual score slider */}
                   <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
                     <div
                       className="bg-purple-500 h-full rounded-full transition-all duration-1000"
-                      style={{ width: `${(activeRecord?.discipline || 0) * 10}%` }}
+                      style={{ width: `${activeRecord?.stamina || 0}%` }}
                     ></div>
                   </div>
                   <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                    <span>Attitude Markers</span>
-                    <span className="text-purple-600 font-extrabold">{activeRecord?.discipline >= 8 ? 'Exceptional' : 'Good'}</span>
+                    <span>Endurance Capacity</span>
+                    <span className="text-purple-600 font-extrabold">{activeRecord?.stamina >= 75 ? 'Exceptional' : 'Good'}</span>
                   </div>
                 </div>
 
@@ -935,19 +931,19 @@ const Performance = () => {
                   <div className="absolute top-0 right-0 w-16 h-16 bg-amber-50 rounded-bl-full pointer-events-none flex items-center justify-center">
                     <Target className="text-amber-600/30 w-5 h-5" />
                   </div>
-                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Match Performance</span>
-                  <span className="text-3xl font-black text-slate-800">{activeRecord?.matchPerformance || 0}%</span>
+                  <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-1">Strength Index</span>
+                  <span className="text-3xl font-black text-slate-800">{activeRecord?.strength || 0}%</span>
 
                   {/* Visual score slider */}
                   <div className="w-full bg-slate-100 rounded-full h-2 mt-4 relative overflow-hidden">
                     <div
                       className="bg-amber-500 h-full rounded-full transition-all duration-1000"
-                      style={{ width: `${activeRecord?.matchPerformance || 0}%` }}
+                      style={{ width: `${activeRecord?.strength || 0}%` }}
                     ></div>
                   </div>
                   <div className="flex justify-between items-center mt-2.5 text-[10px] font-bold text-slate-400">
-                    <span>In-game scoring</span>
-                    <span className="text-amber-600 font-extrabold">{activeRecord?.matchPerformance >= 80 ? 'Highly Competent' : 'Average'}</span>
+                    <span>Core Power</span>
+                    <span className="text-amber-600 font-extrabold">{activeRecord?.strength >= 75 ? 'Highly Competent' : 'Average'}</span>
                   </div>
                 </div>
 
@@ -1122,7 +1118,9 @@ const Performance = () => {
                             </div>
                             <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm">
                               <span className="text-[9px] text-slate-400 font-bold uppercase block leading-tight">Flamingo (Balancing)</span>
-                              <span className="text-base font-black text-slate-800 mt-1 block">{activeRecord.flamingoBalance} s</span>
+                              <span className="text-base font-black text-slate-800 mt-1 block">
+                                {activeRecord.flamingoBalance} {activeRecord.flamingoBalance === 1 ? 'fall' : 'falls'}
+                              </span>
                             </div>
                           </div>
                         ) : (

@@ -7,11 +7,6 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import FitnessReportExportButton from '../components/FitnessReport';
-<<<<<<< HEAD
-=======
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
->>>>>>> 5bbd1e1e2445986c6bf820145a31d2f47c4518cb
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -135,6 +130,7 @@ const Reports = () => {
             id: s._id,
             studentId: s.studentId,
             name: s.name,
+            dob: s.dob,           // needed for age-group detection in PDF export
             age,
             class: s.class?.toString() || 'N/A',
             gender,
@@ -273,9 +269,6 @@ const Reports = () => {
     const t2Acc = Math.min(100, Math.max(40, baseAcc + (getHashValue(seed, "t2acc") % 8)));
     const t2End = Math.min(100, Math.max(40, baseEnd + (getHashValue(seed, "t2end") % 8)));
     const t2React = Math.min(100, Math.max(40, baseReact + (getHashValue(seed, "t2react") % 8)));
-    const t2Attendance = 88 + (getHashValue(seed, "t2att") % 12);
-    const t2Discipline = 8 + (getHashValue(seed, "t2disc") % 3);
-    const t2MatchPerf = 75 + (getHashValue(seed, "t2match") % 21);
 
     const t2Overall = Math.round((t2Speed + t2Strength + t2Stamina + t2Agility + t2Flex + t2Acc + t2End + t2React) / 8);
 
@@ -295,9 +288,6 @@ const Reports = () => {
       accuracy: t2Acc,
       endurance: t2End,
       reactionTime: t2React,
-      attendance: t2Attendance,
-      discipline: t2Discipline,
-      matchPerformance: t2MatchPerf,
       overallScore: t2Overall,
       fitnessLevel: getFitnessLevel(t2Overall),
       aiInsight: `Term-2 Evaluation Summary: Exhibits supreme cardio stability and hamstrings explosive speed. Joint displacement index is excellent. Displays high competence in matching performance categories. Focus should remain on maintaining off-season recovery schedules.`
@@ -313,16 +303,27 @@ const Reports = () => {
     return null;
   })();
 
-<<<<<<< HEAD
-  // PDF export is now fully handled by <FitnessReportExportButton />
-  // which manages its own isExporting state, spinner, and try/catch/finally.
-=======
+  const classHardCopyUrl = (() => {
+    if (!selectedInst || !selectedClass) return null;
+    const classStudents = getStudentsForClass();
+    const classStudentIds = classStudents.map(s => s.id || s._id);
+    const match = allPerformances.find(r => {
+      const rStudentId = r.studentId && (typeof r.studentId === 'object' ? r.studentId._id : r.studentId);
+      return classStudentIds.includes(rStudentId) && r.term === selectedTerm && r.reportHardCopyUrl;
+    });
+    return match ? match.reportHardCopyUrl : null;
+  })();
+
   // PDF export for Roster Reports or student reports fallback
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     if (!selectedInst) {
       alert("Please select an institution or sports academy first!");
       return;
     }
+
+    // Dynamic imports — only loaded when user clicks Export
+    const { default: jsPDF }     = await import('jspdf');
+    const { default: autoTable } = await import('jspdf-autotable');
 
     try {
       const doc = new jsPDF();
@@ -411,16 +412,16 @@ const Reports = () => {
         doc.setFontSize(11);
         doc.text(`${perf.fitnessLevel || 'N/A'}`, 77 + colWidth/2, statsY + 14, { align: 'center' });
         
-        // Card 3: Attendance Rate
+        // Card 3: Speed Index
         doc.setFillColor(249, 239, 239); // Soft Terracotta tint
         doc.roundedRect(139, statsY, colWidth, colHeight, 2, 2, 'F');
         doc.setDrawColor(240, 220, 220);
         doc.roundedRect(139, statsY, colWidth, colHeight, 2, 2, 'D');
         doc.setFontSize(7.5);
         doc.setTextColor(160, 60, 50);
-        doc.text('ATTENDANCE RATE', 139 + colWidth/2, statsY + 6, { align: 'center' });
+        doc.text('SPEED INDEX', 139 + colWidth/2, statsY + 6, { align: 'center' });
         doc.setFontSize(11);
-        doc.text(`${perf.attendance || 0}%`, 139 + colWidth/2, statsY + 14, { align: 'center' });
+        doc.text(`${perf.speed || 0}%`, 139 + colWidth/2, statsY + 14, { align: 'center' });
         
         // --- Physical Capacity Indicators (Vector Progress Bar Chart) ---
         const chartY = 122;
@@ -668,7 +669,6 @@ const Reports = () => {
       alert('Failed to generate PDF: ' + (error.message || error));
     }
   };
->>>>>>> 5bbd1e1e2445986c6bf820145a31d2f47c4518cb
 
   const handlePrint = () => {
     if (selectedStudent && !selectedPerformance) {
@@ -756,6 +756,16 @@ const Reports = () => {
         <div className="flex gap-3">
           {selectedInst && (
             <>
+              {selectedStudent && selectedPerformance?.reportHardCopyUrl && (
+                <a
+                  href={selectedPerformance.reportHardCopyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2 active:scale-95 cursor-pointer bg-white"
+                >
+                  <Eye size={15} className="text-indigo-650" /> View Hardcopy Photo
+                </a>
+              )}
               <button 
                 onClick={handlePrint}
                 disabled={selectedStudent && !selectedPerformance}
@@ -987,7 +997,7 @@ const Reports = () => {
                     <div className="border-t border-slate-100 mt-6 pt-4 flex items-center justify-between">
                       <span className="text-xs font-black text-slate-700 bg-slate-50 group-hover:bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1">
                         <Users size={12} className="text-indigo-600" />
-                        {inst.studentCount} Athletes
+                        {inst.studentCount} Student
                       </span>
                       <span className="text-xs font-bold text-indigo-600 flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
                         Select School <ChevronRight size={14} />
@@ -1092,14 +1102,47 @@ const Reports = () => {
                 </h3>
                 <p className="text-xs text-slate-400 font-semibold mt-0.5">Showing student athletes registered in {selectedInst.name}.</p>
               </div>
-              <button
-                onClick={() => {
-                  setSelectedClass(null);
-                }}
-                className="px-3.5 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
-              >
-                Change Class
-              </button>
+              <div className="flex items-center gap-3">
+                {/* Term selector on Level 3 */}
+                <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200/50">
+                  <button
+                    onClick={() => setSelectedTerm("TERM-1")}
+                    className={`px-2.5 py-1 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${
+                      selectedTerm === "TERM-1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-650"
+                    }`}
+                  >
+                    T1
+                  </button>
+                  <button
+                    onClick={() => setSelectedTerm("TERM-2")}
+                    className={`px-2.5 py-1 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer ${
+                      selectedTerm === "TERM-2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-650"
+                    }`}
+                  >
+                    T2
+                  </button>
+                </div>
+
+                {classHardCopyUrl && (
+                  <a
+                    href={classHardCopyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/50 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Eye size={12} className="text-emerald-600" /> View Class Hardcopy Proof
+                  </a>
+                )}
+
+                <button
+                  onClick={() => {
+                    setSelectedClass(null);
+                  }}
+                  className="px-3.5 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                >
+                  Change Class
+                </button>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -1343,6 +1386,26 @@ const Reports = () => {
                         <span className="text-sm font-black text-slate-850">{selectedPerformance.reactionTime}%</span>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* Hardcopy proof display if present */}
+                {selectedPerformance?.reportHardCopyUrl && (
+                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                      <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                        📄 Authentic Report Hardcopy Document
+                      </h4>
+                      <p className="text-xs text-slate-400 font-semibold mt-1">Uploaded by the institution for verification.</p>
+                    </div>
+                    <a
+                      href={selectedPerformance.reportHardCopyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 bg-white rounded-xl text-xs font-black uppercase shadow-sm transition-colors active:scale-95 cursor-pointer"
+                    >
+                      <Eye size={14} className="text-indigo-600" /> View Hardcopy Photo
+                    </a>
                   </div>
                 )}
 

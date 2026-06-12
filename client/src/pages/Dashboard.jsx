@@ -34,17 +34,17 @@ const Dashboard = () => {
       })
       .then(data => {
         console.log('Loaded Dashboard Data:', data);
-        setTotalAcademies(data.totalAcademies && data.totalAcademies > 0 ? data.totalAcademies.toLocaleString() : '5');
-        setTotalInstitutes(data.totalInstitutes && data.totalInstitutes > 0 ? data.totalInstitutes.toLocaleString() : '9');
-        setPendingCount(data.pendingCount && data.pendingCount > 0 ? data.pendingCount.toString() : '4');
-        setAvgPerformance(data.averagePerformance && parseFloat(data.averagePerformance) > 0 ? `${data.averagePerformance}%` : '74%');
+        setTotalAcademies(data.totalAcademies !== undefined && data.totalAcademies !== null ? data.totalAcademies.toLocaleString() : '0');
+        setTotalInstitutes(data.totalInstitutes !== undefined && data.totalInstitutes !== null ? data.totalInstitutes.toLocaleString() : '0');
+        setPendingCount(data.pendingCount !== undefined && data.pendingCount !== null ? data.pendingCount.toString() : '0');
+        setAvgPerformance(data.averagePerformance !== undefined && data.averagePerformance !== null ? `${data.averagePerformance}%` : '0%');
       })
       .catch(err => {
         console.error('Fetch dashboard failed:', err);
-        setTotalAcademies('5');
-        setTotalInstitutes('9');
-        setPendingCount('4');
-        setAvgPerformance('74%');
+        setTotalAcademies('0');
+        setTotalInstitutes('0');
+        setPendingCount('0');
+        setAvgPerformance('0%');
       });
   }, []);
 

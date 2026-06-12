@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useOutletContext } from 'react-router-dom';
 import { 
   School, Users, Search, ChevronDown, ChevronUp, GraduationCap, 
@@ -8,267 +9,33 @@ import {
 
 const Academies = () => {
   // Rich mock data representing Sports Academies with Grade 9-10 students
-  const [academies, setAcademies] = useState([
-    {
-      id: "acad-1",
-      name: "Dronacharya Cricket Academy",
-      sport: "Cricket",
-      coach: "Coach Devendra Prasad",
-      email: "contact@dronacharyacricket.in",
-      phone: "+91 99887 76655",
-      registeredAt: "2026-03-10",
-      location: "Ahmedabad, Gujarat",
-      budget: "₹4,50,000 / Year",
-      gradient: "from-red-500 to-rose-600",
-      students: [
-        { 
-          id: "stu-c1", 
-          name: "Rohan Patel", 
-          age: 15, 
-          class: "9", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 15000, 
-          receiptId: "REC-2026-001",
-          paymentDate: "2026-05-02",
-          paymentMethod: "UPI (Google Pay)"
-        },
-        { 
-          id: "stu-c2", 
-          name: "Amit Mishra", 
-          age: 15, 
-          class: "9", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 15000, 
-          receiptId: "REC-2026-002",
-          paymentDate: "2026-05-05",
-          paymentMethod: "Net Banking"
-        },
-        { 
-          id: "stu-c3", 
-          name: "Kabir Dev", 
-          age: 16, 
-          class: "10", 
-          attendance: "Absent", 
-          feesStatus: "Pending", 
-          feesAmount: 15000 
-        },
-        { 
-          id: "stu-c4", 
-          name: "Sachin Verma", 
-          age: 16, 
-          class: "10", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 15000, 
-          receiptId: "REC-2026-003",
-          paymentDate: "2026-05-01",
-          paymentMethod: "Credit Card"
-        }
-      ]
-    },
-    {
-      id: "acad-2",
-      name: "Golden Boot Football Academy",
-      sport: "Football",
-      coach: "Coach Arthur Winston",
-      email: "hello@goldenbootfc.com",
-      phone: "+91 91234 98765",
-      registeredAt: "2026-04-15",
-      location: "Mumbai, Maharashtra",
-      budget: "₹6,20,000 / Year",
-      gradient: "from-emerald-500 to-teal-600",
-      students: [
-        { 
-          id: "stu-f1", 
-          name: "Aditya Roy", 
-          age: 15, 
-          class: "9", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 12000, 
-          receiptId: "REC-2026-004",
-          paymentDate: "2026-05-04",
-          paymentMethod: "UPI (PhonePe)"
-        },
-        { 
-          id: "stu-f2", 
-          name: "Neil Nitin", 
-          age: 16, 
-          class: "10", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 12000, 
-          receiptId: "REC-2026-005",
-          paymentDate: "2026-05-08",
-          paymentMethod: "Debit Card"
-        },
-        { 
-          id: "stu-f3", 
-          name: "Arjun Rampal", 
-          age: 15, 
-          class: "9", 
-          attendance: "Absent", 
-          feesStatus: "Pending", 
-          feesAmount: 12000 
-        }
-      ]
-    },
-    {
-      id: "acad-3",
-      name: "Pinnacle Badminton Club",
-      sport: "Badminton",
-      coach: "Coach Paul Fernandes",
-      email: "contact@pinnaclebadminton.org",
-      phone: "+91 88776 11223",
-      registeredAt: "2026-05-01",
-      location: "Bangalore, Karnataka",
-      budget: "₹3,80,000 / Year",
-      gradient: "from-cyan-500 to-blue-600",
-      students: [
-        { 
-          id: "stu-b1", 
-          name: "Jiya Shah", 
-          age: 15, 
-          class: "9", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 18000, 
-          receiptId: "REC-2026-006",
-          paymentDate: "2026-05-03",
-          paymentMethod: "UPI (Paytm)"
-        },
-        { 
-          id: "stu-b2", 
-          name: "Sneha Reddy", 
-          age: 15, 
-          class: "9", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 18000, 
-          receiptId: "REC-2026-007",
-          paymentDate: "2026-05-07",
-          paymentMethod: "UPI (GPay)"
-        },
-        { 
-          id: "stu-b3", 
-          name: "Kareena Kapoor", 
-          age: 16, 
-          class: "10", 
-          attendance: "Absent", 
-          feesStatus: "Pending", 
-          feesAmount: 18000 
-        }
-      ]
-    },
-    {
-      id: "acad-4",
-      name: "Apex Swimming Academy",
-      sport: "Swimming",
-      coach: "Coach Ranjitsinh Jadeja",
-      email: "elite@apexswim.in",
-      phone: "+91 76008 55443",
-      registeredAt: "2026-05-12",
-      location: "Hyderabad, Telangana",
-      budget: "₹5,00,000 / Year",
-      gradient: "from-blue-500 to-indigo-600",
-      students: [
-        { 
-          id: "stu-s1", 
-          name: "Priya Patel", 
-          age: 16, 
-          class: "10", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 14000, 
-          receiptId: "REC-2026-008",
-          paymentDate: "2026-05-09",
-          paymentMethod: "Net Banking"
-        },
-        { 
-          id: "stu-s2", 
-          name: "Ishaan Verma", 
-          age: 15, 
-          class: "9", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 14000, 
-          receiptId: "REC-2026-009",
-          paymentDate: "2026-05-10",
-          paymentMethod: "UPI"
-        },
-        { 
-          id: "stu-s3", 
-          name: "Kiara Advani", 
-          age: 15, 
-          class: "9", 
-          attendance: "Absent", 
-          feesStatus: "Pending", 
-          feesAmount: 14000 
-        }
-      ]
-    },
-    {
-      id: "acad-5",
-      name: "Vanguard Athletics Academy",
-      sport: "Athletics",
-      coach: "Coach Ramesh Kalsaria",
-      email: "admin@vanguardathletics.com",
-      phone: "+91 94282 33221",
-      registeredAt: "2026-02-18",
-      location: "Delhi NCR",
-      budget: "₹4,10,000 / Year",
-      gradient: "from-orange-500 to-amber-600",
-      students: [
-        { 
-          id: "stu-a1", 
-          name: "Rohan Sharma", 
-          age: 15, 
-          class: "9", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 10000, 
-          receiptId: "REC-2026-010",
-          paymentDate: "2026-05-01",
-          paymentMethod: "Cash"
-        },
-        { 
-          id: "stu-a2", 
-          name: "Diya Sen", 
-          age: 16, 
-          class: "10", 
-          attendance: "Present", 
-          feesStatus: "Paid", 
-          feesAmount: 10000, 
-          receiptId: "REC-2026-011",
-          paymentDate: "2026-05-02",
-          paymentMethod: "Net Banking"
-        },
-        { 
-          id: "stu-a3", 
-          name: "Aarav Mehta", 
-          age: 15, 
-          class: "9", 
-          attendance: "Present", 
-          feesStatus: "Pending", 
-          feesAmount: 10000 
-        }
-      ]
-    }
-  ]);
+  const [academies, setAcademies] = useState([]);
 
   const [expandedId, setExpandedId] = useState(null);
   const [selectedClass, setSelectedClass] = useState({});
-  const [selectedReceipt, setSelectedReceipt] = useState(null);
-  const [toast, setToast] = useState(null);
   const [selectedStudentReport, setSelectedStudentReport] = useState(null);
+
+  // Freeze background scrolling when student report modal is open
+  useEffect(() => {
+    const mainEl = document.querySelector('main');
+    if (selectedStudentReport) {
+      if (mainEl) mainEl.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (mainEl) mainEl.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    return () => {
+      if (mainEl) mainEl.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [selectedStudentReport]);
 
   // Fetch approved academies from the backend database on load
   useEffect(() => {
     const fetchApprovedAcademies = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/institutes?status=approved&type=academy`, {
+        const res = await fetch(`http://localhost:5000/api/institutes?status=approved&type=academy&limit=1000`, {
           headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token'),
             'Content-Type': 'application/json',
@@ -304,10 +71,7 @@ const Academies = () => {
             };
           });
           
-          setAcademies(prev => {
-            const filteredDb = formatted.filter(db => !prev.some(p => p.id === db.id || p.name.toLowerCase() === db.name.toLowerCase()));
-            return [...filteredDb, ...prev];
-          });
+          setAcademies(formatted);
         }
       } catch (err) {
         console.error("Error fetching approved academies:", err);
@@ -346,9 +110,6 @@ const Academies = () => {
             const studentsData = await res.json();
             const mappedStudents = studentsData.map(s => {
               const age = s.dob ? (new Date().getFullYear() - new Date(s.dob).getFullYear()) : 15;
-              const feesStatus = s.feesStatus || (Math.random() > 0.3 ? "Paid" : "Pending");
-              const feesAmount = s.feesAmount || 15000;
-              const hasPaid = feesStatus === "Paid";
               
               return {
                 id: s._id || s.id,
@@ -356,12 +117,10 @@ const Academies = () => {
                 name: s.name,
                 age,
                 class: s.class,
-                attendance: s.attendance || "Present",
-                feesStatus,
-                feesAmount,
-                receiptId: hasPaid ? (s.receiptId || `REC-2026-${Math.floor(100 + Math.random() * 900)}`) : undefined,
-                paymentDate: hasPaid ? (s.paymentDate || new Date().toISOString().split('T')[0]) : undefined,
-                paymentMethod: hasPaid ? (s.paymentMethod || 'UPI (Google Pay)') : undefined,
+                performance: s.performance || "Good",
+                sprintTime: s.sprintTime || 12.8,
+                broadJump: s.broadJump || 215,
+                pushups: s.pushups || 28,
                 dob: s.dob ? new Date(s.dob).toLocaleDateString('en-IN') : '',
                 gender: s.gender || 'Male',
                 contact: s.contact || s.phone || '',
@@ -398,126 +157,16 @@ const Academies = () => {
     }));
   };
 
-  // Toggle Student Attendance On-The-Fly (Daily Attendance System)
-  const toggleAttendance = (acadId, studentId) => {
-    setAcademies(prevAcademies => 
-      prevAcademies.map(acad => {
-        if (acad.id !== acadId) return acad;
-        return {
-          ...acad,
-          students: acad.students.map(stu => {
-            if (stu.id !== studentId) return stu;
-            const newAttendance = stu.attendance === 'Present' ? 'Absent' : 'Present';
-            showToast(`${stu.name} is now marked ${newAttendance}!`);
-            return { ...stu, attendance: newAttendance };
-          })
-        };
-      })
-    );
-  };
-
-  // Helper to show modern micro-toasts
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  // Toggle Fees Payment Status (simulate receipts generation)
-  const toggleFeesStatus = (acadId, studentId) => {
-    setAcademies(prevAcademies => 
-      prevAcademies.map(acad => {
-        if (acad.id !== acadId) return acad;
-        return {
-          ...acad,
-          students: acad.students.map(stu => {
-            if (stu.id !== studentId) return stu;
-            const isPaying = stu.feesStatus === 'Pending';
-            
-            const updatedStu = {
-              ...stu,
-              feesStatus: isPaying ? 'Paid' : 'Pending',
-              receiptId: isPaying ? `REC-2026-${Math.floor(100 + Math.random() * 900)}` : undefined,
-              paymentDate: isPaying ? new Date().toISOString().split('T')[0] : undefined,
-              paymentMethod: isPaying ? 'UPI (Generated)' : undefined
-            };
-
-            showToast(`${stu.name}'s fees status changed to ${updatedStu.feesStatus}!`);
-            return updatedStu;
-          })
-        };
-      })
-    );
-  };
-
   // Statistics Calculation
   const totalAcademies = academies.length;
   const allStudents = academies.flatMap(a => a.students);
   const totalEnrolled = allStudents.length;
   
-  // Total Fees Collected
-  const totalFeesCollected = allStudents
-    .filter(s => s.feesStatus === 'Paid')
-    .reduce((sum, s) => sum + (s.feesAmount || 0), 0);
-
-  // Overall Attendance Rate
-  const presentCount = allStudents.filter(s => s.attendance === 'Present').length;
-  const attendanceRate = totalEnrolled > 0 ? Math.round((presentCount / totalEnrolled) * 100) : 0;
-
-  // View Receipt Modal
-  const openReceipt = (student, academy) => {
-    setSelectedReceipt({
-      receiptId: student.receiptId,
-      studentName: student.name,
-      class: student.class,
-      feesAmount: student.feesAmount,
-      paymentDate: student.paymentDate,
-      paymentMethod: student.paymentMethod || 'UPI Swap',
-      academyName: academy.name,
-      sport: academy.sport,
-      coach: academy.coach,
-      location: academy.location
-    });
-  };
+  // Total Sports Tracked
+  const uniqueSportsCount = new Set(academies.map(a => a.sport).filter(Boolean)).size || 0;
 
   return (
     <div className="space-y-8 animate-fade-in pb-12 font-sans relative">
-      
-      {/* Dynamic Toast Notification */}
-      {toast && (
-        <div className="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center gap-2 border border-slate-700 animate-bounce duration-500 font-bold text-xs uppercase tracking-wide">
-          <CheckCircle size={18} className="text-emerald-400" />
-          <span>{toast}</span>
-        </div>
-      )}
-
-      {/* Print styles for Invoice Receipt */}
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-            background: none !important;
-          }
-          #print-receipt-modal, #print-receipt-modal * {
-            visibility: visible;
-          }
-          #print-receipt-modal {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100vw !important;
-            max-width: 100% !important;
-            padding: 2rem !important;
-            background-color: white !important;
-            border: none !important;
-            box-shadow: none !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          .no-print {
-            display: none !important;
-          }
-        }
-      `}</style>
 
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -527,7 +176,7 @@ const Academies = () => {
             Academy Management
           </h1>
           <p className="text-slate-500 text-sm mt-1 font-medium">
-            Manage sports academies, track student daily attendance, view fee receipts, and configure coach-sport assignments.
+            View registered academies, browse athlete rosters, and inspect individual fitness screening reports.
           </p>
         </div>
       </div>
@@ -556,11 +205,11 @@ const Academies = () => {
 
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Daily Attendance Rate</p>
-            <h3 className="text-3xl font-black text-amber-600 mt-2">{attendanceRate}%</h3>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Sports Specialties</p>
+            <h3 className="text-3xl font-black text-accent mt-2">{uniqueSportsCount}</h3>
           </div>
-          <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
-            <CheckCircle size={24} />
+          <div className="w-12 h-12 bg-orange-100 text-accent rounded-xl flex items-center justify-center">
+            <Trophy size={24} />
           </div>
         </div>
       </div>
@@ -578,7 +227,7 @@ const Academies = () => {
           />
         </div>
         <p className="text-xs text-slate-400 font-semibold">
-          Click an academy to configure Grade 9/10 roster, record daily attendance & view invoice receipts.
+          Click any academy to view its athlete roster and inspect evaluation reports.
         </p>
       </div>
 
@@ -665,29 +314,29 @@ const Academies = () => {
                             <table className="w-full text-left border-collapse">
                               <thead>
                                 <tr className="bg-slate-50/80 text-slate-500 text-[10px] font-bold uppercase tracking-wider border-b border-slate-100">
-                                  <th className="p-4 pl-6">Athlete Name</th>
-                                  <th className="p-4 text-center">Class / Standard</th>
-                                  <th className="p-4 text-center">Age</th>
-                                  <th className="p-4 text-center">Sport Speciality</th>
-                                  <th className="p-4 text-center">Daily Attendance</th>
-                                  <th className="p-4 text-center">Fees Status</th>
-                                  <th className="p-4 pr-6 text-right">Receipt Details</th>
+                                  <th className="p-3.5 pl-5">#</th>
+                                  <th className="p-3.5">Athlete Name</th>
+                                  <th className="p-3.5 text-center">Class / Standard</th>
+                                  <th className="p-3.5 text-center">Age</th>
+                                  <th className="p-3.5 text-center">Sport Speciality</th>
+                                  <th className="p-3.5 text-center">Sprint (s)</th>
+                                  <th className="p-3.5 text-center">Jump (cm)</th>
+                                  <th className="p-3.5 text-center">Pushups</th>
+                                  <th className="p-3.5 pr-5 text-right">Fitness</th>
                                 </tr>
                               </thead>
                               <tbody className="text-xs divide-y divide-slate-100 font-semibold text-slate-700">
-                                {acad.students.map(student => (
+                                {acad.students.map((student, idx) => (
                                   <tr 
                                     key={student.id}
-                                    className={`hover:bg-slate-50/50 cursor-pointer transition-colors group ${
-                                      student.attendance === 'Absent' ? 'bg-red-50/20 hover:bg-red-50/30' : ''
-                                    }`}
+                                    className="hover:bg-blue-50/35 cursor-pointer transition-colors group"
                                     onClick={() => setSelectedStudentReport({ ...student, academyName: acad.name })}
                                     title="Click to view athlete profile & contact details"
                                   >
-                                    {/* Student Name */}
-                                    <td className="p-4 pl-6">
-                                      <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-full bg-slate-100 overflow-hidden ring-2 ring-slate-100 group-hover:ring-secondary/40 transition-all shrink-0">
+                                    <td className="p-3.5 pl-5 text-slate-400 font-bold">{idx + 1}</td>
+                                    <td className="p-3.5">
+                                      <div className="flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-full bg-slate-100 overflow-hidden ring-2 ring-slate-100 group-hover:ring-secondary/40 transition-all shrink-0">
                                           <img src={`https://ui-avatars.com/api/?name=${student.name}&background=2563EB&color=fff&size=80`} alt={student.name} />
                                         </div>
                                         <div>
@@ -696,61 +345,24 @@ const Academies = () => {
                                         </div>
                                       </div>
                                     </td>
-
-                                    {/* Class/Standard */}
-                                    <td className="p-4 text-center text-slate-800 font-extrabold">Class {student.class}th</td>
-
-                                    {/* Age */}
-                                    <td className="p-4 text-center text-slate-500">{student.age}</td>
-
-                                    {/* Sport Badge */}
-                                    <td className="p-4 text-center">
-                                      <span className={`inline-block px-3 py-1 bg-gradient-to-r ${acad.gradient} text-white rounded-full font-black text-[10px] uppercase tracking-wider`}>
+                                    <td className="p-3.5 text-center text-slate-800 font-extrabold">Class {student.class}th</td>
+                                    <td className="p-3.5 text-center text-slate-500">{student.age}</td>
+                                    <td className="p-3.5 text-center">
+                                      <span className={`inline-block px-2.5 py-1 bg-gradient-to-r ${acad.gradient} text-white rounded-full font-bold`}>
                                         {acad.sport}
                                       </span>
                                     </td>
-
-                                    {/* Daily Attendance Badge (Read-Only for Admin) */}
-                                    <td className="p-4 text-center text-xs">
-                                      <span
-                                        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-wider border select-none ${
-                                          student.attendance === 'Present'
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-150'
-                                            : 'bg-rose-50 text-rose-600 border-rose-150'
-                                        }`}
-                                      >
-                                        <span className={`w-2 h-2 rounded-full ${student.attendance === 'Present' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
-                                        {student.attendance}
+                                    <td className="p-3.5 text-center">{student.sprintTime || '-'}</td>
+                                    <td className="p-3.5 text-center">{student.broadJump || '-'}</td>
+                                    <td className="p-3.5 text-center">{student.pushups || '-'}</td>
+                                    <td className="p-3.5 pr-5 text-right font-extrabold">
+                                      <span className={`inline-block px-2.5 py-1 rounded-full font-bold ${
+                                        student.performance === 'Excellent' ? 'bg-emerald-50 text-emerald-700' :
+                                        student.performance === 'Good' ? 'bg-blue-50 text-blue-700' :
+                                        'bg-amber-50 text-amber-700'
+                                      }`}>
+                                        {student.performance}
                                       </span>
-                                    </td>
-
-                                    {/* Fees Status Badge (Read-Only for Admin) */}
-                                    <td className="p-4 text-center">
-                                      <span
-                                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border select-none ${
-                                          student.feesStatus === 'Paid'
-                                            ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                                            : 'bg-amber-100 text-amber-800 border-amber-300'
-                                        }`}
-                                      >
-                                        {student.feesStatus === 'Paid' ? <Check size={12} /> : <AlertCircle size={12} />}
-                                        {student.feesStatus}
-                                      </span>
-                                    </td>
-
-                                    {/* View/Print Invoice Receipt Button */}
-                                    <td className="p-4 pr-6 text-right">
-                                      {student.feesStatus === 'Paid' ? (
-                                        <button
-                                          onClick={(e) => { e.stopPropagation(); openReceipt(student, acad); }}
-                                          className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all hover:scale-[1.02] shadow-md shadow-slate-900/10 cursor-pointer"
-                                        >
-                                          <FileText size={13} />
-                                          Invoice Receipt
-                                        </button>
-                                      ) : (
-                                        <span className="text-slate-400 font-bold text-xs">No Receipt</span>
-                                      )}
                                     </td>
                                   </tr>
                                 ))}
@@ -761,7 +373,7 @@ const Academies = () => {
                       ) : (
                         <div className="text-center py-8 bg-white border border-slate-100 rounded-xl">
                           <Users size={32} className="text-slate-300 mx-auto mb-2" />
-                          <p className="text-slate-400 text-sm font-medium">No students registered in this academy.</p>
+                          <p className="text-slate-400 text-sm font-medium">No athletes registered in this academy.</p>
                         </div>
                       )}
                     </div>
@@ -772,161 +384,20 @@ const Academies = () => {
           })}
       </div>
 
-      {/* ═══════════════ BEAUTIFUL INVOICE FEES RECEIPT MODAL ═══════════════ */}
-      {selectedReceipt && (
+      {selectedStudentReport && createPortal(
         <div 
-          className="fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in no-print"
-          onClick={() => setSelectedReceipt(null)}
-        >
-          <div 
-            className="bg-white rounded-3xl max-w-xl w-full shadow-2xl relative border border-slate-200/50 flex flex-col overflow-hidden max-h-[90vh] animate-scale-up"
-            id="print-receipt-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header Actions (Hide on Print) */}
-            <div className="px-6 py-4 bg-slate-900 text-white flex justify-between items-center shrink-0 no-print">
-              <span className="font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
-                <FileText size={18} className="text-accent" />
-                Athlete Fees Receipt
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => window.print()}
-                  className="bg-accent hover:bg-orange-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-orange-500/10 cursor-pointer"
-                >
-                  <Printer size={14} /> Print Receipt
-                </button>
-                <button 
-                  onClick={() => setSelectedReceipt(null)}
-                  className="text-slate-400 hover:text-white text-xs font-bold uppercase bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
-                >
-                  ✕ Close
-                </button>
-              </div>
-            </div>
-
-            {/* Receipt Printable Content */}
-            <div className="p-8 overflow-y-auto bg-slate-50/50">
-              
-              {/* Receipt Border Container */}
-              <div className="bg-white rounded-2xl border-2 border-dashed border-slate-300 p-6 shadow-sm relative">
-                
-                {/* Visual Watermark background stamp */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
-                  <Trophy size={200} className="text-primary" />
-                </div>
-
-                {/* Top Header */}
-                <div className="text-center pb-4 border-b border-slate-200">
-                  <div className="flex items-center justify-center gap-2 mb-1">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-secondary to-accent flex items-center justify-center font-bold text-base text-white shadow-lg">
-                      S
-                    </div>
-                    <span className="font-black text-base tracking-wide uppercase text-slate-800">
-                      Sport<span className="text-accent">Sphere</span>
-                    </span>
-                  </div>
-                  <h3 className="text-xs font-black text-slate-400 tracking-widest uppercase">
-                    Official Payment Receipt
-                  </h3>
-                </div>
-
-                {/* Invoice Metadata */}
-                <div className="grid grid-cols-2 gap-4 py-4 text-xs font-semibold text-slate-600 border-b border-slate-100">
-                  <div>
-                    <p className="text-[10px] text-slate-400 uppercase font-black">Receipt Number</p>
-                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedReceipt.receiptId}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] text-slate-400 uppercase font-black">Payment Date</p>
-                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedReceipt.paymentDate}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-400 uppercase font-black">Academy/Club Name</p>
-                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedReceipt.academyName}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] text-slate-400 uppercase font-black">Location</p>
-                    <p className="text-slate-800 font-extrabold mt-0.5">{selectedReceipt.location}</p>
-                  </div>
-                </div>
-
-                {/* Athlete Details */}
-                <div className="py-4 text-xs space-y-2.5 border-b border-slate-100">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Athlete Name:</span>
-                    <span className="text-slate-800 font-extrabold">{selectedReceipt.studentName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Academy Standard:</span>
-                    <span className="text-slate-800 font-extrabold">Class {selectedReceipt.class}th Standard</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Associated Sport:</span>
-                    <span className="text-slate-800 font-extrabold flex items-center gap-1 uppercase text-[10px]">
-                      <Award size={13} className="text-secondary" /> {selectedReceipt.sport}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Assigned Head Coach:</span>
-                    <span className="text-slate-800 font-extrabold">{selectedReceipt.coach}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400 font-bold">Payment Method:</span>
-                    <span className="text-slate-800 font-extrabold">{selectedReceipt.paymentMethod}</span>
-                  </div>
-                </div>
-
-                {/* Final Total Box */}
-                <div className="mt-5 bg-slate-50 rounded-xl p-4 flex justify-between items-center">
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-black block">Total Fees Paid</span>
-                    <span className="text-xs text-emerald-600 font-black uppercase tracking-wider mt-0.5 flex items-center gap-1">
-                      <CheckCircle size={14} /> Transaction Success
-                    </span>
-                  </div>
-                  <span className="text-2xl font-black text-slate-900">
-                    ₹{selectedReceipt.feesAmount.toLocaleString('en-IN')}.00
-                  </span>
-                </div>
-
-                {/* Bottom Signature Mockup */}
-                <div className="flex justify-between items-end mt-8 text-[9px] font-black uppercase tracking-wider text-slate-400">
-                  <div>
-                    <p className="border-t border-slate-200 pt-1 text-center w-28">Payer Signature</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-16 h-8 bg-[url('https://upload.wikimedia.org/wikipedia/commons/3/3a/Jon_Kirsch_Signature.png')] bg-contain bg-no-repeat mx-auto opacity-70"></div>
-                    <p className="border-t border-slate-200 pt-1 text-center w-28">Authorized Stamp</p>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Thank you note */}
-              <p className="text-center text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-6">
-                Thank you for training with SportSphere Athletics!
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════ ATHLETE PROFILE REPORT MODAL ═══════════════ */}
-      {selectedStudentReport && (
-        <div 
-          className="fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-50 bg-white/40 flex items-center justify-center p-4 backdrop-blur-md animate-fade-in"
           onClick={() => setSelectedStudentReport(null)}
         >
           <div 
-            className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl relative border border-white/10 flex flex-col justify-between overflow-hidden"
+            className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl relative border border-slate-150 flex flex-col justify-between overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="px-6 py-4 bg-slate-900 text-white flex justify-between items-center">
               <span className="font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
-                <Trophy size={18} className="text-accent animate-pulse" />
-                Physical Screening Portfolio
+                <User size={18} className="text-indigo-400" />
+                Athlete Profile Information
               </span>
               <div className="flex gap-2">
                 <button 
@@ -952,16 +423,8 @@ const Academies = () => {
                     Academy: <span className="text-secondary">{selectedStudentReport.academyName}</span>
                   </p>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                    Standard: Class {selectedStudentReport.class}th • Age: {selectedStudentReport.age} Years • Fees Status: {selectedStudentReport.feesStatus}
+                    Standard: Class {selectedStudentReport.class}th • Age: {selectedStudentReport.age} Years
                   </p>
-                  {/* Attendance badge */}
-                  <span className={`inline-block px-2.5 py-0.5 rounded-full font-black text-[10px] uppercase tracking-wider mt-1 ${
-                    selectedStudentReport.attendance === 'Absent'
-                      ? 'bg-red-50 text-red-600 border border-red-100'
-                      : 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                  }`}>
-                    {selectedStudentReport.attendance === 'Absent' ? '🔴 Absent' : '🟢 Present'}
-                  </span>
                 </div>
               </div>
 
@@ -969,12 +432,12 @@ const Academies = () => {
               <div className="mt-6 bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-4">
                 <div className="flex items-center gap-2 text-slate-700 font-extrabold text-sm border-b border-slate-150 pb-2">
                   <User size={16} className="text-secondary" />
-                  Student Personal Profile & Contact Details
+                  Athlete Personal Profile & Contact Details
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-600">
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase font-black">Student / Athlete ID</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">Athlete ID</p>
                     <p className="text-slate-800 font-extrabold mt-0.5">{selectedStudentReport.studentId || selectedStudentReport.id || selectedStudentReport._id || "STU-001"}</p>
                   </div>
                   <div>
@@ -1035,7 +498,8 @@ const Academies = () => {
               Verification Code: {selectedStudentReport.id.toUpperCase()}-VERIFIED
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

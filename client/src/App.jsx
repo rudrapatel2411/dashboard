@@ -1,35 +1,53 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-// Existing Admin pages
-import ForgotPassword from './pages/ForgotPassword';
-import DashboardLayout from './components/DashboardLayout';
-import Dashboard from './pages/Dashboard';
-import Institutions from './pages/Institutions';
-import Students from './pages/Students';
-import Performance from './pages/Performance';
-import Reports from './pages/Reports';
-import Tests from './pages/Tests';
-import Approval from './pages/Approval';
-import Academies from './pages/Academies';
-import Profile from './pages/Profile';
+// ─── Lazy-loaded page components ───────────────────────────────────────────────
+// Admin layout + pages
+const DashboardLayout          = lazy(() => import('./components/DashboardLayout'));
+const Dashboard                = lazy(() => import('./pages/Dashboard'));
+const Institutions             = lazy(() => import('./pages/Institutions'));
+const Students                 = lazy(() => import('./pages/Students'));
+const Performance              = lazy(() => import('./pages/Performance'));
+const Reports                  = lazy(() => import('./pages/Reports'));
+const Tests                    = lazy(() => import('./pages/Tests'));
+const Approval                 = lazy(() => import('./pages/Approval'));
+const Academies                = lazy(() => import('./pages/Academies'));
+const Profile                  = lazy(() => import('./pages/Profile'));
 
-// New Auth pages
-import AdminLogin from './pages/admin/AdminLogin';
-import InstituteLogin from './pages/institute/InstituteLogin';
-import InstituteRegister from './pages/institute/InstituteRegister';
-import InstituteForgotPassword from './pages/institute/InstituteForgotPassword';
+// Admin auth pages
+const ForgotPassword           = lazy(() => import('./pages/ForgotPassword'));
+const AdminLogin               = lazy(() => import('./pages/admin/AdminLogin'));
 
-// Institute Dashboard
-import InstituteDashboardLayout from './components/institute/InstituteDashboardLayout';
-import InstituteDashboard from './pages/institute/InstituteDashboard';
-import InstituteStudents from './pages/institute/InstituteStudents';
+// Institute auth pages
+const InstituteLogin           = lazy(() => import('./pages/institute/InstituteLogin'));
+const InstituteRegister        = lazy(() => import('./pages/institute/InstituteRegister'));
+const InstituteForgotPassword  = lazy(() => import('./pages/institute/InstituteForgotPassword'));
 
+// Institute dashboard
+const InstituteDashboardLayout = lazy(() => import('./components/institute/InstituteDashboardLayout'));
+const InstituteDashboard       = lazy(() => import('./pages/institute/InstituteDashboard'));
+const InstituteStudents        = lazy(() => import('./pages/institute/InstituteStudents'));
 
-// Academy Dashboard
-import AcademyDashboardLayout from './components/academy/AcademyDashboardLayout';
-import AcademyDashboard from './pages/academy/AcademyDashboard';
-import AcademyStudents from './pages/academy/AcademyStudents';
+// Academy dashboard
+const AcademyDashboardLayout   = lazy(() => import('./components/academy/AcademyDashboardLayout'));
+const AcademyDashboard         = lazy(() => import('./pages/academy/AcademyDashboard'));
+const AcademyStudents          = lazy(() => import('./pages/academy/AcademyStudents'));
+
+// ─── Suspense fallback ─────────────────────────────────────────────────────────
+const PageLoader = () => (
+  <div style={{
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    height: '100vh', background: '#f8fafc'
+  }}>
+    <div style={{
+      width: 36, height: 36, borderRadius: '50%',
+      border: '3px solid #e2e8f0',
+      borderTopColor: '#4f46e5',
+      animation: 'spin 0.75s linear infinite'
+    }} />
+    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+  </div>
+);
 
 function App() {
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -95,7 +113,8 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
 
         {/* ========= Legacy redirects (prevent broken bookmarks) ========= */}
         <Route path="/login" element={<Navigate to="/admin/login" replace />} />
@@ -175,7 +194,8 @@ function App() {
           <Navigate to={isAdmin ? '/dashboard' : isAcademy ? '/academy/dashboard' : isInstitute ? '/institute/dashboard' : '/institute/login'} replace />
         } />
 
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

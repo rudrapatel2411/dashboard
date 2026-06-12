@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Users, Plus, Search, Edit3, Trash2, X, Loader2, ChevronDown, Activity } from 'lucide-react';
 import { TableSkeleton } from '../../components/Skeleton';
@@ -24,6 +25,23 @@ const AcademyStudents = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [autoId, setAutoId] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Freeze background scrolling when any modal is open
+  useEffect(() => {
+    const mainEl = document.querySelector('main');
+    const isAnyModalOpen = !!(showModal || deleteConfirm);
+    if (isAnyModalOpen) {
+      if (mainEl) mainEl.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (mainEl) mainEl.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    return () => {
+      if (mainEl) mainEl.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [showModal, deleteConfirm]);
 
   const authHeaders = {
     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -347,9 +365,9 @@ const AcademyStudents = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => setDeleteConfirm(null)}>
-          <div className="gov-card p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+      {deleteConfirm && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-md p-4 animate-fade-in" onClick={() => setDeleteConfirm(null)}>
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-150" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-black text-slate-800 mb-2">Delete Athlete?</h3>
             <p className="text-sm text-slate-500 mb-6">This action cannot be undone. The athlete and their data will be permanently removed.</p>
             <div className="flex justify-end gap-3">
@@ -361,13 +379,14 @@ const AcademyStudents = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Add/Edit Athlete Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => { setShowModal(false); setEditingStudent(null); }}>
-          <div className="gov-card w-full max-w-2xl max-h-[92vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      {showModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-md p-4 animate-fade-in" onClick={() => { setShowModal(false); setEditingStudent(null); }}>
+          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-150" onClick={e => e.stopPropagation()}>
 
             {/* Modal Header */}
             <div className="gov-panel-title p-6 relative overflow-hidden">
@@ -467,7 +486,8 @@ const AcademyStudents = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

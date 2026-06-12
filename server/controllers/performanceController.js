@@ -61,18 +61,24 @@ exports.addPerformance = async (req, res) => {
       if (ageGroup === 1) {
         // Group 1: Under 5-8 yrs
         const scoringTap = tap || 15;
-        const scoringFlam = flam || 10;
+        const scoringFlam = (flam !== undefined && flam !== null && flam !== '') ? flam : 10; // default to 10 falls if missing
 
+        // Lower tapping time is better (lower tap = higher score)
         speed = Math.min(100, Math.max(30, Math.round(150 - scoringTap * 6)));
-        strength = Math.min(100, Math.max(30, Math.round(30 + scoringFlam * 3.5)));
-        stamina = Math.min(100, Math.max(30, Math.round(35 + scoringFlam * 3)));
+        
+        // Lower balance falls is better (lower flam = higher score)
+        const balanceRating = Math.min(100, Math.max(30, Math.round(100 - scoringFlam * 4.6)));
+        strength = balanceRating;
+        stamina = Math.min(100, Math.max(30, Math.round(30 + (balanceRating - 30) * 0.85)));
+        endurance = Math.min(100, Math.max(30, Math.round(30 + (balanceRating - 30) * 0.7)));
+
         agility = Math.min(100, Math.max(30, Math.round(140 - scoringTap * 5.5)));
         flexibility = 65;
         accuracy = 60;
-        endurance = Math.min(100, Math.max(30, Math.round(40 + scoringFlam * 2)));
         reactionTime = Math.min(100, Math.max(30, Math.round(135 - scoringTap * 5)));
 
-        recommendedSport = (tap < 12 && flam > 15) 
+        // Recommended sport: Fast coordination (tap < 12 sec) and excellent balance (flam <= 4 falls)
+        recommendedSport = (tap < 12 && scoringFlam <= 4) 
           ? "Gymnastics & Ballet (High Balance & Coordination)" 
           : "General Athletics & Coordination Drills";
       } else {
