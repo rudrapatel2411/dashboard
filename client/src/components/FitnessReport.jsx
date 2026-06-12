@@ -568,7 +568,7 @@ export const generateFitnessReportPDF = async (payload, filename = 'Fitness_Repo
   const bmiBenchDataH = 6;
   const bmiBenchDataY = bmiBenchHdY + bmiBenchH;
   filledRect(doc, BMI_RIGHT_X, bmiBenchDataY, BMI_RIGHT_W, bmiBenchDataH, C.white, C.borderBlue, 0.2);
-  const bmiBenchVals = ['≤ 14.60', '< 17.20', '< 20.20', '< 23.20'];
+  const bmiBenchVals = ['<= 14.60', '< 17.20', '< 20.20', '< 23.20'];
   bmiRCX = BMI_RIGHT_X;
   bmiBenchVals.forEach((v) => {
     doc.setFontSize(6.5);
@@ -1060,7 +1060,7 @@ export const generateGroup1FitnessReportPDF = async (payload, filename = 'Fitnes
   const bmiBenchDataY = bmiBenchHdY + bmiBenchH;
   filledRect(doc, BMI_RIGHT_X, bmiBenchDataY, BMI_RIGHT_W, bmiBenchDataH, C.white, C.borderBlue, 0.2);
   bmiRCX = BMI_RIGHT_X;
-  ['≤ 14.60', '< 17.20', '< 20.20', '< 23.20'].forEach((v) => {
+  ['<= 14.60', '< 17.20', '< 20.20', '< 23.20'].forEach((v) => {
     doc.setFontSize(6.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...C.textBlue);

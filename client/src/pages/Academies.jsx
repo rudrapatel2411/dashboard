@@ -67,6 +67,7 @@ const Academies = () => {
               budget: '₹4,00,000 / Year',
               gradient,
               students: [],
+              studentCount: acad.studentCount || 0,
               isDb: true
             };
           });
@@ -159,8 +160,10 @@ const Academies = () => {
 
   // Statistics Calculation
   const totalAcademies = academies.length;
-  const allStudents = academies.flatMap(a => a.students);
-  const totalEnrolled = allStudents.length;
+  const totalEnrolled = academies.reduce((acc, curr) => {
+    const count = curr.isDb && curr.students.length === 0 ? (curr.studentCount || 0) : curr.students.length;
+    return acc + count;
+  }, 0);
   
   // Total Sports Tracked
   const uniqueSportsCount = new Set(academies.map(a => a.sport).filter(Boolean)).size || 0;
@@ -287,7 +290,7 @@ const Academies = () => {
                   <div className="flex items-center gap-4 self-end md:self-center">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-secondary text-xs font-bold rounded-full">
                       <Users size={14} />
-                      {acad.students.length} Enrolled
+                      {acad.isDb && acad.students.length === 0 ? acad.studentCount || 0 : acad.students.length} Enrolled
                     </span>
                     <div className="text-slate-400">
                       {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
